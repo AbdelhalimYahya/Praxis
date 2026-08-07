@@ -1,1 +1,757 @@
-[]
+[
+  {
+    "id": "java-v-01",
+    "sectionId": "java-developer",
+    "type": "verbal",
+    "title": "JVM Memory Model & Garbage Collection",
+    "prompt": "Explain the JVM memory model: heap, stack, and Metaspace. How does garbage collection work, and why was Metaspace introduced in Java 8?",
+    "difficulty": "medium",
+    "tags": ["JVM", "memory model", "heap", "stack", "metaspace", "garbage collection"],
+    "points": 10,
+    "hints": [
+      "Split your answer into three regions: heap, JVM stack, and Metaspace — what lives in each?",
+      "Mention that heap objects are collected by GC generations (young vs old), while stack frames are freed on method return.",
+      "Recall that pre-Java 8 permanent generation (PermGen) had a fixed size, which Metaspace replaces with native memory.",
+      "Name a concrete GC algorithm, e.g., G1, and when it runs (minor/major/full GC)."
+    ],
+    "idealAnswer": "The JVM divides memory into several runtime areas. The heap is the shared region where all class instances and arrays are allocated; it is managed by the garbage collector and is typically split into young generation (Eden + survivor spaces) and old generation (tenured). The JVM stack is per-thread and holds frames containing local variables, partial results, and references; a frame is pushed on method call and popped on return, so stack memory is freed deterministically. Metaspace (Java 8+) stores class metadata and static fields that were previously in the permanent generation (PermGen); unlike PermGen it resides in native memory and grows by default, reducing OutOfMemoryError risks caused by fixed class metadata limits. Garbage collection reclaims unreachable objects. Most collectors are generational and tracing-based (e.g., G1): objects start in Eden, survive in survivor spaces after minor GCs, and get promoted to the old generation; when the old generation fills, a major/full GC runs. Modern collectors like G1 and ZGC aim for low, predictable pause times and reclaim large portions of the heap concurrently with application threads.",
+    "keyPoints": [
+      "Heap = objects/arrays, shared, GC-managed, generational (young + old).",
+      "Stack = per-thread frames with locals; freed on method return.",
+      "Metaspace = class metadata in native memory, replaces PermGen, auto-grows.",
+      "GC is tracing/generational: minor GC on young gen, major/full GC on old gen; G1/ZGC pursue low pauses."
+    ],
+    "minWords": 120
+  },
+  {
+    "id": "java-v-02",
+    "sectionId": "java-developer",
+    "type": "verbal",
+    "title": "String Immutability & String vs StringBuilder",
+    "prompt": "Why are Strings immutable in Java, and what are the practical differences between String, StringBuilder, and StringBuffer?",
+    "difficulty": "medium",
+    "tags": ["String", "immutability", "StringBuilder", "StringBuffer", "String pool"],
+    "points": 10,
+    "hints": [
+      "Think about why immutability helps with thread safety, caching, and the string pool.",
+      "Remember that String concatenation in a loop creates many intermediate objects — mention that.",
+      "StringBuilder vs StringBuffer: the difference is synchronization.",
+      "Mention Java 17+ features like text blocks and the compact strings storage optimization."
+    ],
+    "idealAnswer": "String objects are immutable: once created, their char sequence cannot change (the internal byte/char array is final and not exposed). This gives several benefits: immutability makes Strings naturally thread-safe, allows them to be safely cached (hashCode is computed once and reused), and enables the string pool — literals are interned so equal strings share one instance, saving memory. Immutability also makes Strings safe as hash map keys because their hashCode never changes. The downside is that repeated concatenation, e.g., in a loop, creates a new String per iteration, which is inefficient. StringBuilder is a mutable char sequence with no synchronization, making it the fastest choice for building strings in single-threaded code; StringBuffer is identical in API but synchronizes its methods, so it is thread-safe yet slower. Since Java 9+, Strings are stored as bytes (LATIN-1 or UTF-16) with a coder flag, so ASCII-only strings use half the memory. Java 15+ text blocks make multiline string literals much more readable.",
+    "keyPoints": [
+      "Strings are immutable -> thread-safe, hash-safe, poolable.",
+      "Concatenation in loops is inefficient; use StringBuilder.",
+      "StringBuilder = unsynchronized/fast; StringBuffer = synchronized/slow.",
+      "Java 9+ compact strings store as bytes; text blocks improve multiline literals."
+    ],
+    "minWords": 100
+  },
+  {
+    "id": "java-v-03",
+    "sectionId": "java-developer",
+    "type": "verbal",
+    "title": "equals/hashCode Contract",
+    "prompt": "Explain the equals() and hashCode() contract in Java. Why must they be consistent, and what happens if you override one but not the other?",
+    "difficulty": "medium",
+    "tags": ["equals", "hashCode", "contract", "HashMap", "object equality"],
+    "points": 10,
+    "hints": [
+      "State the three properties of equals: reflexivity, symmetry, transitivity, plus consistency and non-null.",
+      "The contract with hashCode: equal objects must have equal hash codes.",
+      "Think of HashMap/HashSet: they use hashCode to find the bucket, equals to confirm the match.",
+      "Consider what breaks when hashCode is omitted — lookup failures.",
+      "Java 17: hashCode of a record is derived automatically from components."
+    ],
+    "idealAnswer": "The equals(Object) contract requires reflexivity (x.equals(x) is true), symmetry, transitivity, consistency (repeated calls give the same result for unchanged objects), and that x.equals(null) is false. The hashCode() contract states that two objects that are equal per equals() must produce the same hash code; unequal objects may share a hash code, but fewer collisions improve hash-table performance. These two methods are tightly coupled because collections like HashMap and HashSet rely on hashCode to locate the bucket and equals to resolve collisions. If you override equals but not hashCode, two equal objects can land in different buckets, so contains()/get() fail even though equality holds — a classic bug. Overriding hashCode without equals breaks the mathematical equality that the contract requires and lets distinct objects be treated as duplicates. Practical guidance: always override both together, use Objects.equals() and Objects.hash() (or Java 7+ Arrays helper) to avoid null handling, and prefer final fields so the hash code is stable. Since Java 16, records auto-generate equals and hashCode from components, eliminating this error-prone boilerplate for data carriers.",
+    "keyPoints": [
+      "equals: reflexive, symmetric, transitive, consistent, null-safe.",
+      "Equal objects must share a hashCode (the core contract).",
+      "HashMap buckets = hashCode; collision resolution = equals.",
+      "Override both together or use records to get them for free."
+    ],
+    "minWords": 90
+  },
+  {
+    "id": "java-v-04",
+    "sectionId": "java-developer",
+    "type": "verbal",
+    "title": "Java Streams & Functional Programming",
+    "prompt": "Describe the Stream API in Java. What are intermediate vs terminal operations, and how does functional-style processing differ from traditional loops?",
+    "difficulty": "medium",
+    "tags": ["streams", "functional programming", "lambda", "intermediate operations", "terminal operations"],
+    "points": 10,
+    "hints": [
+      "Distinguish intermediate (lazy, return a stream) from terminal (eager, produce a result) operations.",
+      "Mention common ones: map, filter, flatMap, sorted vs collect, reduce, forEach.",
+      "Laziness matters: intermediate ops don't execute until a terminal op runs.",
+      "Mention parallel streams, orElse vs orElseGet, and Collectors.toList()/groupingBy() as modern idiom."
+    ],
+    "idealAnswer": "Streams are a lazy sequence abstraction over a data source, enabling declarative, functional-style processing. The pipeline has three parts: a source (collection, array, stream factory), zero or more intermediate operations, and exactly one terminal operation. Intermediate operations such as map, filter, flatMap, sorted, and distinct are lazy — they return a new stream and do no work until a terminal operation is invoked. Terminal operations such as collect, reduce, forEach, count, and anyMatch are eager and produce a result or side effect; only they trigger the whole pipeline. Compared to an imperative loop with an accumulator variable, streams express intent more readably (filter + map + collect instead of nested loops and mutable temp lists), compose naturally, and can be parallelized by simply calling parallel(). Key idioms include Collectors.toList(), Collectors.groupingBy(), Collectors.toMap(), and Optional chaining for null-safe results (orElse, orElseGet, map on Optional). Common pitfalls: reusing a consumed stream (IllegalStateException), forgetting that intermediate ops are lazy so nothing runs without a terminal op, and performance overhead when boxing or iterating tiny datasets. Java 17 adds Stream.toList() and Stream.mapMulti, making common pipelines shorter.",
+    "keyPoints": [
+      "Intermediate ops are lazy; terminal ops trigger execution.",
+      "Composition replaces loops/accumulators -> more declarative and testable.",
+      "parallel() gives easy parallelism; collect/toList finishes pipelines.",
+      "Pitfalls: consumed streams, laziness surprises, boxing overhead."
+    ],
+    "minWords": 100
+  },
+  {
+    "id": "java-v-05",
+    "sectionId": "java-developer",
+    "type": "verbal",
+    "title": "Checked vs Unchecked Exceptions",
+    "prompt": "Explain the difference between checked and unchecked exceptions in Java. When should you use each, and how does try-with-resources simplify resource handling?",
+    "difficulty": "medium",
+    "tags": ["exceptions", "checked", "unchecked", "try-with-resources", "exception handling"],
+    "points": 10,
+    "hints": [
+      "Checked exceptions extend Exception (not RuntimeException) and must be declared or caught at compile time.",
+      "Unchecked exceptions extend RuntimeException (and Error) and are not enforced by the compiler.",
+      "IOException, SQLException are checked; NullPointerException, IllegalArgumentException, ArithmeticException are unchecked.",
+      "Mention try-with-resources (Java 7+) for AutoCloseable and that a finally block can still be added.",
+      "Java 17: multi-catch and the var keyword; think about when throwing checked exceptions is appropriate."
+    ],
+    "idealAnswer": "Checked exceptions extend Exception but not RuntimeException; the compiler forces callers to handle them — either with a try/catch or by declaring them in the method signature with throws. They represent recoverable, anticipated conditions outside normal program flow, such as IOException when reading a file or SQLException on a bad query. Unchecked exceptions extend RuntimeException (or Error) and need no declaration or catch: NullPointerException, IllegalArgumentException, IllegalStateException, and ArithmeticException (division by zero) are examples. They usually indicate programming bugs or conditions that are not reasonably recoverable. Good practice: use checked exceptions for external, expected failures where the caller can meaningfully react; use unchecked exceptions for contract violations and defects. Over-using checked exceptions leads to verbose code; modern guidance favors unchecked exceptions plus clear documentation, with Optional as an alternative to null-returning methods. Since Java 7, try-with-resources automatically closes AutoCloseable resources, guaranteeing release of files, sockets, and JDBC connections even when an exception is thrown; you can add catch and finally blocks as usual. Java 17 also supports multi-catch (catch (IOException | SQLException e)) to handle multiple related checked exceptions without duplication.",
+    "keyPoints": [
+      "Checked: must be caught/declared; for recoverable external failures (IO, SQL).",
+      "Unchecked (RuntimeException): not enforced; for programming bugs.",
+      "Prefer unchecked for contract violations; Optional to avoid nulls.",
+      "try-with-resources auto-closes AutoCloseable resources reliably."
+    ],
+    "minWords": 90
+  },
+  {
+    "id": "java-c-01",
+    "sectionId": "java-developer",
+    "type": "coding",
+    "title": "Reverse Integer",
+    "prompt": "Given an integer n, return its digits reversed while preserving the sign. Use string reversal semantics (e.g., 120 becomes 21, -123 becomes -321).",
+    "difficulty": "easy",
+    "tags": ["math", "strings", "numbers"],
+    "points": 10,
+    "functionName": "reverseInteger",
+    "languageBoilerplate": {
+      "java": "public static int reverseInteger(int n) {\n    // your code here\n    return 0;\n}",
+      "javascript": "function reverseInteger(n) {\n  // your code here\n}"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [123],
+        "expectedOutput": 321
+      },
+      {
+        "id": "setup-2",
+        "input": [-123],
+        "expectedOutput": -321
+      },
+      {
+        "id": "setup-3",
+        "input": [120],
+        "expectedOutput": 21
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [123],
+        "expectedOutput": 321,
+        "description": "Reverses a positive integer"
+      },
+      {
+        "id": "t2",
+        "input": [-123],
+        "expectedOutput": -321,
+        "description": "Preserves the negative sign"
+      },
+      {
+        "id": "t3",
+        "input": [120],
+        "expectedOutput": 21,
+        "description": "Trailing zeros are dropped by string reversal semantics"
+      },
+      {
+        "id": "t4",
+        "input": [0],
+        "expectedOutput": 0,
+        "description": "Zero stays zero"
+      },
+      {
+        "id": "t5",
+        "input": [5],
+        "expectedOutput": 5,
+        "description": "Single digit is unchanged"
+      },
+      {
+        "id": "t6",
+        "input": [1000000003],
+        "expectedOutput": 3000000001,
+        "description": "Handles a large number within 32-bit int range"
+      },
+      {
+        "id": "t7",
+        "input": [900],
+        "expectedOutput": 9,
+        "description": "Multiple trailing zeros collapse to the leading digit"
+      },
+      {
+        "id": "t8",
+        "input": [-1],
+        "expectedOutput": -1,
+        "description": "Negative single digit preserves sign"
+      },
+      {
+        "id": "t9",
+        "input": [1000000000],
+        "expectedOutput": 1,
+        "description": "Large power of ten reverses to 1"
+      },
+      {
+        "id": "t10",
+        "input": [1000000007],
+        "expectedOutput": 7000000001,
+        "description": "Large prime reverses within int range"
+      },
+      {
+        "id": "t11",
+        "input": [-1000000001],
+        "expectedOutput": -1000000001,
+        "description": "Large negative palindrome-style value preserves sign"
+      },
+      {
+        "id": "t12",
+        "input": [101],
+        "expectedOutput": 101,
+        "description": "Palindromic number reverses to itself"
+      },
+      {
+        "id": "t13",
+        "input": [-1200],
+        "expectedOutput": -21,
+        "description": "Negative with trailing zeros keeps sign and drops zeros"
+      },
+      {
+        "id": "t14",
+        "input": [1000000001],
+        "expectedOutput": 1000000001,
+        "description": "Mirror value stays identical"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "n is a 32-bit signed integer.",
+      "Reverse using string reversal semantics (do not reverse by division math)."
+    ]
+  },
+  {
+    "id": "java-c-02",
+    "sectionId": "java-developer",
+    "type": "coding",
+    "title": "Count Characters",
+    "prompt": "Given a string s, return an object mapping each character to the number of times it appears. The comparison is case-sensitive and uses single characters as keys.",
+    "difficulty": "easy",
+    "tags": ["strings", "hash map", "counting"],
+    "points": 10,
+    "functionName": "countCharacters",
+    "languageBoilerplate": {
+      "java": "public static java.util.Map<Character, Integer> countCharacters(String s) {\n    // your code here\n    return new java.util.HashMap<>();\n}",
+      "javascript": "function countCharacters(s) {\n  // your code here\n}"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": ["aab"],
+        "expectedOutput": {
+          "a": 2,
+          "b": 1
+        }
+      },
+      {
+        "id": "setup-2",
+        "input": [""],
+        "expectedOutput": {}
+      },
+      {
+        "id": "setup-3",
+        "input": ["Aa"],
+        "expectedOutput": {
+          "A": 1,
+          "a": 1
+        }
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": ["aab"],
+        "expectedOutput": {
+          "a": 2,
+          "b": 1
+        },
+        "description": "Counts repeated and single characters"
+      },
+      {
+        "id": "t2",
+        "input": [""],
+        "expectedOutput": {},
+        "description": "Empty string yields an empty map"
+      },
+      {
+        "id": "t3",
+        "input": ["Aa"],
+        "expectedOutput": {
+          "A": 1,
+          "a": 1
+        },
+        "description": "Case-sensitive: uppercase and lowercase are distinct keys"
+      },
+      {
+        "id": "t4",
+        "input": ["hello world"],
+        "expectedOutput": {
+          "h": 1,
+          "e": 1,
+          "l": 3,
+          "o": 2,
+          " ": 1,
+          "w": 1,
+          "r": 1,
+          "d": 1
+        },
+        "description": "Spaces are counted as characters"
+      },
+      {
+        "id": "t5",
+        "input": ["aaaaaaaaaa"],
+        "expectedOutput": {
+          "a": 10
+        },
+        "description": "All identical characters"
+      },
+      {
+        "id": "t6",
+        "input": ["abca"],
+        "expectedOutput": {
+          "a": 2,
+          "b": 1,
+          "c": 1
+        },
+        "description": "Character appears at the beginning and end"
+      },
+      {
+        "id": "t7",
+        "input": ["123 123"],
+        "expectedOutput": {
+          "1": 2,
+          "2": 2,
+          "3": 2,
+          " ": 1
+        },
+        "description": "Digits and spaces are ordinary characters"
+      },
+      {
+        "id": "t8",
+        "input": ["aBc"],
+        "expectedOutput": {
+          "a": 1,
+          "B": 1,
+          "c": 1
+        },
+        "description": "Mixed case counts each character separately"
+      },
+      {
+        "id": "t9",
+        "input": ["aaaA"],
+        "expectedOutput": {
+          "a": 3,
+          "A": 1
+        },
+        "description": "Case-sensitivity with multiple lowercase and one uppercase"
+      },
+      {
+        "id": "t10",
+        "input": ["racecar"],
+        "expectedOutput": {
+          "r": 2,
+          "a": 2,
+          "c": 2,
+          "e": 1
+        },
+        "description": "Palindrome has mirrored counts"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "s may be empty.",
+      "Counts are case-sensitive.",
+      "Each key is a single character."
+    ]
+  },
+  {
+    "id": "java-c-03",
+    "sectionId": "java-developer",
+    "type": "coding",
+    "title": "Is Pangram",
+    "prompt": "Given a sentence, return true if it contains every letter of the English alphabet (a-z) at least once, ignoring case. Return false otherwise, including for an empty string.",
+    "difficulty": "easy",
+    "tags": ["strings", "alphabet", "set"],
+    "points": 10,
+    "functionName": "isPangram",
+    "languageBoilerplate": {
+      "java": "public static boolean isPangram(String sentence) {\n    // your code here\n    return false;\n}",
+      "javascript": "function isPangram(sentence) {\n  // your code here\n}"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": ["The quick brown fox jumps over the lazy dog"],
+        "expectedOutput": true
+      },
+      {
+        "id": "setup-2",
+        "input": ["Hello world"],
+        "expectedOutput": false
+      },
+      {
+        "id": "setup-3",
+        "input": [""],
+        "expectedOutput": false
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": ["The quick brown fox jumps over the lazy dog"],
+        "expectedOutput": true,
+        "description": "Classic pangram passes"
+      },
+      {
+        "id": "t2",
+        "input": ["Hello world"],
+        "expectedOutput": false,
+        "description": "Ordinary sentence is not a pangram"
+      },
+      {
+        "id": "t3",
+        "input": [""],
+        "expectedOutput": false,
+        "description": "Empty string is not a pangram"
+      },
+      {
+        "id": "t4",
+        "input": ["abcdefghijklmnopqrstuvwxyz"],
+        "expectedOutput": true,
+        "description": "Exact alphabet passes"
+      },
+      {
+        "id": "t5",
+        "input": ["ABCDEFGHIJKLMNOPQRSTUVWXYZ"],
+        "expectedOutput": true,
+        "description": "Uppercase alphabet passes"
+      },
+      {
+        "id": "t6",
+        "input": ["abcdefghijklmnopqrstuvwxy"],
+        "expectedOutput": false,
+        "description": "Missing z fails"
+      },
+      {
+        "id": "t7",
+        "input": ["Pack my box with five dozen liquor jugs"],
+        "expectedOutput": true,
+        "description": "Another known pangram"
+      },
+      {
+        "id": "t8",
+        "input": ["The five boxing wizards jump quickly"],
+        "expectedOutput": true,
+        "description": "Pangram with repeated words"
+      },
+      {
+        "id": "t9",
+        "input": ["abcdefghijklmnopqrstuvwxyZ"],
+        "expectedOutput": true,
+        "description": "Mixed case still passes"
+      },
+      {
+        "id": "t10",
+        "input": ["aaaaaaaaaaaaaaaaaaaaaaaaaa"],
+        "expectedOutput": false,
+        "description": "Repeated single letter fails"
+      },
+      {
+        "id": "t11",
+        "input": ["a b c d e f g h i j k l m n o p q r s t u v w x y z"],
+        "expectedOutput": true,
+        "description": "Letters separated by spaces pass"
+      },
+      {
+        "id": "t12",
+        "input": ["Jived fox nymph grabs quick waltz"],
+        "expectedOutput": true,
+        "description": "Short pangram passes"
+      },
+      {
+        "id": "t13",
+        "input": ["Glib jocks quiz nymph to vex dwarf"],
+        "expectedOutput": true,
+        "description": "Pangram with uncommon letters q and x"
+      },
+      {
+        "id": "t14",
+        "input": ["zyxwvutsrqponmlkjihgfedcba"],
+        "expectedOutput": true,
+        "description": "Reversed alphabet passes"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Comparison is case-insensitive.",
+      "Only English letters a-z count; digits, spaces, and punctuation are ignored.",
+      "Empty input returns false."
+    ]
+  },
+  {
+    "id": "java-c-04",
+    "sectionId": "java-developer",
+    "type": "coding",
+    "title": "Sum of Squares",
+    "prompt": "Given an array of numbers, return the sum of the squares of each element. An empty array yields 0, and negatives are squared so their contribution is positive.",
+    "difficulty": "easy",
+    "tags": ["arrays", "math", "sum"],
+    "points": 10,
+    "functionName": "sumOfSquares",
+    "languageBoilerplate": {
+      "java": "public static double sumOfSquares(double[] nums) {\n    // your code here\n    return 0.0;\n}",
+      "javascript": "function sumOfSquares(nums) {\n  // your code here\n}"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [[1, 2, 3]],
+        "expectedOutput": 14
+      },
+      {
+        "id": "setup-2",
+        "input": [[]],
+        "expectedOutput": 0
+      },
+      {
+        "id": "setup-3",
+        "input": [[-1, 2]],
+        "expectedOutput": 5
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [[1, 2, 3]],
+        "expectedOutput": 14,
+        "description": "1 + 4 + 9"
+      },
+      {
+        "id": "t2",
+        "input": [[]],
+        "expectedOutput": 0,
+        "description": "Empty array sums to zero"
+      },
+      {
+        "id": "t3",
+        "input": [[-1, 2]],
+        "expectedOutput": 5,
+        "description": "Negative numbers contribute positive squares"
+      },
+      {
+        "id": "t4",
+        "input": [[0]],
+        "expectedOutput": 0,
+        "description": "Single zero"
+      },
+      {
+        "id": "t5",
+        "input": [[5]],
+        "expectedOutput": 25,
+        "description": "Single element is squared"
+      },
+      {
+        "id": "t6",
+        "input": [[-5]],
+        "expectedOutput": 25,
+        "description": "Single negative element squared"
+      },
+      {
+        "id": "t7",
+        "input": [[2, -3, 4]],
+        "expectedOutput": 29,
+        "description": "4 + 9 + 16 with a negative in the middle"
+      },
+      {
+        "id": "t8",
+        "input": [[1, 1, 1, 1, 1]],
+        "expectedOutput": 5,
+        "description": "All ones"
+      },
+      {
+        "id": "t9",
+        "input": [[-2, -2, -2]],
+        "expectedOutput": 12,
+        "description": "All negatives square to the same value"
+      },
+      {
+        "id": "t10",
+        "input": [[10, 10]],
+        "expectedOutput": 200,
+        "description": "Large squares"
+      },
+      {
+        "id": "t11",
+        "input": [[0.5, 1.5]],
+        "expectedOutput": 2.5,
+        "description": "Decimals: 0.25 + 2.25"
+      },
+      {
+        "id": "t12",
+        "input": [[-0.5, 0.5]],
+        "expectedOutput": 0.5,
+        "description": "Negative and positive decimal squares"
+      },
+      {
+        "id": "t13",
+        "input": [[100, -100]],
+        "expectedOutput": 20000,
+        "description": "Symmetric large values"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "nums may be empty; an empty array returns 0.",
+      "Negative numbers are squared before summing.",
+      "Values may be decimals."
+    ]
+  },
+  {
+    "id": "java-c-05",
+    "sectionId": "java-developer",
+    "type": "coding",
+    "title": "Merge Sorted Arrays",
+    "prompt": "Given two already-sorted arrays a and b, return a new array containing all elements from both, sorted in non-decreasing order. Duplicates are preserved.",
+    "difficulty": "easy",
+    "tags": ["arrays", "merge", "sorting", "two pointers"],
+    "points": 10,
+    "functionName": "mergeSortedArrays",
+    "languageBoilerplate": {
+      "java": "public static int[] mergeSortedArrays(int[] a, int[] b) {\n    // your code here\n    return new int[0];\n}",
+      "javascript": "function mergeSortedArrays(a, b) {\n  // your code here\n}"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [[1, 3, 5], [2, 4, 6]],
+        "expectedOutput": [1, 2, 3, 4, 5, 6]
+      },
+      {
+        "id": "setup-2",
+        "input": [[], []],
+        "expectedOutput": []
+      },
+      {
+        "id": "setup-3",
+        "input": [[1, 2], [3]],
+        "expectedOutput": [1, 2, 3]
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [[1, 3, 5], [2, 4, 6]],
+        "expectedOutput": [1, 2, 3, 4, 5, 6],
+        "description": "Interleaved sorted arrays"
+      },
+      {
+        "id": "t2",
+        "input": [[], []],
+        "expectedOutput": [],
+        "description": "Both arrays empty"
+      },
+      {
+        "id": "t3",
+        "input": [[1, 2], [3]],
+        "expectedOutput": [1, 2, 3],
+        "description": "First array holds the smaller elements"
+      },
+      {
+        "id": "t4",
+        "input": [[1, 1, 2], [1, 3]],
+        "expectedOutput": [1, 1, 1, 2, 3],
+        "description": "Duplicates across both arrays are preserved"
+      },
+      {
+        "id": "t5",
+        "input": [[], [1, 2, 3]],
+        "expectedOutput": [1, 2, 3],
+        "description": "One array empty"
+      },
+      {
+        "id": "t6",
+        "input": [[7, 8, 9], [1, 2, 3]],
+        "expectedOutput": [1, 2, 3, 7, 8, 9],
+        "description": "Second array entirely smaller"
+      },
+      {
+        "id": "t7",
+        "input": [[1, 2, 3], [4, 5, 6]],
+        "expectedOutput": [1, 2, 3, 4, 5, 6],
+        "description": "First array entirely smaller"
+      },
+      {
+        "id": "t8",
+        "input": [[5], [5]],
+        "expectedOutput": [5, 5],
+        "description": "Equal single elements keep both copies"
+      },
+      {
+        "id": "t9",
+        "input": [[-3, -1], [-2, 0]],
+        "expectedOutput": [-3, -2, -1, 0],
+        "description": "Negative values interleave correctly"
+      },
+      {
+        "id": "t10",
+        "input": [[1, 1, 1], [1]],
+        "expectedOutput": [1, 1, 1, 1],
+        "description": "All duplicates"
+      },
+      {
+        "id": "t11",
+        "input": [[2], []],
+        "expectedOutput": [2],
+        "description": "Single element with empty second array"
+      },
+      {
+        "id": "t12",
+        "input": [[1, 4, 7], [2, 3, 8]],
+        "expectedOutput": [1, 2, 3, 4, 7, 8],
+        "description": "Alternating gaps"
+      },
+      {
+        "id": "t13",
+        "input": [[1000000000, 2000000000], [-1000000000]],
+        "expectedOutput": [-1000000000, 1000000000, 2000000000],
+        "description": "Very large and very small ints"
+      },
+      {
+        "id": "t14",
+        "input": [[0, 0, 1], [0, 0]],
+        "expectedOutput": [0, 0, 0, 0, 1],
+        "description": "Leading zeros in both arrays"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Both inputs are already sorted in non-decreasing order.",
+      "Duplicates are preserved; the output must be sorted.",
+      "Either array may be empty."
+    ]
+  }
+]
