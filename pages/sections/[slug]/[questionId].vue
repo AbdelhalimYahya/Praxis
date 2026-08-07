@@ -46,8 +46,9 @@ useHead({
     </div>
 
     <div class="mt-6">
-      <p class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-500 dark:border-gray-700">
-        {{ question.type === 'verbal' ? 'Answer workspace coming soon.' : 'Coding workspace coming soon.' }}
+      <VerbalAnswerEditor v-if="question.type === 'verbal'" :question="question" />
+      <p v-else class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-500 dark:border-gray-700">
+        Coding workspace coming soon.
       </p>
     </div>
 
