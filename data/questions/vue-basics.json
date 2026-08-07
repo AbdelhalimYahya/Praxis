@@ -1,1 +1,123 @@
-[]
+[
+  {
+    "id": "vue-v-01",
+    "sectionId": "vue-basics",
+    "type": "verbal",
+    "title": "How does Vue 3's reactivity system work?",
+    "prompt": "Explain how Vue 3's reactivity system works under the hood. Mention ref and reactive, JavaScript Proxies, and how dependency tracking (collect/subscribe and trigger/notify) is performed.",
+    "difficulty": "medium",
+    "tags": ["vue", "reactivity", "ref", "reactive", "proxy", "dependency-tracking"],
+    "points": 10,
+    "hints": [
+      "Think about what replaces the Object.defineProperty approach from Vue 2.",
+      "How does Vue know which effects depend on which reactive values?",
+      "What is the difference between ref and reactive for primitives vs objects?"
+    ],
+    "idealAnswer": "Vue 3's reactivity system is built on the Proxy API rather than Object.defineProperty, so it can intercept get/set (and other traps) on objects and arrays, including newly added properties and indexed changes. When a component's render effect (or a computed/watch) reads a reactive value inside a tracking scope, Vue records the dependency, then subscribes that effect to the value. When the value is later written, the setter trap triggers the effect to re-run, invalidating computations and re-rendering. ref wraps a value in a reactive object with a .value property, which makes primitives reactive, while reactive() returns a deeply reactive proxy directly. Vue 3.3+ also added ref() with shallowRef for selective deepness and reactive transforms, but the core model stays: intercept access, track dependencies, then notify subscribers on mutation.",
+    "keyPoints": [
+      "Uses JavaScript Proxy (not Object.defineProperty) for interception",
+      "Dependency tracking: reads collect subscribers, writes trigger/notify them",
+      "ref wraps values in { value } for primitives; reactive() works on objects",
+      "Effects (render, computed, watchers) are re-run when tracked dependencies change",
+      "Covers arrays and dynamic property additions that Vue 2 could not"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "vue-v-02",
+    "sectionId": "vue-basics",
+    "type": "verbal",
+    "title": "What are Vue 3 component lifecycle hooks and when do they run?",
+    "prompt": "Describe the main lifecycle hooks available in Vue 3 (using the Composition API names), the order in which they run, and when each one is appropriate to use.",
+    "difficulty": "medium",
+    "tags": ["vue", "lifecycle", "composition-api", "onMounted", "onUnmounted"],
+    "points": 10,
+    "hints": [
+      "Order matters: setup, onBeforeMount, onMounted, onBeforeUpdate, onUpdated, onBeforeUnmount, onUnmounted.",
+      "Where do you typically fetch data or start timers? Where do you clean them up?",
+      "onBeforeMount runs before the DOM is patched; onMounted after."
+    ],
+    "idealAnswer": "In Vue 3 the Composition API exposes lifecycle hooks as imported functions used inside setup(), and each component still goes through the same overall sequence. setup() runs first, before the component is created, which is where most reactive state is declared. onBeforeMount fires just before the DOM is mounted, onMounted fires after the component has been inserted into the DOM, which is the usual place for API calls, event listeners, and third-party library initialization that needs the DOM. onBeforeUpdate runs before a re-render when reactive data changes, and onUpdated runs after the DOM has been patched, which is good for DOM-dependent operations that must run after render. onBeforeUnmount fires just before teardown and onUnmounted right after the instance is removed, which is where timers, intervals, subscriptions, and event listeners should be cleaned up to avoid leaks. Other hooks exist such as onActivated/onDeactivated for keep-alive and onErrorCaptured for errors, but the create/mount/update/unmount sequence is the core.",
+    "keyPoints": [
+      "Hooks run in order: setup -> onBeforeMount -> onMounted -> onBeforeUpdate -> onUpdated -> onBeforeUnmount -> onUnmounted",
+      "onMounted: fetch data, add DOM-dependent listeners, init libraries",
+      "onUnmounted: clean up timers, listeners, subscriptions to prevent leaks",
+      "Composition API imports hooks (onMounted, onUnmounted) instead of options",
+      "Extra hooks: onActivated/onDeactivated (keep-alive), onErrorCaptured"
+    ],
+    "minWords": 35
+  },
+  {
+    "id": "vue-v-03",
+    "sectionId": "vue-basics",
+    "type": "verbal",
+    "title": "computed vs watch — when should you use each?",
+    "prompt": "Compare computed and watch in Vue 3. Explain the difference between declarative derivation and imperative side effects, and give examples of when each is the right tool.",
+    "difficulty": "medium",
+    "tags": ["vue", "computed", "watch", "reactivity"],
+    "points": 10,
+    "hints": [
+      "computed derives a value; watch observes and performs side effects.",
+      "Do you need the result in the template? That is a computed job.",
+      "watch can be async; computed must be synchronous and pure."
+    ],
+    "idealAnswer": "computed is for declarative, derived state: you declare a synchronous, pure function that returns a value based on reactive inputs, and Vue caches the result, only recomputing when its dependencies change. Use computed when you need a derived value shown in the template or used elsewhere, such as a filtered list or a formatted price. watch, by contrast, is for running side effects in response to a reactive change, such as calling an API, persisting to localStorage, or writing to the console — the kind of thing that does not return a value to the template. Unlike computed, watch can be async, can access the old and new value, and can watch multiple sources at once (including nested properties with deep: true). The rule of thumb: if it produces a value that is rendered or consumed, use computed; if it triggers an action with side effects, use watch.",
+    "keyPoints": [
+      "computed: cached, synchronous, pure, derives values for templates",
+      "watch: imperative side effects (API calls, persistence, logging)",
+      "watch supports async work, old/new values, multiple sources, deep watching",
+      "Never mutate reactive state inside computed — that is a side effect",
+      "Prefer computed when the result is consumed; watch for actions"
+    ],
+    "minWords": 35
+  },
+  {
+    "id": "vue-v-04",
+    "sectionId": "vue-basics",
+    "type": "verbal",
+    "title": "How do props and emits enforce one-way data flow in Vue 3?",
+    "prompt": "Explain the props/emits model in Vue 3: how parent-to-child data flows down, how child communicates up via events, and the role of defineProps and defineEmits in script setup.",
+    "difficulty": "easy",
+    "tags": ["vue", "props", "emits", "one-way-data-flow", "script-setup"],
+    "points": 10,
+    "hints": [
+      "Data flows down, events flow up.",
+      "Children should never mutate props directly.",
+      "defineProps and defineEmits are compile-time macros in script setup."
+    ],
+    "idealAnswer": "In Vue 3 the data flow is one-way: props flow from parent to child, and children communicate with parents by emitting events. A child receives readonly props declared with defineProps() in script setup, and it must not mutate them directly; if it needs to change a value, it emits an event with defineEmits(), and the parent listens with v-on and updates its own state. This keeps state ownership clear and predictable: the parent owns the data, the child only requests changes. Props can be typed and validated (with default, required, validator), and emits can be declared with runtime or TypeScript validation. Typical patterns include emitting update:modelValue or update:myProp to support v-model, or emitting custom events like submit or delete.",
+    "keyPoints": [
+      "One-way flow: parent passes props down, child emits events up",
+      "defineProps() declares and types incoming props (readonly, do not mutate)",
+      "defineEmits() declares events the child can emit",
+      "Parent listens with v-on and owns/updates the state",
+      "v-model is sugar for :modelValue + @update:modelValue"
+    ],
+    "minWords": 30
+  },
+  {
+    "id": "vue-v-05",
+    "sectionId": "vue-basics",
+    "type": "verbal",
+    "title": "Composition API vs Options API — benefits and when to prefer each",
+    "prompt": "Compare the Composition API and the Options API in Vue 3. Discuss maintainability, code organization, reusability, and when you would choose one over the other.",
+    "difficulty": "hard",
+    "tags": ["vue", "composition-api", "options-api", "architecture"],
+    "points": 10,
+    "hints": [
+      "Composition API groups code by logical concern; Options API by type (data, methods).",
+      "Reusability: composables vs mixins.",
+      "Options API can be simpler for small components; Composition API scales better.",
+      "TypeScript inference is cleaner with the Composition API."
+    ],
+    "idealAnswer": "The Options API organizes a component by option blocks (data, methods, computed, watch), which is beginner-friendly and works well for small or simple components where a logical feature's code stays in one option. However, when a component grows, related code for a single concern (state, computed, methods) becomes scattered across options, making it harder to read and refactor. The Composition API instead groups code by logical feature inside setup(), using ref/reactive, computed, watch, and lifecycle hooks, so everything related to one concern lives together. This improves maintainability at scale and makes reuse trivial through composables (functions like useFetch or useWindowSize) with full access to reactivity, which replaces the pitfalls of mixins (naming collisions, unclear source of state). It also gives better TypeScript inference and ergonomics. The common guidance is: for simple, tutorial-style components you can prefer the Options API or Composition API depending on team familiarity, but for complex, long-lived, or team-based codebases with shared logic, the Composition API with script setup and composables is generally preferred. You can mix both in the same component, though it is usually best to be consistent.",
+    "keyPoints": [
+      "Options API: organized by data/methods/computed/watch; easier for beginners and small components",
+      "Composition API: organized by logical concern inside setup(); scales better",
+      "Composables give clean reuse (functions with reactivity) vs mixins' collision problems",
+      "Composition API has better TypeScript inference and tree-shaking friendliness",
+      "Can be mixed, but consistency matters; both are valid in Vue 3"
+    ],
+    "minWords": 40
+  }
+]
