@@ -1,0 +1,64 @@
+[
+  {
+    "id": "js-verbal-001",
+    "sectionId": "javascript-fundamentals",
+    "type": "verbal",
+    "title": "Explain closures in JavaScript",
+    "prompt": "What is a closure in JavaScript? Give an example of when you would use one.",
+    "difficulty": "medium",
+    "tags": ["closures", "scope"],
+    "points": 10,
+    "idealAnswer": "A closure is a function that retains access to variables from its enclosing lexical scope even after the outer function has finished executing. The inner function keeps a reference to its outer scope, so the variables stay alive as long as the closure exists. Closures are commonly used for data privacy, factory functions, and memoization.",
+    "keyPoints": [
+      "lexical scope",
+      "function retains access after the outer function returns",
+      "used for data privacy, factory functions, or memoization"
+    ],
+    "minWords": 25,
+    "hints": ["Think about what happens to variables when an outer function returns."]
+  },
+  {
+    "id": "js-verbal-002",
+    "sectionId": "javascript-fundamentals",
+    "type": "verbal",
+    "title": "Explain the event loop",
+    "prompt": "What is the event loop in JavaScript and how does it handle asynchronous code?",
+    "difficulty": "hard",
+    "tags": ["async", "event-loop"],
+    "points": 15,
+    "idealAnswer": "The event loop is what lets JavaScript, which is single-threaded, handle asynchronous operations without blocking. The call stack runs synchronous code; async operations like timers and network calls are handed to the Web APIs / runtime. When they finish, their callbacks go into task queues (microtasks vs macrotasks). The event loop continuously checks: when the call stack is empty, it pushes pending callbacks from the queue back onto the stack. Microtasks (promises) run before macrotasks (timers, I/O).",
+    "keyPoints": [
+      "single-threaded call stack",
+      "Web APIs / runtime handle async work",
+      "task queues for callbacks",
+      "microtasks run before macrotasks"
+    ],
+    "minWords": 30
+  },
+  {
+    "id": "js-coding-001",
+    "sectionId": "javascript-fundamentals",
+    "type": "coding",
+    "title": "Two Sum",
+    "prompt": "Given an array of integers `nums` and an integer `target`, return the indices of the two numbers that add up to `target`. You may assume exactly one solution exists.",
+    "difficulty": "easy",
+    "tags": ["arrays", "hashmap"],
+    "points": 10,
+    "functionName": "twoSum",
+    "languageBoilerplate": {
+      "javascript": "function twoSum(nums, target) {\n  // your code here\n}",
+      "python": "def two_sum(nums, target):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [[2, 7, 11, 15], 9], "expectedOutput": [0, 1] },
+      { "id": "setup-2", "input": [[3, 2, 4], 6], "expectedOutput": [1, 2] }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [[2, 7, 11, 15], 9], "expectedOutput": [0, 1] },
+      { "id": "t2", "input": [[3, 2, 4], 6], "expectedOutput": [1, 2] },
+      { "id": "t3", "input": [[3, 3], 6], "expectedOutput": [0, 1] }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": ["2 <= nums.length <= 10^4", "-10^9 <= nums[i], target <= 10^9", "Only one valid answer exists."]
+  }
+]

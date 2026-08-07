@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { z } from 'zod'
 import type { Language } from '../types/question'
+import type { Question } from '../types/question'
 import type { Section } from '../types/section'
 
 const SectionSchema = z.object({
@@ -26,6 +27,47 @@ const LanguageSchema = z.object({
 }) satisfies z.ZodType<Language>
 
 const LanguagesSchema = z.array(LanguageSchema)
+
+const TestCaseSchema = z.object({
+  id: z.string().min(1),
+  input: z.array(z.unknown()),
+  expectedOutput: z.unknown(),
+  hidden: z.boolean().optional(),
+  description: z.string().optional(),
+})
+
+const BaseQuestionSchema = z.object({
+  id: z.string().min(1),
+  sectionId: z.string().min(1),
+  type: z.enum(['verbal', 'coding']),
+  title: z.string().min(1),
+  prompt: z.string().min(1),
+  difficulty: z.enum(['easy', 'medium', 'hard']),
+  tags: z.array(z.string()),
+  points: z.number().int().nonnegative(),
+  hints: z.array(z.string()).optional(),
+})
+
+const VerbalQuestionSchema = BaseQuestionSchema.extend({
+  type: z.literal('verbal'),
+  idealAnswer: z.string().min(1),
+  keyPoints: z.array(z.string()),
+  minWords: z.number().int().nonnegative().optional(),
+})
+
+const CodingQuestionSchema = BaseQuestionSchema.extend({
+  type: z.literal('coding'),
+  functionName: z.string().min(1),
+  languageBoilerplate: z.record(z.string(), z.string()),
+  setupTests: z.array(TestCaseSchema),
+  fullTests: z.array(TestCaseSchema),
+  timeLimitMs: z.number().int().positive().optional(),
+  constraints: z.array(z.string()).optional(),
+})
+
+const QuestionSchema = z.discriminatedUnion('type', [VerbalQuestionSchema, CodingQuestionSchema]) satisfies z.ZodType<Question>
+
+const QuestionsSchema = z.array(QuestionSchema)
 
 function fail(message: string): never {
   console.error(`VALIDATION FAILED: ${message}`)
@@ -77,3 +119,55 @@ for (const [index, language] of languages.data.entries()) {
 }
 
 console.log(`OK: ${languages.data.length} languages validated against schema (unique ids).`)
+
+// --- questions (one file per section slug) ---
+const questionsDir = resolve('data/questions')
+const questionFiles = readdirSync(questionsDir).filter((name) => name.endsWith('.json'))
+const questionIds = new Set<string>()
+let totalQuestions = 0
+
+for (const file of questionFiles) {
+  const slug = file.replace(/\.json$/, '')
+  if (!slugs.has(slug)) fail(`question file "${file}" has no matching section slug in data/sections.json`)
+
+  const parsed = QuestionsSchema.safeParse(readJson(`data/questions/${file}`))
+  if (!parsed.success) {
+    fail(`data/questions/${file} ${parsed.error.toString()}`)
+  }
+
+  for (const [index, question] of parsed.data.entries()) {
+    if (questionIds.has(question.id)) fail(`duplicate question id "${question.id}" (in ${file})`)
+    questionIds.add(question.id)
+
+    if (!ids.has(question.sectionId)) {
+      fail(`question "${question.id}" references unknown sectionId "${question.sectionId}"`)
+    }
+    if (question.sectionId !== slug) {
+      fail(`question "${question.id}" in ${file} has sectionId "${question.sectionId}" that does not match the file slug "${slug}"`)
+    }
+
+    if (question.type === 'coding') {
+      if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(question.functionName)) {
+        fail(`question "${question.id}" functionName "${question.functionName}" is not a valid identifier`)
+      }
+      if (question.setupTests.length === 0) fail(`coding question "${question.id}" has no setupTests`)
+      if (question.fullTests.length === 0) fail(`coding question "${question.id}" has no fullTests`)
+      const boilerplateIds = Object.keys(question.languageBoilerplate)
+      for (const langId of boilerplateIds) {
+        if (!languageIds.has(langId)) {
+          fail(`coding question "${question.id}" boilerplate references unknown language "${langId}"`)
+        }
+      }
+    }
+  }
+
+  totalQuestions += parsed.data.length
+}
+
+for (const section of sections.data) {
+  if (!existsSync(resolve(`data/questions/${section.slug}.json`))) {
+    fail(`section "${section.slug}" has no matching data/questions/${section.slug}.json file`)
+  }
+}
+
+console.log(`OK: ${questionFiles.length} question files, ${totalQuestions} questions validated against schema (unique ids, valid sectionId references).`)
