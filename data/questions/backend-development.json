@@ -1,1 +1,206 @@
-[]
+[
+  {
+    "id": "be-v-01",
+    "sectionId": "backend-development",
+    "type": "verbal",
+    "title": "REST vs GraphQL: when to choose GraphQL",
+    "prompt": "Compare REST and GraphQL. When would you choose GraphQL over a REST API, and what are the trade-offs?",
+    "difficulty": "medium",
+    "tags": ["api", "rest", "graphql"],
+    "points": 10,
+    "hints": ["Think about how the number of round trips and the shape of the response change.", "Consider who the clients are: mobile apps, dashboards, or simple browsers."],
+    "idealAnswer": "REST uses multiple endpoints, one per resource, and typically returns fixed-shaped JSON payloads. GraphQL exposes a single endpoint and lets clients query exactly the fields they need in one round trip. GraphQL is a good fit for clients with complex, varied data needs, such as mobile apps and dashboards, where over-fetching and under-fetching matter, and when you want a strongly typed schema with good tooling. The trade-offs are added complexity: schema and resolver management, HTTP caching becomes harder, and a poorly designed query can create a performance bottleneck or an N+1 query problem.",
+    "keyPoints": [
+      "REST is resource-centric with multiple endpoints and fixed responses, often requiring several round trips.",
+      "GraphQL uses a single endpoint and returns exactly the fields the client asks for.",
+      "GraphQL avoids over-fetching and under-fetching but is harder to cache.",
+      "Trade-offs: schema/resolver complexity and N+1 query risk."
+    ],
+    "minWords": 80
+  },
+  {
+    "id": "be-v-02",
+    "sectionId": "backend-development",
+    "type": "verbal",
+    "title": "HTTP idempotency: PUT, POST, PATCH",
+    "prompt": "Explain idempotency in the context of HTTP methods. Why are PUT and DELETE idempotent while POST is not? What about PATCH?",
+    "difficulty": "medium",
+    "tags": ["http", "rest", "idempotency"],
+    "points": 10,
+    "hints": ["Idempotency is about the server state after repeating the call, not about the response body.", "Think about what PUT does to a resource versus what POST creates."],
+    "idealAnswer": "An operation is idempotent if performing it multiple times produces the same server-side state as performing it once. PUT replaces a resource, so sending it repeatedly results in the same end state, making it idempotent; DELETE removing an already-deleted resource also converges on the same outcome. GET is safe and idempotent because it only reads. POST is not idempotent because it creates new resources and repeating it creates duplicates. PATCH is not guaranteed idempotent because partial updates may be applied cumulatively; clients that need retry-safe semantics can send an Idempotency-Key header so the server can deduplicate POST or PATCH requests.",
+    "keyPoints": [
+      "Idempotent means repeating the request yields the same final server state.",
+      "GET, PUT, and DELETE are idempotent; POST is not.",
+      "PATCH is only conditionally idempotent depending on how the update is applied.",
+      "Idempotency-Key headers enable safe retries for POST and PATCH."
+    ],
+    "minWords": 80
+  },
+  {
+    "id": "be-v-03",
+    "sectionId": "backend-development",
+    "type": "verbal",
+    "title": "Database indexing basics",
+    "prompt": "Explain what a database index is and how it speeds up queries. What are the trade-offs, and when should you avoid adding an index?",
+    "difficulty": "easy",
+    "tags": ["database", "indexing", "performance"],
+    "points": 10,
+    "hints": ["Contrast indexed lookup with a full table scan.", "Consider what happens on every INSERT, UPDATE, and DELETE."],
+    "idealAnswer": "An index is an auxiliary data structure, commonly a B-tree, that maps key values to row locations so the database can find rows in O(log n) instead of scanning the whole table. Indexes speed up point lookups, range scans, ordering, and joins. The trade-offs are extra storage and slower writes, because every INSERT, UPDATE, and DELETE must also maintain the index. You should avoid adding indexes on columns with very low cardinality, on write-heavy tables, or when the query pattern is unlikely to use them; and composite indexes should be designed so that the leading columns are the most selective ones used by queries.",
+    "keyPoints": [
+      "Indexes turn lookups into O(log n) B-tree searches instead of full table scans.",
+      "They speed up reads, ordering, and joins.",
+      "They cost storage and slow down writes since the index must be maintained.",
+      "Avoid them on low-cardinality columns and write-heavy tables; column order matters in composite indexes."
+    ],
+    "minWords": 80
+  },
+  {
+    "id": "be-v-04",
+    "sectionId": "backend-development",
+    "type": "verbal",
+    "title": "Caching strategies: CDN, cache-aside, read-through",
+    "prompt": "Describe common caching strategies including CDN caching, cache-aside, and read-through. When would you pick one over another?",
+    "difficulty": "medium",
+    "tags": ["caching", "performance", "architecture"],
+    "points": 10,
+    "hints": ["Think about who controls the cache: the edge, the application, or the cache itself.", "Consider how stale data gets refreshed in each strategy."],
+    "idealAnswer": "A CDN caches static content at edge locations close to users, cutting latency for assets like images, scripts, and style sheets. Cache-aside keeps the application in control: it checks the cache first, and on a miss loads from the database and populates the cache, which is simple but adds logic to the app and can serve stale data unless TTLs or explicit invalidation are used. Read-through moves that responsibility into the cache layer, which fetches from the data store on a miss, keeping application code simpler at the cost of a more complex cache provider. Write-through keeps the cache consistent on every write but adds write latency, while write-back batches writes for better throughput at the risk of loss. The right choice depends on the read-to-write ratio, how tolerant the system is of staleness, and where the latency pain actually is.",
+    "keyPoints": [
+      "CDN caching serves static content from edge nodes close to the user.",
+      "Cache-aside: app checks the cache and populates it on a miss.",
+      "Read-through: the cache fetches from the data store automatically on a miss.",
+      "Use TTLs and invalidation to bound staleness; pick based on read/write ratio."
+    ],
+    "minWords": 80
+  },
+  {
+    "id": "be-v-05",
+    "sectionId": "backend-development",
+    "type": "verbal",
+    "title": "Horizontal vs vertical scaling",
+    "prompt": "Compare horizontal and vertical scaling. What are the trade-offs and how do they affect system design?",
+    "difficulty": "easy",
+    "tags": ["scaling", "architecture", "availability"],
+    "points": 10,
+    "hints": ["Compare a bigger single machine versus more machines.", "Think about state: what does each approach require from the application?"],
+    "idealAnswer": "Vertical scaling adds more CPU, RAM, or disk to a single machine. It is simple and requires no code changes, but it hits a hardware ceiling, creates a single point of failure, and costs grow super-linearly at the high end. Horizontal scaling adds more machines behind a load balancer. It scales to very large sizes, provides redundancy, and supports rolling deployments, but it requires stateless application design, shared storage or distributed state, and adds operational complexity such as load balancing, replication, and handling partition tolerance. A common strategy is to scale up for simplicity early on and scale out once demand becomes large or unpredictable.",
+    "keyPoints": [
+      "Vertical: a bigger single machine, simple but with a hard ceiling and single point of failure.",
+      "Horizontal: more machines behind a load balancer, near-unlimited scale.",
+      "Horizontal scaling requires stateless services and shared or distributed state.",
+      "Most systems scale up first, then scale out as demand grows."
+    ],
+    "minWords": 80
+  },
+  {
+    "id": "be-c-01",
+    "sectionId": "backend-development",
+    "type": "coding",
+    "title": "Palindrome Number",
+    "prompt": "Write a function isPalindromeNumber(n) that returns true if n is an integer palindrome and false otherwise. Negative numbers are never palindromes. Single-digit numbers, including 0, are palindromes. Examples: 121 is true, -121 is false, 10 is false, 0 is true, 12321 is true, 1001 is true.",
+    "difficulty": "easy",
+    "tags": ["math", "integers", "strings"],
+    "points": 10,
+    "hints": ["A palindrome reads the same forward and backward.", "Reverse the number by repeatedly extracting the last digit.", "Handle negatives first: any negative input is false.", "A trailing zero makes a multi-digit number non-palindromic, e.g. 10."],
+    "functionName": "isPalindromeNumber",
+    "languageBoilerplate": {
+      "javascript": "function isPalindromeNumber(n) {\n  // your code here\n}",
+      "python": "def is_palindrome_number(n):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [121], "expectedOutput": true },
+      { "id": "setup-2", "input": [-121], "expectedOutput": false },
+      { "id": "setup-3", "input": [10], "expectedOutput": false }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [0], "expectedOutput": true, "description": "zero is a single-digit palindrome" },
+      { "id": "t2", "input": [1], "expectedOutput": true, "description": "single digit is a palindrome" },
+      { "id": "t3", "input": [7], "expectedOutput": true, "description": "single digit is a palindrome" },
+      { "id": "t4", "input": [12321], "expectedOutput": true, "description": "odd-length palindrome" },
+      { "id": "t5", "input": [1001], "expectedOutput": true, "description": "even-length palindrome with zeros inside" },
+      { "id": "t6", "input": [-121], "expectedOutput": false, "description": "negative numbers are never palindromes" },
+      { "id": "t7", "input": [-1], "expectedOutput": false, "description": "single-digit negative is false" },
+      { "id": "t8", "input": [10], "expectedOutput": false, "description": "trailing zero breaks the palindrome" },
+      { "id": "t9", "input": [100], "expectedOutput": false, "description": "trailing zeros break the palindrome" },
+      { "id": "t10", "input": [100000000], "expectedOutput": false, "description": "large number with trailing zeros" },
+      { "id": "t11", "input": [12345654321], "expectedOutput": true, "description": "large odd-length palindrome" },
+      { "id": "t12", "input": [1221], "expectedOutput": true, "description": "even-length palindrome" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": ["Input is a 32-bit integer.", "Negative numbers always return false.", "Do not mutate any input; the function returns a boolean."]
+  },
+  {
+    "id": "be-c-02",
+    "sectionId": "backend-development",
+    "type": "coding",
+    "title": "Count Vowels",
+    "prompt": "Write a function countVowels(str) that returns the number of vowels (a, e, i, o, u) in the string, case-insensitive. Both uppercase and lowercase vowels count; all other characters are ignored. Examples: 'hello' is 2, 'AEIOUaeiou' is 10, '' is 0, 'xyz' is 0.",
+    "difficulty": "easy",
+    "tags": ["strings", "counting"],
+    "points": 10,
+    "hints": ["Use a Set of the vowels 'aeiou'.", "Convert the string to lowercase before checking.", "The empty string returns 0."],
+    "functionName": "countVowels",
+    "languageBoilerplate": {
+      "javascript": "function countVowels(str) {\n  // your code here\n}",
+      "python": "def count_vowels(s):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": ["hello"], "expectedOutput": 2 },
+      { "id": "setup-2", "input": ["AEIOUaeiou"], "expectedOutput": 10 },
+      { "id": "setup-3", "input": [""], "expectedOutput": 0 }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": ["xyz"], "expectedOutput": 0, "description": "no vowels present" },
+      { "id": "t2", "input": ["rhythm"], "expectedOutput": 0, "description": "no vowels in a common consonant-only word" },
+      { "id": "t3", "input": ["a"], "expectedOutput": 1, "description": "single vowel" },
+      { "id": "t4", "input": ["Education"], "expectedOutput": 5, "description": "mixed case vowels" },
+      { "id": "t5", "input": ["café"], "expectedOutput": 1, "description": "unicode lowercase letters; é is not aeiou" },
+      { "id": "t6", "input": ["abracadabra"], "expectedOutput": 5, "description": "repeated vowels count each occurrence" },
+      { "id": "t7", "input": ["The Quick Brown Fox"], "expectedOutput": 5, "description": "vowels in a sentence with spaces" },
+      { "id": "t8", "input": ["BOOLEAN"], "expectedOutput": 4, "description": "uppercase only" },
+      { "id": "t9", "input": ["aeiouAEIOU bcd"], "expectedOutput": 10, "description": "all vowels both cases plus consonants" },
+      { "id": "t10", "input": ["Zzz"], "expectedOutput": 0, "description": "consonant-only mixed case" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": ["Input is a string; may be empty.", "Only a, e, i, o, u count as vowels, case-insensitive.", "Return an integer count."]
+  },
+  {
+    "id": "be-c-03",
+    "sectionId": "backend-development",
+    "type": "coding",
+    "title": "Remove Duplicates",
+    "prompt": "Write a function removeDuplicates(arr) that returns a new array with duplicates removed, preserving the order of first occurrence. The original array must not be mutated. Examples: [1,2,2,3,3,3] becomes [1,2,3], [1,1,1] becomes [1], and [] becomes [].",
+    "difficulty": "easy",
+    "tags": ["arrays", "sets"],
+    "points": 10,
+    "hints": ["Use a Set to track values already seen.", "Iterate the array and keep only values not seen before.", "Use strict equality to decide what counts as a duplicate."],
+    "functionName": "removeDuplicates",
+    "languageBoilerplate": {
+      "javascript": "function removeDuplicates(arr) {\n  // your code here\n}",
+      "python": "def remove_duplicates(arr):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [[1, 2, 2, 3, 3, 3]], "expectedOutput": [1, 2, 3] },
+      { "id": "setup-2", "input": [[1, 1, 1]], "expectedOutput": [1] },
+      { "id": "setup-3", "input": [[]], "expectedOutput": [] }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [[1, 2, 3]], "expectedOutput": [1, 2, 3], "description": "no duplicates" },
+      { "id": "t2", "input": [[1]], "expectedOutput": [1], "description": "single element" },
+      { "id": "t3", "input": [[]], "expectedOutput": [], "description": "empty array" },
+      { "id": "t4", "input": [[0, 0, 0]], "expectedOutput": [0], "description": "repeated zeros collapse to one" },
+      { "id": "t5", "input": [["a", "b", "a", "c"]], "expectedOutput": ["a", "b", "c"], "description": "string duplicates" },
+      { "id": "t6", "input": [[5, 5, 5, 5]], "expectedOutput": [5], "description": "all identical elements" },
+      { "id": "t7", "input": [[1, 2, 1, 2, 1, 2]], "expectedOutput": [1, 2], "description": "interleaved duplicates" },
+      { "id": "t8", "input": [[3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]], "expectedOutput": [3, 1, 4, 5, 9, 2, 6], "description": "longer array preserves first-occurrence order" },
+      { "id": "t9", "input": [[1, "1", 1]], "expectedOutput": [1, "1"], "description": "strict equality keeps number and string distinct" },
+      { "id": "t10", "input": [["x", "y", "y", "z", "x"]], "expectedOutput": ["x", "y", "z"], "description": "string duplicates with mixed repeats" },
+      { "id": "t11", "input": [[true, false, true]], "expectedOutput": [true, false], "description": "boolean values" },
+      { "id": "t12", "input": [[10, 20, 10, 30, 20, 40]], "expectedOutput": [10, 20, 30, 40], "description": "larger integers keep first-occurrence order" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": ["Input is an array; may be empty.", "Preserve the order of first occurrence.", "Do not mutate the input array.", "Return a new array."]
+  }
+]
