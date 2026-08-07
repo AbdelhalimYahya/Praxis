@@ -1,6 +1,7 @@
 export default defineNuxtConfig({
   modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@nuxt/eslint'],
   css: ['~/assets/css/main.css'],
+  components: [{ path: '~/components', pathPrefix: false }],
   devtools: { enabled: true },
   colorMode: {
     classSuffix: '',
