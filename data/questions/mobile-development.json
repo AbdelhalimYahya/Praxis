@@ -1,1 +1,313 @@
-[]
+[
+  {
+    "id": "mob-v-01",
+    "sectionId": "mobile-development",
+    "type": "verbal",
+    "title": "Native vs. Cross-Platform Development",
+    "prompt": "Compare native development (Swift/Kotlin) with cross-platform frameworks (React Native/Flutter). Discuss the tradeoffs in terms of performance, developer experience, code sharing, access to platform APIs, and maintenance costs. When would you choose one over the other?",
+    "difficulty": "medium",
+    "tags": ["react-native", "flutter", "native", "architecture", "tradeoffs"],
+    "points": 10,
+    "hints": ["Think about UI rendering approaches: Flutter compiles to native code while React Native uses a JavaScript bridge.", "Consider team skills, time to market, and how much platform-specific behavior the app needs."],
+    "idealAnswer": "Native development (Swift for iOS, Kotlin for Android) offers the best performance, the most direct access to platform APIs and capabilities (camera, sensors, notifications, background services), and the richest platform-specific UX and look-and-feel. The cost is writing and maintaining two separate codebases, requiring two sets of skills. Cross-platform frameworks let a single team build for both platforms. Flutter compiles Dart to native machine code via its own rendering engine, giving predictable 60/120 fps UI and consistent look across platforms, at the cost of a larger binary and some platform integration complexity. React Native renders native widgets through a JavaScript-to-native bridge, giving great code sharing and a familiar JS/React ecosystem, but performance can degrade in animation-heavy or data-intensive flows, and native modules still need platform-specific work. Tradeoffs to weigh: performance-critical features (AR, high-fidelity maps, complex animations) favor native; MVPs, limited budgets, or tight deadlines favor cross-platform. Also consider hot reload (better DX in cross-platform), access to cutting-edge OS features (native wins), long-term maintenance (cross-platform reduces it but framework upgrades can break), and the ability to hire specialized native engineers.",
+    "keyPoints": [
+      "Native gives best performance and full platform API access but doubles codebase and cost.",
+      "Flutter compiles to native code with its own rendering engine; React Native uses a JS bridge and native widgets.",
+      "Cross-platform maximizes code sharing and speeds time to market but can struggle with niche or performance-heavy features.",
+      "Choice depends on team skills, budget, timeline, and how deeply the app must integrate with the OS."
+    ],
+    "minWords": 100
+  },
+  {
+    "id": "mob-v-02",
+    "sectionId": "mobile-development",
+    "type": "verbal",
+    "title": "Mobile App Lifecycle & Background Execution",
+    "prompt": "Explain the mobile app lifecycle (foreground, background, suspended/terminated) on iOS and Android. What limits do operating systems place on background execution, and how should a developer design network sync, timers, and audio playback to respect those limits?",
+    "difficulty": "medium",
+    "tags": ["lifecycle", "background-execution", "ios", "android", "state"],
+    "points": 10,
+    "hints": ["iOS suspends apps quickly and relies on explicit background modes; Android uses components and Doze/App Standby.", "Timers in JS and naive polls do not run reliably in the background."],
+    "idealAnswer": "Both platforms define a lifecycle: active/foreground (user-facing, full resources), background (limited or no UI, restricted execution), and suspended/terminated. On iOS, apps are generally suspended shortly after entering the background; background execution is only allowed via declared background modes (location updates, audio, VoIP, background fetch, Bluetooth) or short, finite work requested with beginBackgroundTask. On Android, background work is typically delegated to components such as Foreground Services, WorkManager, and the system can defer or kill them under Doze mode and App Standby when the device is idle. Background execution limits matter for design: long-running network syncs should not run in the foreground thread or keep the app alive; instead use WorkManager or background fetch with server-driven push notifications (FCM/APNs) to wake the app. Timers and setInterval-style polls are unreliable in the background and must be avoided. Audio playback and navigation should use the OS-provided services (audio focus, background audio mode). The developer must also persist state before suspension so the app can restore UI and data when relaunched. Designing for these constraints improves battery life and avoids termination or App Store rejection.",
+    "keyPoints": [
+      "iOS suspends apps quickly; background work requires explicit background modes or finite background tasks.",
+      "Android background work uses WorkManager/Foreground Services and is throttled by Doze and App Standby.",
+      "Reliable async work uses push notifications and system scheduling, not naive JS timers.",
+      "Persist state before suspension and restore it on relaunch."
+    ],
+    "minWords": 100
+  },
+  {
+    "id": "mob-v-03",
+    "sectionId": "mobile-development",
+    "type": "verbal",
+    "title": "State Management in Mobile Apps",
+    "prompt": "Describe state management in mobile apps. Distinguish local/component state from global/app state, and compare common approaches such as Redux, MobX, Provider, Riverpod, and Bloc. What are the tradeoffs, and how do you decide what belongs in global state?",
+    "difficulty": "medium",
+    "tags": ["state-management", "redux", "mobx", "flutter", "architecture"],
+    "points": 10,
+    "hints": ["Global state should be reserved for data shared across screens or required for offline sync and auth.", "Unidirectional data flow (Redux/Bloc) is more predictable but more boilerplate."],
+    "idealAnswer": "State in mobile apps splits into ephemeral state (local to a widget/screen/component, e.g. a text field, a loading flag) and app/global state (data shared across many screens, e.g. authentication, user profile, cart, cached server data). Ephemeral state should stay local to keep components self-contained; promoting everything to global state causes unnecessary re-renders and complexity. Global approaches differ in style: Redux uses a single immutable store, actions, and reducers with unidirectional data flow; it is highly predictable, easy to debug with time-travel, but verbose. MobX uses observable state and reactions, giving less boilerplate and more implicit reactivity but more magic to reason about. Bloc (Flutter) is event-driven with streams, explicit and testable but wordy. Provider/Riverpod offer DI + change notification with lighter weight. Tradeoffs include predictability vs. boilerplate, team familiarity, and tooling. Rules of thumb: keep UI-only state local; lift state to global only when multiple screens/consumers need it or it must survive navigation; model server-cached data and auth as global; derive what you can rather than duplicating state to avoid inconsistency.",
+    "keyPoints": [
+      "Ephemeral UI state stays local; global state is for data shared across screens or needed for offline/offline sync.",
+      "Redux/Bloc give predictable unidirectional flow with more boilerplate; MobX/Provider/Riverpod are lighter but more implicit.",
+      "Over-promoting state to global increases re-renders and coupling.",
+      "Auth, user profile, and server cache are natural candidates for global state."
+    ],
+    "minWords": 100
+  },
+  {
+    "id": "mob-v-04",
+    "sectionId": "mobile-development",
+    "type": "verbal",
+    "title": "Offline-First Design & Local Persistence",
+    "prompt": "Explain offline-first design for mobile apps. What are the roles of local persistence (SQLite, Realm) and remote sync, and what strategies handle connectivity changes and conflict resolution when the device reconnects?",
+    "difficulty": "hard",
+    "tags": ["offline-first", "sqlite", "realm", "sync", "persistence"],
+    "points": 10,
+    "hints": ["Offline-first means the local store is the source of truth for the UI; the network is an enhancement.", "Think about queues for pending writes and conflict resolution strategies (last-write-wins, timestamps, versions)."],
+    "idealAnswer": "Offline-first design treats the local device store (SQLite, Realm, Room, WatermelonDB, etc.) as the primary source of truth, so the app is fully usable without connectivity and syncs with the server when a connection is available. This differs from online-only apps where the server is authoritative and the device just renders. The local store enables instant UI responses, works through flaky connections, and reduces server load. Persistence choices: SQLite is a battle-tested relational engine great for structured, queryable data; Realm/WatermelonDB offer object-oriented, reactive models and are convenient on mobile; both need careful schema migrations. Sync design: a write-ahead queue (outbox) records mutations made offline; on reconnect, the queue drains and sends to the server, then the server responds with authoritative data. Connectivity monitoring (network status listeners) triggers sync and status UI. Conflict resolution is the hard part: strategies include last-write-wins (simple, can lose data), per-field timestamps or version numbers, server-as-authority with revision tokens, operational transforms or CRDTs for collaborative data, and manual merge or user prompts for irreconcilable conflicts. Robust offline-first apps also expose sync status (pending, in-flight, failed with retry) and handle background sync with OS schedulers.",
+    "keyPoints": [
+      "Local store is the source of truth for the UI; network becomes an enhancement, not a requirement.",
+      "SQLite/Realm provide structured, queryable persistence with reactive options.",
+      "An outbox/queue of pending writes plus connectivity monitoring drives sync on reconnect.",
+      "Conflicts need explicit strategy: last-write-wins, timestamps/versions, CRDTs, or user resolution."
+    ],
+    "minWords": 120
+  },
+  {
+    "id": "mob-v-05",
+    "sectionId": "mobile-development",
+    "type": "verbal",
+    "title": "App Performance & Memory Management",
+    "prompt": "Discuss performance and memory concerns in mobile apps: memory leaks, large list rendering, and image handling. What are the common causes of leaks (retain cycles, listeners), and which techniques keep long lists and image-heavy screens smooth and within memory limits?",
+    "difficulty": "medium",
+    "tags": ["performance", "memory-leaks", "lists", "images", "optimization"],
+    "points": 10,
+    "hints": ["Use virtualization for lists (FlatList, VirtualizedList, RecyclerView, ListView.builder).", "Image caches, downsampling, and lazy loading matter most on low-memory devices."],
+    "idealAnswer": "Mobile devices have limited memory and the OS can kill memory-heavy apps, so leaks and bloat are serious. Memory leaks come from objects that are never released: in native code, retain cycles (objects holding strong references to each other) and unregistered observers/delegates; in JS runtimes, retained closures and event listeners attached to global or long-lived objects. Fixes: use weak references where appropriate, always remove observers/listeners in teardown, avoid capturing large contexts in closures, and profile with Instruments (Leaks) or memory profilers. Large lists are handled with virtualization: FlatList/VirtualizedList (React Native), ListView.builder/Slivers (Flutter), RecyclerView (Android) render only visible rows and recycle views, avoiding building the whole list. Pair with pagination/infinite scroll, stable keys, and avoiding expensive work in row render/build. Image handling is a top cause of memory pressure: decode images at display size (downsampling), use a disk+memory image cache (react-native FastImage, glide, SDWebImage, flutter cached_network_image), lazy-load offscreen images, and reuse decoded bitmaps. Also avoid animating large images, keep layouts shallow, debounce frequent updates, and reduce expensive re-renders with memoization.",
+    "keyPoints": [
+      "Leaks arise from retain cycles and unremoved listeners/observers; remove them in teardown and use weak references.",
+      "Virtualized/recycled lists render only visible items and need stable keys and pagination.",
+      "Decode images at display size and use memory+disk caching to control memory.",
+      "Profile with memory/leak tools and keep renders cheap via memoization."
+    ],
+    "minWords": 100
+  },
+  {
+    "id": "mob-c-01",
+    "sectionId": "mobile-development",
+    "type": "coding",
+    "title": "Truncate Text with Ellipsis",
+    "prompt": "Implement truncateWithEllipsis(text, maxLength). If text.length <= maxLength, return text unchanged. Otherwise return text.slice(0, maxLength - 3) + \"...\". Assume maxLength >= 3.",
+    "difficulty": "easy",
+    "tags": ["strings", "truncation", "utilities"],
+    "points": 10,
+    "functionName": "truncateWithEllipsis",
+    "languageBoilerplate": {
+      "javascript": "function truncateWithEllipsis(text, maxLength) {\n  // your code here\n}",
+      "python": "def truncate_with_ellipsis(text, max_length):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": ["Hello World", 8],
+        "expectedOutput": "Hello..."
+      },
+      {
+        "id": "setup-2",
+        "input": ["", 5],
+        "expectedOutput": ""
+      },
+      {
+        "id": "setup-3",
+        "input": ["Short", 10],
+        "expectedOutput": "Short"
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": ["Hello World", 8],
+        "expectedOutput": "Hello...",
+        "description": "Long text truncates to maxLength - 3 characters plus ellipsis."
+      },
+      {
+        "id": "t2",
+        "input": ["Hello World", 11],
+        "expectedOutput": "Hello World",
+        "description": "Exact-length string returns unchanged."
+      },
+      {
+        "id": "t3",
+        "input": ["Hello World", 12],
+        "expectedOutput": "Hello World",
+        "description": "String shorter than maxLength returns unchanged."
+      },
+      {
+        "id": "t4",
+        "input": ["Hello", 3],
+        "expectedOutput": "...",
+        "description": "maxLength 3 with long text returns just the ellipsis."
+      },
+      {
+        "id": "t5",
+        "input": ["Hello", 4],
+        "expectedOutput": "H...",
+        "description": "maxLength 4 keeps one character plus ellipsis."
+      },
+      {
+        "id": "t6",
+        "input": ["", 5],
+        "expectedOutput": "",
+        "description": "Empty string returns unchanged."
+      },
+      {
+        "id": "t7",
+        "input": ["abc", 3],
+        "expectedOutput": "abc",
+        "description": "String equal to maxLength is not truncated."
+      },
+      {
+        "id": "t8",
+        "input": ["abcdef", 3],
+        "expectedOutput": "...",
+        "description": "Long text with maxLength 3 yields ellipsis only."
+      },
+      {
+        "id": "t9",
+        "input": ["Hello World", 5],
+        "expectedOutput": "He...",
+        "description": "Truncation keeps maxLength - 3 characters."
+      },
+      {
+        "id": "t10",
+        "input": ["A", 3],
+        "expectedOutput": "A",
+        "description": "Single short character is returned unchanged."
+      },
+      {
+        "id": "t11",
+        "input": ["abcdefghij", 6],
+        "expectedOutput": "abc...",
+        "description": "Medium-length text truncates correctly."
+      },
+      {
+        "id": "t12",
+        "input": ["Hello World", 7],
+        "expectedOutput": "Hell...",
+        "description": "MaxLength 7 keeps four characters plus ellipsis."
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": ["maxLength is an integer >= 3.", "Output must preserve the exact original string when no truncation occurs."]
+  },
+  {
+    "id": "mob-c-02",
+    "sectionId": "mobile-development",
+    "type": "coding",
+    "title": "Validate Basic Email Format",
+    "prompt": "Implement validateEmail(email). Return true if the string matches /^[^@\\s]+@[^@\\s]+\\.[^\\s]+$/ (one or more non-@ non-space chars, an @, one or more non-@ non-space chars, a dot, one or more non-space chars). Otherwise return false.",
+    "difficulty": "easy",
+    "tags": ["strings", "regex", "validation"],
+    "points": 10,
+    "functionName": "validateEmail",
+    "languageBoilerplate": {
+      "javascript": "function validateEmail(email) {\n  // your code here\n}",
+      "python": "def validate_email(email):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": ["a@b.co"],
+        "expectedOutput": true
+      },
+      {
+        "id": "setup-2",
+        "input": ["a@b"],
+        "expectedOutput": false
+      },
+      {
+        "id": "setup-3",
+        "input": ["@b.co"],
+        "expectedOutput": false
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": ["a@b.co"],
+        "expectedOutput": true,
+        "description": "Valid email with short domain is accepted."
+      },
+      {
+        "id": "t2",
+        "input": ["a@b.c"],
+        "expectedOutput": true,
+        "description": "Single-character domain is still valid per pattern."
+      },
+      {
+        "id": "t3",
+        "input": ["a@b"],
+        "expectedOutput": false,
+        "description": "Missing dot after domain fails."
+      },
+      {
+        "id": "t4",
+        "input": ["@b.co"],
+        "expectedOutput": false,
+        "description": "Missing local part before @ fails."
+      },
+      {
+        "id": "t5",
+        "input": ["a@.co"],
+        "expectedOutput": false,
+        "description": "Dot directly after @ with no domain chars fails."
+      },
+      {
+        "id": "t6",
+        "input": ["a b@c.co"],
+        "expectedOutput": false,
+        "description": "Space in the local part fails."
+      },
+      {
+        "id": "t7",
+        "input": ["a@b c.co"],
+        "expectedOutput": false,
+        "description": "Space in the domain part fails."
+      },
+      {
+        "id": "t8",
+        "input": [""],
+        "expectedOutput": false,
+        "description": "Empty string fails."
+      },
+      {
+        "id": "t9",
+        "input": ["a.b@c.co"],
+        "expectedOutput": true,
+        "description": "Dots are allowed in the local part."
+      },
+      {
+        "id": "t10",
+        "input": ["a@b.c.d"],
+        "expectedOutput": true,
+        "description": "Multiple domain labels are accepted."
+      },
+      {
+        "id": "t11",
+        "input": ["user.name+tag@example.com"],
+        "expectedOutput": true,
+        "description": "Plus tags and dots in local part are accepted."
+      },
+      {
+        "id": "t12",
+        "input": ["a@b.c "],
+        "expectedOutput": false,
+        "description": "Trailing space fails the pattern."
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": ["email is a string.", "Match must be exact from start to end (anchored)."]
+  }
+]
