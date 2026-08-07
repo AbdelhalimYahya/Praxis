@@ -6,7 +6,7 @@ const props = defineProps<{
 }>()
 
 const progress = useProgress()
-const completed = computed(() => (progress.getProgress(props.question.id)?.bestScorePercent ?? 0) >= 100)
+const completed = computed(() => progress.isCompleted(props.question.id))
 const bestScore = computed(() => progress.getProgress(props.question.id)?.bestScorePercent ?? null)
 </script>
 

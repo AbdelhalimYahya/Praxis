@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { QuestionProgress } from '~/stores/progress.store'
+import type { QuestionProgress } from '~/types/progress'
 
 const { sections } = useSections()
 const { getQuestionById } = useQuestions()
@@ -52,7 +52,19 @@ function resetProgress() {
       <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <h2 class="mb-4 font-semibold">Per section</h2>
         <div class="space-y-3">
-          <ScoreSummary v-for="section in sections" :key="section.slug" :section="section" :percent="progress.getSectionPercent(section.id)" />
+          <div
+            v-for="section in sections"
+            :key="section.slug"
+            class="flex items-center gap-3"
+          >
+            <ScoreSummary :section="section" :percent="progress.getSectionPercent(section.id)" />
+            <span
+              v-if="!progress.isSectionStarted(section.id)"
+              class="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+            >
+              Not started
+            </span>
+          </div>
         </div>
       </div>
 

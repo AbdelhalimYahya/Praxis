@@ -1,4 +1,4 @@
-import type { QuestionProgress } from '~/stores/progress.store'
+import type { QuestionProgress } from '~/types/progress'
 
 export function useProgress() {
   const store = useProgressStore()
@@ -8,8 +8,16 @@ export function useProgress() {
     return store.getPercentForQuestions(getQuestionsBySectionId(sectionId).map((question) => question.id))
   }
 
+  function isSectionStarted(sectionId: string): boolean {
+    return store.getStarted(getQuestionsBySectionId(sectionId).map((question) => question.id))
+  }
+
   function getOverallPercent(): number {
     return store.getPercentForQuestions(allQuestions.map((question) => question.id))
+  }
+
+  function isCompleted(questionId: string): boolean {
+    return store.getCompleted(questionId)
   }
 
   function recordVerbal(questionId: string, scorePercent: number, answerDraft?: string) {
@@ -28,5 +36,5 @@ export function useProgress() {
     store.resetProgress()
   }
 
-  return { getSectionPercent, getOverallPercent, recordVerbal, recordCoding, getProgress, reset }
+  return { getSectionPercent, isSectionStarted, getOverallPercent, isCompleted, recordVerbal, recordCoding, getProgress, reset }
 }

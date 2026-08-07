@@ -15,7 +15,7 @@ if (!section.value) {
   throw createError({ statusCode: 404, statusMessage: `Section "${slug}" not found` })
 }
 
-const completedCount = computed(() => questions.value.filter((q: Question) => (progress.getProgress(q.id)?.bestScorePercent ?? 0) >= 100).length)
+const completedCount = computed(() => questions.value.filter((q: Question) => progress.isCompleted(q.id)).length)
 
 useHead({
   title: `${section.value.title} — Praxis`,

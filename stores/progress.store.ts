@@ -1,16 +1,6 @@
 import { defineStore } from 'pinia'
-
-export interface QuestionProgress {
-  type: 'verbal' | 'coding'
-  attempts: number
-  bestScorePercent: number
-  lastAttemptAt: string
-  answerDraft?: string
-}
-
-interface ProgressState {
-  [questionId: string]: QuestionProgress
-}
+import type { ProgressState } from '~/types/progress'
+import { computeSectionPercent, isQuestionCompleted, isSectionStarted } from '~/utils/scoring'
 
 export const useProgressStore = defineStore('progress', () => {
   const { value: progressState, set: persist } = useLocalStorage<ProgressState>('praxis.progress', {})
@@ -29,20 +19,25 @@ export const useProgressStore = defineStore('progress', () => {
     }
   }
 
-  function getProgress(questionId: string): QuestionProgress | undefined {
+  function getProgress(questionId: string) {
     return progressState.value[questionId]
   }
 
-  // Average best score across the given question ids; unattempted questions count as 0.
   function getPercentForQuestions(questionIds: string[]): number {
-    if (questionIds.length === 0) return 0
-    const total = questionIds.reduce((sum, id) => sum + (progressState.value[id]?.bestScorePercent ?? 0), 0)
-    return Math.round(total / questionIds.length)
+    return computeSectionPercent(progressState.value, questionIds)
+  }
+
+  function getCompleted(questionId: string): boolean {
+    return isQuestionCompleted(progressState.value, questionId)
+  }
+
+  function getStarted(questionIds: string[]): boolean {
+    return isSectionStarted(progressState.value, questionIds)
   }
 
   function resetProgress() {
     persist({})
   }
 
-  return { storage: progressState, recordAttempt, getProgress, getPercentForQuestions, resetProgress }
+  return { storage: progressState, recordAttempt, getProgress, getPercentForQuestions, getCompleted, getStarted, resetProgress }
 })
