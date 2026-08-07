@@ -1,1 +1,304 @@
-[]
+[
+  {
+    "id": "py-v-01",
+    "sectionId": "python-developer",
+    "type": "verbal",
+    "title": "The Python GIL and its implications",
+    "prompt": "What is the Global Interpreter Lock (GIL) in CPython, why does it exist, and what are its practical implications for concurrent and parallel Python code?",
+    "difficulty": "medium",
+    "tags": ["GIL", "concurrency", "multithreading", "CPython"],
+    "points": 10,
+    "hints": [
+      "Think about what the GIL actually locks and when it is released.",
+      "Contrast threads with processes and with asyncio.",
+      "Mention CPU-bound vs I/O-bound workloads."
+    ],
+    "idealAnswer": "The GIL is a mutex in CPython that allows only one thread to execute Python bytecode at a time, protecting CPython's memory management (especially reference counting) from race conditions without per-object locks. It exists largely for simplicity and performance of the interpreter and C extensions. Practical implications: CPU-bound multi-threaded programs cannot achieve true parallelism in CPython and may run slower than single-threaded ones; I/O-bound programs benefit from threads because the GIL is released during blocking I/O and for many C extension calls (e.g., sleeping, file reads). To get true parallelism, use multiple processes (multiprocessing, concurrent.futures.ProcessPoolExecutor) or write performance-critical work in C/Cython and release the GIL. asyncio is cooperative concurrency that sidesteps the GIL within a single thread. Alternative interpreters like Jython and IronPython historically lacked the GIL, and since Python 3.13 the GIL can be disabled via a free-threaded build.",
+    "keyPoints": [
+      "GIL is a mutex allowing only one thread to run bytecode at a time in CPython",
+      "It protects interpreter internals, chiefly reference counting, and simplifies C extension memory safety",
+      "Threads are still useful for I/O-bound work because the GIL is released on blocking I/O",
+      "CPU-bound parallelism requires processes (multiprocessing) or GIL-free C extensions",
+      "asyncio offers cooperative concurrency without threads; free-threaded Python 3.13 can run without a GIL"
+    ],
+    "minWords": 120
+  },
+{
+  "id": "py-v-02",
+  "sectionId": "python-developer",
+  "type": "verbal",
+    "title": "Decorators",
+  "prompt": "Explain what a decorator is in Python, how the syntax works, and give examples of common real-world uses of decorators.",
+    "difficulty": "easy",
+    "tags": ["decorators", "higher-order functions", "closures"],
+  "points": 10,
+  "hints": [
+    "A decorator is a function that takes a function and returns a function.",
+    "Remember @decorator is syntactic sugar for func = decorator(func).",
+    "Mention functools.wraps for preserving metadata."
+  ],
+  "idealAnswer": "A decorator is a higher-order function that takes a callable, wraps it, and returns a new callable, extending behavior without modifying the original. The @ syntax is sugar for func = decorator(func). A basic decorator is a nested function with a closure, typically using *args and **kwargs to forward arguments, and it should apply functools.wraps to preserve name and docstring. Decorators can also accept arguments by adding another layer, and classes can serve as decorators via __call__. Common uses: logging and timing functions, authentication and authorization checks, retry logic, caching (functools.lru_cache), input validation, registering functions, and measuring memory or CPU usage.",
+  "keyPoints": [
+    "Decorators wrap callables to add behavior; @deco is sugar for func = deco(func)",
+    "Uses closures and *args/**kwargs forwarding",
+    "functools.wraps preserves function metadata",
+    "Decorators can take arguments (extra factory layer) and can be implemented as classes",
+    "Common uses: logging, timing, caching, auth, retries, registration"
+  ],
+  "minWords": 90
+},
+{
+  "id": "py-v-03",
+  "sectionId": "python-developer",
+  "type": "verbal",
+  "title": "Generators vs iterators and yield",
+  "prompt": "What is the difference between an iterator and an iterable in Python? How do generators and the yield statement work, and when would you choose a generator over a regular list?",
+  "difficulty": "medium",
+  "tags": ["generators", "iterators", "yield", "lazy evaluation"],
+  "points": 10,
+  "hints": [
+    "Recall the difference between __iter__/__next__ and for-loop behavior.",
+    "Generators produce values lazily, one at a time.",
+    "Think about memory for large or infinite sequences."
+  ],
+  "idealAnswer": "An iterable is any object with __iter__ returning an iterator; an iterator is an object with both __iter__ (returning itself) and __next__ (returning the next element, raising StopIteration when exhausted). All generators are iterators, and range(), for example, returns an iterable that creates iterators. A generator function uses yield to pause execution, saving its full state (including local variables and the program counter), resuming on the next __next__() call; generator expressions are the compact equivalent. Generators are lazy: they compute one value at a time, so they use O(1) memory even for large or infinite sequences, they can model streams and pipelines, and they short-circuit early (e.g., stopping on first match). The trade-off is that they are single-pass and cannot be indexed or sliced, and repeated iteration requires recreating the generator; they also add a small call overhead, so for small finite data a list or tuple is simpler and faster.",
+  "keyPoints": [
+    "Iterable defines __iter__; iterator defines __iter__ and __next__; generators are iterators",
+    "yield suspends the generator, preserving state across calls",
+    "Generators evaluate lazily, giving O(1) memory and support for infinite sequences",
+    "They are single-pass and not indexable",
+    "Prefer generators for large/streamed data; lists for small, reusable, indexed collections"
+  ],
+  "minWords": 100
+},
+{
+  "id": "py-v-04",
+  "sectionId": "python-developer",
+  "type": "verbal",
+  "title": "list vs tuple vs set vs dict: performance and use",
+  "prompt": "Compare Python's list, tuple, set, and dict. For each one, describe its characteristics, performance profile, and the situations in which you would choose it.",
+  "difficulty": "medium",
+  "tags": ["data structures", "list", "tuple", "set", "dict", "performance"],
+  "points": 10,
+  "hints": [
+    "Consider mutability, ordering, hashing, and average-case time complexity.",
+    "Tuples are immutable and can be dict keys; sets give O(1) membership.",
+    "dict lookups and set membership are hash-based, lists are linear."
+  ],
+  "idealAnswer": "list is an ordered, mutable, dynamic array with O(1) append and indexing at the tail, O(n) insertions/deletions in the middle and O(n) membership tests; it is the default for ordered collections that may change. tuple is an immutable, ordered sequence with the same complexity, but because it is immutable it is hashable (when elements are hashable), smaller/faster in some cases, and safe as dict keys, function arguments, and constants. set is an unordered collection of unique, hashable elements backed by a hash table, giving average O(1) add, remove, and membership (in); it is ideal for deduplication and fast lookup, though iteration order is insertion-based in CPython but should not be relied upon. dict maps unique hashable keys to values, also hash-table-backed with average O(1) get/set; it is the standard associative container, and since Python 3.7 it preserves insertion order. Choose a list when order and mutability matter, a tuple for fixed/immutable or hashable sequences, a set for fast membership and uniqueness, and a dict for key-to-value lookups. Worst-case hash collisions can degrade to O(n), and both sets and dicts use more memory than lists/tuples.",
+  "keyPoints": [
+    "list: ordered, mutable, O(1) tail ops, O(n) lookup/insert-in-middle",
+    "tuple: ordered, immutable, hashable, usable as dict keys",
+    "set: unordered, unique, hash-based O(1) membership, deduplication",
+    "dict: key->value hash table, O(1) get/set, insertion-ordered since 3.7",
+    "Memory: list/tuple compact; set/dict heavier due to hashing"
+  ],
+  "minWords": 120
+},
+{
+  "id": "py-v-05",
+  "sectionId": "python-developer",
+  "type": "verbal",
+  "title": "Duck typing vs static typing and PEP 484 type hints",
+  "prompt": "What is duck typing in Python, how does it relate to the EAFP style, and what role do PEP 484 type hints and tools like mypy play? Discuss the trade-offs of dynamic vs static typing.",
+  "difficulty": "hard",
+  "tags": ["duck typing", "type hints", "PEP 484", "mypy", "typing"],
+  "points": 10,
+  "hints": [
+    "Duck typing: 'if it walks like a duck and quacks like a duck'.",
+    "Type hints are optional annotations checked by external tools, not at runtime.",
+    "Contrast flexibility and iteration speed with safety and maintainability."
+  ],
+  "idealAnswer": "Duck typing means an object's suitability is determined by the presence of methods and attributes rather than by its declared type; if it quacks, treat it as a duck. Python uses this together with EAFP (Easier to Ask for Forgiveness than Permission): try to use the interface and catch AttributeError/TypeError rather than checking types upfront. Protocols (typing.Protocol, structural subtyping) formalize duck typing for type checkers. PEP 484 introduced optional type hints, which are metadata the interpreter largely ignores; static checkers like mypy, pyright, and the built-in type comments, plus IDE autocomplete, validate them. Trade-offs: dynamic typing and duck typing give flexible, concise code, fast prototyping, and easy interoperability, at the cost of runtime type errors, weaker IDE support, and harder maintenance in large codebases. Static typing improves correctness, refactoring safety, self-documentation, and performance of compiled implementations (e.g., mypyc, PyPy), but adds verbosity and overhead and can feel restrictive for quick scripts. The pragmatic approach is gradual typing: use hints on public APIs and hot paths, and keep duck typing for internal flexible code.",
+  "keyPoints": [
+    "Duck typing relies on capabilities (methods/attributes) rather than declared types",
+    "EAFP complements it: attempt the operation and catch exceptions",
+    "PEP 484 type hints are optional and checked statically, not at runtime",
+    "mypy/pyright catch type errors before execution and power IDE features",
+    "Gradual typing balances dynamic flexibility with static safety"
+  ],
+  "minWords": 120
+},
+{
+  "id": "py-c-01",
+  "sectionId": "python-developer",
+  "type": "coding",
+  "title": "Primality test",
+  "prompt": "Write a function isPrime(n) that returns true if n is a prime number and false otherwise. Return false for any n less than 2 (including negative numbers, 0, and 1).",
+  "difficulty": "easy",
+  "tags": ["math", "prime", "number theory"],
+  "points": 10,
+  "functionName": "isPrime",
+  "languageBoilerplate": {
+    "python": "def is_prime(n):\n    # your code here\n    pass",
+    "javascript": "function isPrime(n) {\n  // your code here\n}"
+  },
+  "setupTests": [
+    { "id": "setup-1", "input": [2], "expectedOutput": true },
+    { "id": "setup-2", "input": [4], "expectedOutput": false },
+    { "id": "setup-3", "input": [1], "expectedOutput": false }
+  ],
+  "fullTests": [
+    { "id": "t1", "input": [2], "expectedOutput": true, "description": "2 is the smallest prime" },
+    { "id": "t2", "input": [3], "expectedOutput": true, "description": "3 is prime" },
+    { "id": "t3", "input": [4], "expectedOutput": false, "description": "4 is composite" },
+    { "id": "t4", "input": [1], "expectedOutput": false, "description": "1 is not prime" },
+    { "id": "t5", "input": [0], "expectedOutput": false, "description": "0 is not prime" },
+    { "id": "t6", "input": [-7], "expectedOutput": false, "description": "Negative numbers are not prime" },
+    { "id": "t7", "input": [17], "expectedOutput": true, "description": "17 is prime" },
+    { "id": "t8", "input": [97], "expectedOutput": true, "description": "97 is prime" },
+    { "id": "t9", "input": [91], "expectedOutput": false, "description": "91 is 7*13, not prime" },
+    { "id": "t10", "input": [100], "expectedOutput": false, "description": "100 is composite" },
+    { "id": "t11", "input": [97], "expectedOutput": true, "description": "Large prime near 100" },
+    { "id": "t12", "input": [2], "expectedOutput": true, "description": "Even prime boundary" },
+    { "id": "t13", "input": [2147483647], "expectedOutput": true, "description": "Mersenne prime 2^31-1" }
+  ],
+  "timeLimitMs": 2000,
+  "constraints": ["n can be any integer, including negatives and 0", "Do not use external prime libraries"]
+},
+{
+  "id": "py-c-02",
+  "sectionId": "python-developer",
+  "type": "coding",
+  "title": "Reverse words",
+  "prompt": "Write a function reverseWords(sentence) that returns a string where the words stay in the same order but each word's characters are reversed. An empty string should return an empty string.",
+  "difficulty": "easy",
+  "tags": ["strings", "manipulation"],
+  "points": 10,
+  "functionName": "reverseWords",
+  "languageBoilerplate": {
+    "python": "def reverse_words(sentence):\n    # your code here\n    pass",
+    "javascript": "function reverseWords(sentence) {\n  // your code here\n}"
+  },
+  "setupTests": [
+    { "id": "setup-1", "input": ["hello world"], "expectedOutput": "olleh dlrow" },
+    { "id": "setup-2", "input": ["a"], "expectedOutput": "a" },
+    { "id": "setup-3", "input": [""], "expectedOutput": "" }
+  ],
+  "fullTests": [
+    { "id": "t1", "input": ["hello world"], "expectedOutput": "olleh dlrow", "description": "Two words reversed" },
+    { "id": "t2", "input": ["a"], "expectedOutput": "a", "description": "Single character word" },
+    { "id": "t3", "input": [""], "expectedOutput": "", "description": "Empty sentence" },
+    { "id": "t4", "input": ["Python is fun"], "expectedOutput": "nohtyP si nuf", "description": "Word order preserved, characters reversed" },
+    { "id": "t5", "input": ["racecar"], "expectedOutput": "racecar", "description": "Palindrome stays the same" },
+    { "id": "t6", "input": ["ab cd"], "expectedOutput": "ba dc", "description": "Two short words" },
+    { "id": "t7", "input": ["I love coding"], "expectedOutput": "I evol gnidoc", "description": "Mixed word lengths" },
+    { "id": "t8", "input": ["   "], "expectedOutput": "   ", "description": "Whitespace only is preserved" },
+    { "id": "t9", "input": ["word"], "expectedOutput": "drow", "description": "Single word" },
+    { "id": "t10", "input": ["a b c"], "expectedOutput": "a b c", "description": "Single letter words" },
+    { "id": "t11", "input": ["Hello, world!"], "expectedOutput": ",olleH !dlrow", "description": "Punctuation is part of the word" },
+    { "id": "t12", "input": ["abc  def"], "expectedOutput": "cba  fed", "description": "Multiple spaces between words preserved" }
+  ],
+  "timeLimitMs": 2000,
+  "constraints": ["Words are separated by spaces", "Preserve spacing and punctuation exactly"]
+},
+{
+  "id": "py-c-03",
+  "sectionId": "python-developer",
+  "type": "coding",
+  "title": "Most frequent element",
+  "prompt": "Write a function mostFrequentElement(nums) that returns the element that appears most frequently in the array. If there is a tie, return the element that appears first in the array. Return null for an empty array.",
+  "difficulty": "medium",
+  "tags": ["hash map", "frequency", "array"],
+  "points": 10,
+  "functionName": "mostFrequentElement",
+  "languageBoilerplate": {
+    "python": "def most_frequent_element(nums):\n    # your code here\n    pass",
+    "javascript": "function mostFrequentElement(nums) {\n  // your code here\n}"
+  },
+  "setupTests": [
+    { "id": "setup-1", "input": [[1, 3, 2, 3, 4, 3]], "expectedOutput": 3 },
+    { "id": "setup-2", "input": [[1, 1, 2, 2]], "expectedOutput": 1 },
+    { "id": "setup-3", "input": [[5]], "expectedOutput": 5 }
+  ],
+  "fullTests": [
+    { "id": "t1", "input": [[1, 3, 2, 3, 4, 3]], "expectedOutput": 3, "description": "3 appears three times" },
+    { "id": "t2", "input": [[1, 1, 2, 2]], "expectedOutput": 1, "description": "Tie broken by first appearance" },
+    { "id": "t3", "input": [[5]], "expectedOutput": 5, "description": "Single element" },
+    { "id": "t4", "input": [[]], "expectedOutput": null, "description": "Empty array returns null" },
+    { "id": "t5", "input": [[-1, -1, 2, 2, -1]], "expectedOutput": -1, "description": "Negative numbers count normally" },
+    { "id": "t6", "input": [[7, 7, 7, 7, 7]], "expectedOutput": 7, "description": "All identical elements" },
+    { "id": "t7", "input": [[1, 2, 3, 4, 5]], "expectedOutput": 1, "description": "All unique, first wins" },
+    { "id": "t8", "input": [[0, 0, 0, 1, 2]], "expectedOutput": 0, "description": "Zero is a valid element" },
+    { "id": "t9", "input": [[2, 1, 1, 2, 2]], "expectedOutput": 2, "description": "2 appears more often later" },
+    { "id": "t10", "input": [[10, 10, 20, 20, 30, 30]], "expectedOutput": 10, "description": "Three-way tie, first wins" },
+    { "id": "t11", "input": [[1000000, -1000000, 1000000, -1000000, 1000000]], "expectedOutput": 1000000, "description": "Large magnitude values" },
+    { "id": "t12", "input": [[3, 1, 2, 1, 2, 2, 3, 3, 3]], "expectedOutput": 3, "description": "3 appears four times" }
+  ],
+  "timeLimitMs": 2000,
+  "constraints": ["Elements can be any integers, including negatives and zero", "Ties resolve to the element appearing first in the input"]
+},
+{
+  "id": "py-c-04",
+  "sectionId": "python-developer",
+  "type": "coding",
+  "title": "Perfect square check",
+  "prompt": "Write a function isPerfectSquare(n) that returns true if n is a non-negative integer whose square root is also an integer, and false otherwise. 0 is considered a perfect square.",
+  "difficulty": "easy",
+  "tags": ["math", "binary search", "square root"],
+  "points": 10,
+  "functionName": "isPerfectSquare",
+  "languageBoilerplate": {
+    "python": "def is_perfect_square(n):\n    # your code here\n    pass",
+    "javascript": "function isPerfectSquare(n) {\n  // your code here\n}"
+  },
+  "setupTests": [
+    { "id": "setup-1", "input": [16], "expectedOutput": true },
+    { "id": "setup-2", "input": [3], "expectedOutput": false },
+    { "id": "setup-3", "input": [0], "expectedOutput": true }
+  ],
+  "fullTests": [
+    { "id": "t1", "input": [0], "expectedOutput": true, "description": "0 is a perfect square" },
+    { "id": "t2", "input": [1], "expectedOutput": true, "description": "1 is a perfect square" },
+    { "id": "t3", "input": [4], "expectedOutput": true, "description": "4 is 2^2" },
+    { "id": "t4", "input": [16], "expectedOutput": true, "description": "16 is 4^2" },
+    { "id": "t5", "input": [3], "expectedOutput": false, "description": "3 has no integer square root" },
+    { "id": "t6", "input": [10], "expectedOutput": false, "description": "10 is not a perfect square" },
+    { "id": "t7", "input": [2147395600], "expectedOutput": true, "description": "46340^2, a large perfect square" },
+    { "id": "t8", "input": [144], "expectedOutput": true, "description": "144 is 12^2" },
+    { "id": "t9", "input": [81], "expectedOutput": true, "description": "81 is 9^2" },
+    { "id": "t10", "input": [2], "expectedOutput": false, "description": "2 is not a perfect square" },
+    { "id": "t11", "input": [100], "expectedOutput": true, "description": "100 is 10^2" },
+    { "id": "t12", "input": [999999999], "expectedOutput": false, "description": "Large non-square" },
+    { "id": "t13", "input": [25], "expectedOutput": true, "description": "25 is 5^2" }
+  ],
+  "timeLimitMs": 2000,
+  "constraints": ["n is a non-negative integer", "Avoid floating point precision errors for large n"]
+},
+{
+  "id": "py-c-05",
+  "sectionId": "python-developer",
+  "type": "coding",
+  "title": "Chunk an array",
+  "prompt": "Write a function chunkList(items, size) that splits the array into sub-arrays (chunks), each containing up to size elements. The last chunk may contain fewer elements. Return an empty array if items is empty.",
+  "difficulty": "easy",
+  "tags": ["array", "slicing", "chunking"],
+  "points": 10,
+  "functionName": "chunkList",
+  "languageBoilerplate": {
+    "python": "def chunk_list(items, size):\n    # your code here\n    pass",
+    "javascript": "function chunkList(items, size) {\n  // your code here\n}"
+  },
+  "setupTests": [
+    { "id": "setup-1", "input": [[1, 2, 3, 4, 5], 2], "expectedOutput": [[1, 2], [3, 4], [5]] },
+    { "id": "setup-2", "input": [[], 3], "expectedOutput": [] },
+    { "id": "setup-3", "input": [[1], 5], "expectedOutput": [[1]] }
+  ],
+  "fullTests": [
+    { "id": "t1", "input": [[1, 2, 3, 4, 5], 2], "expectedOutput": [[1, 2], [3, 4], [5]], "description": "Last chunk smaller than size" },
+    { "id": "t2", "input": [[], 3], "expectedOutput": [], "description": "Empty array returns empty array" },
+    { "id": "t3", "input": [[1], 5], "expectedOutput": [[1]], "description": "Chunk larger than array" },
+    { "id": "t4", "input": [[1, 2, 3, 4], 2], "expectedOutput": [[1, 2], [3, 4]], "description": "Exact division" },
+    { "id": "t5", "input": [[1, 2, 3], 1], "expectedOutput": [[1], [2], [3]], "description": "Size 1 produces single-element chunks" },
+    { "id": "t6", "input": [[1, 2, 3, 4, 5, 6], 3], "expectedOutput": [[1, 2, 3], [4, 5, 6]], "description": "Even chunks of three" },
+    { "id": "t7", "input": [[9], 1], "expectedOutput": [[9]], "description": "Single element, size 1" },
+    { "id": "t8", "input": [[1, 2, 3, 4, 5], 10], "expectedOutput": [[1, 2, 3, 4, 5]], "description": "Size larger than array length" },
+    { "id": "t9", "input": [[0, 0, 0, 0], 2], "expectedOutput": [[0, 0], [0, 0]], "description": "Zeros are preserved" },
+    { "id": "t10", "input": [[1, 2, 3, 4, 5, 6, 7], 3], "expectedOutput": [[1, 2, 3], [4, 5, 6], [7]], "description": "Seven items in chunks of three" },
+    { "id": "t11", "input": [[1, 2, 3, 4, 5], 5], "expectedOutput": [[1, 2, 3, 4, 5]], "description": "Size equals array length" },
+    { "id": "t12", "input": [[-1, -2, -3, -4], 2], "expectedOutput": [[-1, -2], [-3, -4]], "description": "Negative values are preserved" }
+  ],
+  "timeLimitMs": 2000,
+  "constraints": ["size is always an integer >= 1", "The order of elements must be preserved"]
+}
+]
