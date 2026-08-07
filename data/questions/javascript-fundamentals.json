@@ -1,49 +1,133 @@
 [
   {
-    "id": "js-verbal-001",
+    "id": "js-v-01",
     "sectionId": "javascript-fundamentals",
     "type": "verbal",
-    "title": "Explain closures in JavaScript",
-    "prompt": "What is a closure in JavaScript? Give an example of when you would use one.",
+    "title": "What is a closure in JavaScript?",
+    "prompt": "Explain what a closure is in JavaScript. Provide a short code example, describe when a closure is created, list at least two real-world use cases, and describe one common pitfall.",
     "difficulty": "medium",
-    "tags": ["closures", "scope"],
+    "tags": ["closures", "scope", "lexical-scoping", "functions"],
     "points": 10,
-    "idealAnswer": "A closure is a function that retains access to variables from its enclosing lexical scope even after the outer function has finished executing. The inner function keeps a reference to its outer scope, so the variables stay alive as long as the closure exists. Closures are commonly used for data privacy, factory functions, and memoization.",
-    "keyPoints": [
-      "lexical scope",
-      "function retains access after the outer function returns",
-      "used for data privacy, factory functions, or memoization"
+    "hints": [
+      "Think about an inner function that accesses variables of its outer function.",
+      "A closure keeps the outer scope alive even after the outer function has returned.",
+      "Use cases include data privacy (module pattern), function factories, and callbacks."
     ],
-    "minWords": 25,
-    "hints": ["Think about what happens to variables when an outer function returns."]
+    "idealAnswer": "A closure is a function bundled with a reference to its lexical environment. When an inner function is defined inside an outer function, the inner function retains access to the outer function's variables even after the outer function finishes executing, because the JavaScript engine keeps that scope alive while it is still referenced. For example, a counter factory returns a function that closes over a `count` variable, so each counter keeps its own private state. Closures are used for data privacy in the module pattern, for creating functions with preset arguments (currying / partial application), and for callbacks that must capture loop state. A well-known pitfall is the `var`-in-a-loop problem, where every callback captures the same final value unless you use `let` or an IIFE.",
+    "keyPoints": [
+      "A closure gives an inner function access to its outer function's scope after the outer function returns.",
+      "A new closure is created each time a function is defined inside another function.",
+      "Closures enable encapsulation / private variables (module pattern).",
+      "A common pitfall is capturing a mutable loop variable; `let` or an IIFE fixes it."
+    ],
+    "minWords": 50
   },
   {
-    "id": "js-verbal-002",
+    "id": "js-v-02",
     "sectionId": "javascript-fundamentals",
     "type": "verbal",
-    "title": "Explain the event loop",
-    "prompt": "What is the event loop in JavaScript and how does it handle asynchronous code?",
-    "difficulty": "hard",
-    "tags": ["async", "event-loop"],
-    "points": 15,
-    "idealAnswer": "The event loop is what lets JavaScript, which is single-threaded, handle asynchronous operations without blocking. The call stack runs synchronous code; async operations like timers and network calls are handed to the Web APIs / runtime. When they finish, their callbacks go into task queues (microtasks vs macrotasks). The event loop continuously checks: when the call stack is empty, it pushes pending callbacks from the queue back onto the stack. Microtasks (promises) run before macrotasks (timers, I/O).",
-    "keyPoints": [
-      "single-threaded call stack",
-      "Web APIs / runtime handle async work",
-      "task queues for callbacks",
-      "microtasks run before macrotasks"
+    "title": "Explain hoisting in JavaScript",
+    "prompt": "Explain what hoisting is in JavaScript. Describe how `var`, `let`, `const`, function declarations, and function expressions are each affected, and explain the temporal dead zone.",
+    "difficulty": "medium",
+    "tags": ["hoisting", "scope", "var", "let", "const"],
+    "points": 10,
+    "hints": [
+      "Declarations are moved to the top of their scope before code runs, but initializations are not.",
+      "`var` is initialized to `undefined`; `let` and `const` are hoisted but stay uninitialized.",
+      "Function declarations can be called before they are written; function expressions cannot."
     ],
-    "minWords": 30
+    "idealAnswer": "Hoisting is JavaScript's behavior of moving variable and function declarations to the top of their enclosing scope during compilation, before any code executes. `var` declarations are hoisted and initialized to `undefined`, so reading them before the assignment line returns `undefined`. Function declarations are hoisted in full, which is why they can be called before their textual position. `let` and `const` are also hoisted into their block scope but are left uninitialized, so accessing them before the declaration throws a `ReferenceError`; that gap between scope entry and initialization is called the temporal dead zone (TDZ). Function expressions and arrow functions are not callable before their assignment, and `const` cannot be reassigned. In practice, prefer `let`/`const` for block scoping, declare things near the top of their scope, and remember that only declarations are hoisted, never initializations.",
+    "keyPoints": [
+      "Hoisting moves declarations (not initializations) to the top of the scope.",
+      "`var` is hoisted and initialized to `undefined`; function declarations are fully hoisted.",
+      "`let`/`const` are hoisted but uninitialized, throwing in the temporal dead zone.",
+      "Function expressions are not callable before their assignment."
+    ],
+    "minWords": 50
   },
   {
-    "id": "js-coding-001",
+    "id": "js-v-03",
+    "sectionId": "javascript-fundamentals",
+    "type": "verbal",
+    "title": "How does the JavaScript event loop work?",
+    "prompt": "Explain the JavaScript event loop. Describe the call stack, the microtask queue, and the macrotask queue, and explain the execution order of a resolved Promise versus a `setTimeout` callback.",
+    "difficulty": "medium",
+    "tags": ["event-loop", "async", "microtasks", "promises", "setTimeout"],
+    "points": 10,
+    "hints": [
+      "JavaScript is single-threaded: synchronous code runs on the call stack.",
+      "Microtasks (Promise callbacks, `queueMicrotask`) drain before the next macrotask.",
+      "A macrotask such as `setTimeout` is only picked up when the stack is empty and microtasks are done."
+    ],
+    "idealAnswer": "JavaScript is single-threaded, so the event loop coordinates asynchronous work. Synchronous code runs on the call stack; when an async API such as `setTimeout`, `fetch`, or an I/O call is encountered, the runtime handles it out of band and places its callback into a queue when ready. The event loop repeatedly checks whether the call stack is empty; if so, it drains the microtask queue (Promise `.then`/`.catch`, `queueMicrotask`, `MutationObserver`) completely, and then takes one macrotask from the task queue (`setTimeout`, `setInterval`, event handlers, I/O callbacks). This is why a resolved Promise's callback runs before a `setTimeout` even when the timeout is zero: microtasks are always processed before the next macrotask. This model gives JavaScript non-blocking behavior on a single thread and guarantees deterministic ordering of sync code, promise callbacks, and timer callbacks.",
+    "keyPoints": [
+      "The event loop coordinates the call stack, microtask queue, and macrotask queue.",
+      "Microtasks (Promises, `queueMicrotask`) are drained completely before the next macrotask.",
+      "A `setTimeout(..., 0)` callback runs after pending promise callbacks.",
+      "The event loop only picks a new task once the call stack is empty."
+    ],
+    "minWords": 50
+  },
+  {
+    "id": "js-v-04",
+    "sectionId": "javascript-fundamentals",
+    "type": "verbal",
+    "title": "How is `this` determined in JavaScript?",
+    "prompt": "Explain how the value of `this` is determined in JavaScript across different invocation contexts: a plain function call, a method call, a constructor call, call/apply/bind, and arrow functions. Give an example of a common `this` bug when a method is passed as a callback.",
+    "difficulty": "hard",
+    "tags": ["this", "binding", "call", "apply", "bind", "arrow-functions"],
+    "points": 10,
+    "hints": [
+      "`this` is bound at call time by how the function is invoked, not where it is defined.",
+      "Arrow functions do not have their own `this`; they inherit it lexically.",
+      "Passing `obj.method` to a callback loses the receiver — use `bind` or an arrow function."
+    ],
+    "idealAnswer": "In JavaScript, `this` is determined by how a function is invoked rather than where it is defined. In a plain (unqualified) function call, `this` is the global object in non-strict mode and `undefined` in strict mode. In a method call such as `obj.greet()`, `this` is the object to the left of the dot. Called with `new`, `this` is the newly created instance. `call`, `apply`, and `bind` explicitly set `this`. Arrow functions are the exception: they capture the lexical `this` from their enclosing scope at definition time and cannot be rebound. A classic bug is passing a method as a callback, e.g. `setTimeout(obj.greet, 1000)`; `greet` then runs as a plain function and loses `this`. The fix is `obj.greet.bind(obj)`, or wrapping it in an arrow function, which preserves the lexical `this`.",
+    "keyPoints": [
+      "`this` is bound at call time based on the invocation pattern (default, method, constructor, explicit).",
+      "A method call binds `this` to the receiver; a plain call gives global or `undefined` (strict).",
+      "Arrow functions inherit `this` lexically and cannot be rebound.",
+      "`bind`/`call`/`apply` set `this` explicitly, but arrow functions ignore them."
+    ],
+    "minWords": 50
+  },
+  {
+    "id": "js-v-05",
+    "sectionId": "javascript-fundamentals",
+    "type": "verbal",
+    "title": "Explain prototypes and the prototype chain",
+    "prompt": "Explain JavaScript prototypes and the prototype chain. Describe how property lookup works, how inheritance is built with prototypes (including `Object.create` and constructor `.prototype`), and how ES6 `class` relates to prototypes.",
+    "difficulty": "medium",
+    "tags": ["prototypes", "prototype-chain", "inheritance", "Object.create", "class"],
+    "points": 10,
+    "hints": [
+      "Every object has a hidden `[[Prototype]]` reference that points to another object.",
+      "Property access walks the chain until it finds the property or hits `null`.",
+      "ES6 `class` is syntactic sugar over constructor functions and prototypes."
+    ],
+    "idealAnswer": "Nearly every JavaScript object has an internal `[[Prototype]]` property pointing to another object, forming a chain that ends at `Object.prototype`, whose own prototype is `null`. When you access a property, the engine checks the object's own properties first and then walks up the chain until it finds the property or reaches the end, so later links can override earlier ones. Inheritance is prototypal: you link objects to other objects. With constructor functions, instances get a prototype via `new`, and `Object.create(proto)` creates a new object linked to `proto`, which is useful for setting up prototype chains. ES6 `class` and `extends` are mostly syntactic sugar over constructor functions and prototype links; methods defined in a class body live on the constructor's `.prototype`, and `super` wires the child prototype to the parent. Understanding the chain explains how shared methods are stored once on a prototype and inherited by many instances.",
+    "keyPoints": [
+      "Property lookup walks the prototype chain from the object up to `Object.prototype`, then `null`.",
+      "Constructor `.prototype` and `Object.create` both establish prototype links.",
+      "`class`/`extends` are syntactic sugar over constructor functions and prototypes.",
+      "JavaScript uses delegation between objects, not classical class inheritance."
+    ],
+    "minWords": 50
+  },
+  {
+    "id": "js-c-01",
     "sectionId": "javascript-fundamentals",
     "type": "coding",
     "title": "Two Sum",
-    "prompt": "Given an array of integers `nums` and an integer `target`, return the indices of the two numbers that add up to `target`. You may assume exactly one solution exists.",
+    "prompt": "Given an array of integers `nums` and an integer `target`, return the indices of the two numbers that add up to `target`. Exactly one valid answer exists and you may not use the same element twice. Return the result as an array `[i, j]`.\n\nExample: `twoSum([2,7,11,15], 9)` returns `[0, 1]`.\n\nTry to solve it in O(n) time.",
     "difficulty": "easy",
-    "tags": ["arrays", "hashmap"],
+    "tags": ["two-sum", "hash-map", "arrays"],
     "points": 10,
+    "hints": [
+      "Store each value with its index in a hash map.",
+      "For every element, check whether `target - current` is already in the map.",
+      "Return immediately once a complement is found."
+    ],
     "functionName": "twoSum",
     "languageBoilerplate": {
       "javascript": "function twoSum(nums, target) {\n  // your code here\n}",
@@ -51,14 +135,246 @@
     },
     "setupTests": [
       { "id": "setup-1", "input": [[2, 7, 11, 15], 9], "expectedOutput": [0, 1] },
-      { "id": "setup-2", "input": [[3, 2, 4], 6], "expectedOutput": [1, 2] }
+      { "id": "setup-2", "input": [[3, 2, 4], 6], "expectedOutput": [1, 2] },
+      { "id": "setup-3", "input": [[3, 3], 6], "expectedOutput": [0, 1] }
     ],
     "fullTests": [
-      { "id": "t1", "input": [[2, 7, 11, 15], 9], "expectedOutput": [0, 1] },
-      { "id": "t2", "input": [[3, 2, 4], 6], "expectedOutput": [1, 2] },
-      { "id": "t3", "input": [[3, 3], 6], "expectedOutput": [0, 1] }
+      { "id": "t1", "input": [[2, 7, 11, 15], 9], "expectedOutput": [0, 1], "description": "Basic case from the prompt" },
+      { "id": "t2", "input": [[3, 2, 4], 6], "expectedOutput": [1, 2], "description": "The answer is not the first pair" },
+      { "id": "t3", "input": [[3, 3], 6], "expectedOutput": [0, 1], "description": "Duplicate values use different indices" },
+      { "id": "t4", "input": [[1, 5, 8, 3], 9], "expectedOutput": [0, 2], "description": "Pair is not adjacent" },
+      { "id": "t5", "input": [[1, 2, 3, 4, 5], 9], "expectedOutput": [3, 4], "description": "Two largest values sum to target" },
+      { "id": "t6", "input": [[0, 4, 3, 0], 0], "expectedOutput": [0, 3], "description": "Zeros with target 0" },
+      { "id": "t7", "input": [[-3, 4, 3, 90], 0], "expectedOutput": [0, 2], "description": "Negative and positive cancel out" },
+      { "id": "t8", "input": [[1, -1, 2, 3], 0], "expectedOutput": [0, 1], "description": "Negative number at the start" },
+      { "id": "t9", "input": [[2, 5, 5, 11], 10], "expectedOutput": [1, 2], "description": "Equal pair completes the sum" },
+      { "id": "t10", "input": [[7, 2, 5, 1], 12], "expectedOutput": [0, 2], "description": "Non-adjacent pair" },
+      { "id": "t11", "input": [[1, 9, 2, 8], 17], "expectedOutput": [1, 3], "description": "Last two elements" },
+      { "id": "t12", "input": [[10, 20, 30], 50], "expectedOutput": [1, 2], "description": "Three-element array" },
+      { "id": "t13", "input": [[5, 25, 75], 100], "expectedOutput": [1, 2], "description": "Ascending order pair" },
+      { "id": "t14", "input": [[-1, -2, -3, -4, -5], -8], "expectedOutput": [2, 4], "description": "All negative numbers" },
+      { "id": "t15", "input": [[1, 2], 3], "expectedOutput": [0, 1], "description": "Minimal two-element array" },
+      { "id": "t16", "input": [[2, 7], 9], "expectedOutput": [0, 1], "description": "Two-element array" },
+      { "id": "t17", "input": [[0, 1, 2, 3], 5], "expectedOutput": [2, 3], "description": "Ascending sequence" },
+      { "id": "t18", "input": [[1, 2, 3, 4, 5, 6], 11], "expectedOutput": [4, 5], "description": "Tail of a long array" },
+      { "id": "t19", "input": [[1000000, 2000000, 3000000], 5000000], "expectedOutput": [1, 2], "description": "Large numbers" },
+      { "id": "t20", "input": [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 19], "expectedOutput": [8, 9], "description": "Large array, last pair" }
     ],
     "timeLimitMs": 2000,
-    "constraints": ["2 <= nums.length <= 10^4", "-10^9 <= nums[i], target <= 10^9", "Only one valid answer exists."]
+    "constraints": [
+      "2 <= nums.length <= 10^4",
+      "-10^9 <= nums[i] <= 10^9",
+      "target is an integer",
+      "Exactly one solution exists"
+    ]
+  },
+  {
+    "id": "js-c-02",
+    "sectionId": "javascript-fundamentals",
+    "type": "coding",
+    "title": "Reverse a String",
+    "prompt": "Write a function `reverseString(s)` that takes a string `s` and returns the string reversed.\n\nExample: `reverseString(\"hello\")` returns `\"olleh\"`.\n\nUnicode characters such as emoji must survive reversal, so split on code points (e.g. `Array.from(s)` or the spread operator) rather than on UTF-16 code units.",
+    "difficulty": "easy",
+    "tags": ["strings", "reverse", "unicode"],
+    "points": 10,
+    "hints": [
+      "`Array.from(s)` or `[...s]` splits a string into code points, keeping emoji intact.",
+      "You can iterate from the last code point to the first and build the result.",
+      "Empty strings and single-character strings are valid inputs."
+    ],
+    "functionName": "reverseString",
+    "languageBoilerplate": {
+      "javascript": "function reverseString(s) {\n  // your code here\n}",
+      "python": "def reverse_string(s):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": ["hello"], "expectedOutput": "olleh" },
+      { "id": "setup-2", "input": ["abcd"], "expectedOutput": "dcba" },
+      { "id": "setup-3", "input": ["racecar"], "expectedOutput": "racecar" }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": ["hello"], "expectedOutput": "olleh", "description": "Basic case" },
+      { "id": "t2", "input": ["a"], "expectedOutput": "a", "description": "Single character" },
+      { "id": "t3", "input": [""], "expectedOutput": "", "description": "Empty string" },
+      { "id": "t4", "input": ["ab"], "expectedOutput": "ba", "description": "Two characters" },
+      { "id": "t5", "input": ["racecar"], "expectedOutput": "racecar", "description": "Palindrome stays the same" },
+      { "id": "t6", "input": ["JavaScript"], "expectedOutput": "tpircSavaJ", "description": "Mixed case" },
+      { "id": "t7", "input": ["12345"], "expectedOutput": "54321", "description": "Digits" },
+      { "id": "t8", "input": ["!@#$%"], "expectedOutput": "%$#@!", "description": "Symbols" },
+      { "id": "t9", "input": [" hello "], "expectedOutput": " olleh ", "description": "Leading and trailing spaces" },
+      { "id": "t10", "input": ["Hello World"], "expectedOutput": "dlroW olleH", "description": "Multiple words" },
+      { "id": "t11", "input": ["unicode: café"], "expectedOutput": "éfac :edocinu", "description": "Accented characters" },
+      { "id": "t12", "input": ["😊"], "expectedOutput": "😊", "description": "Single emoji" },
+      { "id": "t13", "input": ["a😊b"], "expectedOutput": "b😊a", "description": "Emoji inside the string" },
+      { "id": "t14", "input": ["aaaa"], "expectedOutput": "aaaa", "description": "Repeated character" },
+      { "id": "t15", "input": ["ZzYyXx"], "expectedOutput": "xXyYzZ", "description": "Alternating case" },
+      { "id": "t16", "input": ["civic"], "expectedOutput": "civic", "description": "Symmetric string" },
+      { "id": "t17", "input": ["hello world"], "expectedOutput": "dlrow olleh", "description": "Lowercase phrase" },
+      { "id": "t18", "input": ["100000000000"], "expectedOutput": "000000000001", "description": "Long digit string" },
+      { "id": "t19", "input": ["!racecar!"], "expectedOutput": "!racecar!", "description": "Punctuation on both ends" },
+      { "id": "t20", "input": ["taco cat"], "expectedOutput": "tac ocat", "description": "Space in the middle" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "s is a string of length 0 to 10^4",
+      "Return a string with the same code points in reverse order"
+    ]
+  },
+  {
+    "id": "js-c-03",
+    "sectionId": "javascript-fundamentals",
+    "type": "coding",
+    "title": "FizzBuzz",
+    "prompt": "Write a function `fizzBuzz(n)` that returns an array of length `n` where, for each number `i` from 1 to `n`, the element is:\n- `\"FizzBuzz\"` if `i` is divisible by both 3 and 5\n- `\"Fizz\"` if `i` is divisible by 3\n- `\"Buzz\"` if `i` is divisible by 5\n- otherwise the number itself as a string\n\nExample: `fizzBuzz(5)` returns `[\"1\",\"2\",\"Fizz\",\"4\",\"Buzz\"]`.",
+    "difficulty": "easy",
+    "tags": ["fizzbuzz", "loops", "modulo"],
+    "points": 10,
+    "hints": [
+      "Check the combined 3-and-5 condition first — the order matters.",
+      "Number-only entries must be strings, e.g. \"4\".",
+      "`fizzBuzz(0)` returns an empty array."
+    ],
+    "functionName": "fizzBuzz",
+    "languageBoilerplate": {
+      "javascript": "function fizzBuzz(n) {\n  // your code here\n}",
+      "python": "def fizz_buzz(n):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [3], "expectedOutput": ["1", "2", "Fizz"] },
+      { "id": "setup-2", "input": [5], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz"] },
+      { "id": "setup-3", "input": [15], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz"] }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [1], "expectedOutput": ["1"], "description": "Single element" },
+      { "id": "t2", "input": [2], "expectedOutput": ["1", "2"], "description": "No special values yet" },
+      { "id": "t3", "input": [3], "expectedOutput": ["1", "2", "Fizz"], "description": "First Fizz" },
+      { "id": "t4", "input": [4], "expectedOutput": ["1", "2", "Fizz", "4"], "description": "Regular number after Fizz" },
+      { "id": "t5", "input": [5], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz"], "description": "First Buzz" },
+      { "id": "t6", "input": [6], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz"], "description": "Fizz after Buzz" },
+      { "id": "t7", "input": [0], "expectedOutput": [], "description": "Zero returns an empty array" },
+      { "id": "t8", "input": [7], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7"], "description": "Prime boundary" },
+      { "id": "t9", "input": [8], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8"], "description": "Just below 9" },
+      { "id": "t10", "input": [10], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz"], "description": "Second Buzz" },
+      { "id": "t11", "input": [14], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14"], "description": "One before FizzBuzz" },
+      { "id": "t12", "input": [15], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz"], "description": "First FizzBuzz" },
+      { "id": "t13", "input": [16], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16"], "description": "One after FizzBuzz" },
+      { "id": "t14", "input": [17], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16", "17"], "description": "Gap after FizzBuzz" },
+      { "id": "t15", "input": [20], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16", "17", "Fizz", "19", "Buzz"], "description": "Buzz at 20" },
+      { "id": "t16", "input": [25], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16", "17", "Fizz", "19", "Buzz", "Fizz", "22", "23", "Fizz", "Buzz"], "description": "Multiples of 3 and 5 up to 25" },
+      { "id": "t17", "input": [30], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16", "17", "Fizz", "19", "Buzz", "Fizz", "22", "23", "Fizz", "Buzz", "26", "Fizz", "28", "29", "FizzBuzz"], "description": "FizzBuzz at 30" },
+      { "id": "t18", "input": [50], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16", "17", "Fizz", "19", "Buzz", "Fizz", "22", "23", "Fizz", "Buzz", "26", "Fizz", "28", "29", "FizzBuzz", "31", "32", "Fizz", "34", "Buzz", "Fizz", "37", "38", "Fizz", "Buzz", "41", "Fizz", "43", "44", "FizzBuzz", "46", "47", "Fizz", "49", "Buzz"], "description": "Medium input" },
+      { "id": "t19", "input": [60], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16", "17", "Fizz", "19", "Buzz", "Fizz", "22", "23", "Fizz", "Buzz", "26", "Fizz", "28", "29", "FizzBuzz", "31", "32", "Fizz", "34", "Buzz", "Fizz", "37", "38", "Fizz", "Buzz", "41", "Fizz", "43", "44", "FizzBuzz", "46", "47", "Fizz", "49", "Buzz", "Fizz", "52", "53", "Fizz", "Buzz", "56", "Fizz", "58", "59", "FizzBuzz"], "description": "FizzBuzz every 15 up to 60" },
+      { "id": "t20", "input": [100], "expectedOutput": ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz", "16", "17", "Fizz", "19", "Buzz", "Fizz", "22", "23", "Fizz", "Buzz", "26", "Fizz", "28", "29", "FizzBuzz", "31", "32", "Fizz", "34", "Buzz", "Fizz", "37", "38", "Fizz", "Buzz", "41", "Fizz", "43", "44", "FizzBuzz", "46", "47", "Fizz", "49", "Buzz", "Fizz", "52", "53", "Fizz", "Buzz", "56", "Fizz", "58", "59", "FizzBuzz", "61", "62", "Fizz", "64", "Buzz", "Fizz", "67", "68", "Fizz", "Buzz", "71", "Fizz", "73", "74", "FizzBuzz", "76", "77", "Fizz", "79", "Buzz", "Fizz", "82", "83", "Fizz", "Buzz", "86", "Fizz", "88", "89", "FizzBuzz", "91", "92", "Fizz", "94", "Buzz", "Fizz", "97", "98", "Fizz", "Buzz"], "description": "Full classic FizzBuzz to 100" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "0 <= n <= 10000",
+      "Values in the result are strings"
+    ]
+  },
+  {
+    "id": "js-c-04",
+    "sectionId": "javascript-fundamentals",
+    "type": "coding",
+    "title": "Palindrome Check",
+    "prompt": "Write a function `isPalindrome(s)` that returns `true` if the string `s` reads the same forward and backward, and `false` otherwise. Compare characters exactly as they are: the check is case-sensitive and spaces and punctuation count. An empty string and a single-character string are palindromes.\n\nExample: `isPalindrome(\"racecar\")` returns `true`, while `isPalindrome(\"hello\")` returns `false`.",
+    "difficulty": "easy",
+    "tags": ["palindrome", "strings", "two-pointers"],
+    "points": 10,
+    "hints": [
+      "Compare the string with its reverse, or use two pointers moving toward the middle.",
+      "Case matters: \"Aba\" is not a palindrome.",
+      "Empty string and single characters are palindromes."
+    ],
+    "functionName": "isPalindrome",
+    "languageBoilerplate": {
+      "javascript": "function isPalindrome(s) {\n  // your code here\n}",
+      "python": "def is_palindrome(s):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": ["racecar"], "expectedOutput": true },
+      { "id": "setup-2", "input": ["hello"], "expectedOutput": false },
+      { "id": "setup-3", "input": ["madam"], "expectedOutput": true }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": ["racecar"], "expectedOutput": true, "description": "Basic palindrome" },
+      { "id": "t2", "input": ["hello"], "expectedOutput": false, "description": "Basic non-palindrome" },
+      { "id": "t3", "input": ["madam"], "expectedOutput": true, "description": "Palindrome" },
+      { "id": "t4", "input": [""], "expectedOutput": true, "description": "Empty string" },
+      { "id": "t5", "input": ["a"], "expectedOutput": true, "description": "Single character" },
+      { "id": "t6", "input": ["ab"], "expectedOutput": false, "description": "Two different characters" },
+      { "id": "t7", "input": ["aa"], "expectedOutput": true, "description": "Two identical characters" },
+      { "id": "t8", "input": ["Aba"], "expectedOutput": false, "description": "Case-sensitive check" },
+      { "id": "t9", "input": ["level"], "expectedOutput": true, "description": "Palindrome" },
+      { "id": "t10", "input": ["12321"], "expectedOutput": true, "description": "Numeric palindrome" },
+      { "id": "t11", "input": ["12345"], "expectedOutput": false, "description": "Numeric non-palindrome" },
+      { "id": "t12", "input": ["tacocat"], "expectedOutput": true, "description": "Palindrome" },
+      { "id": "t13", "input": ["abcba"], "expectedOutput": true, "description": "Odd length" },
+      { "id": "t14", "input": ["abccba"], "expectedOutput": true, "description": "Even length" },
+      { "id": "t15", "input": ["abc"], "expectedOutput": false, "description": "Short non-palindrome" },
+      { "id": "t16", "input": ["!!@@!!"], "expectedOutput": true, "description": "Symbols form a palindrome" },
+      { "id": "t17", "input": ["10.01"], "expectedOutput": true, "description": "Punctuation is significant" },
+      { "id": "t18", "input": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"], "expectedOutput": true, "description": "30 repeated characters" },
+      { "id": "t19", "input": ["a😊a"], "expectedOutput": true, "description": "Unicode emoji palindrome" },
+      { "id": "t20", "input": ["a😊b"], "expectedOutput": false, "description": "Unicode emoji non-palindrome" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "s is a string of length 0 to 10^4",
+      "Comparison is exact and case-sensitive"
+    ]
+  },
+  {
+    "id": "js-c-05",
+    "sectionId": "javascript-fundamentals",
+    "type": "coding",
+    "title": "Flatten a Nested Array",
+    "prompt": "Write a function `flatten(arr)` that takes an arbitrarily nested array and returns a new array with all nesting removed, preserving the order of the elements.\n\nExample: `flatten([1,[2,[3,[4]]]])` returns `[1,2,3,4]`.\n\nNon-array values (numbers, strings, booleans, `null`, `undefined`) are kept as-is. Do not mutate the input.",
+    "difficulty": "medium",
+    "tags": ["flatten", "recursion", "arrays"],
+    "points": 10,
+    "hints": [
+      "Use recursion: for each element, if `Array.isArray(element)` flatten it and concat, otherwise keep it.",
+      "An empty array should produce an empty result; empty nested arrays contribute nothing.",
+      "`Array.isArray` is the reliable array check — do not rely on `typeof`."
+    ],
+    "functionName": "flatten",
+    "languageBoilerplate": {
+      "javascript": "function flatten(arr) {\n  // your code here\n}",
+      "python": "def flatten(arr):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [[1, [2, 3]]], "expectedOutput": [1, 2, 3] },
+      { "id": "setup-2", "input": [[[1, 2], [3, 4]]], "expectedOutput": [1, 2, 3, 4] },
+      { "id": "setup-3", "input": [[1, [2, [3, [4]]]]], "expectedOutput": [1, 2, 3, 4] }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [[]], "expectedOutput": [], "description": "Empty array" },
+      { "id": "t2", "input": [[1, 2, 3]], "expectedOutput": [1, 2, 3], "description": "Already flat" },
+      { "id": "t3", "input": [[1, [2, 3]]], "expectedOutput": [1, 2, 3], "description": "One level deep" },
+      { "id": "t4", "input": [[[1, 2], [3, 4]]], "expectedOutput": [1, 2, 3, 4], "description": "Multiple sub-arrays" },
+      { "id": "t5", "input": [[1, [2, [3, [4]]]]], "expectedOutput": [1, 2, 3, 4], "description": "Deep nesting" },
+      { "id": "t6", "input": [[[[[0]]]]], "expectedOutput": [0], "description": "All-nested single value" },
+      { "id": "t7", "input": [[null, null, [null, [null]]]], "expectedOutput": [null, null, null, null], "description": "Non-array values preserved" },
+      { "id": "t8", "input": [[[], [], []]], "expectedOutput": [], "description": "Only empty arrays" },
+      { "id": "t9", "input": [[[1], [2], [3]]], "expectedOutput": [1, 2, 3], "description": "Single-element arrays" },
+      { "id": "t10", "input": [[0, [0], [[0]], [[[0]]]]], "expectedOutput": [0, 0, 0, 0], "description": "Zero at every depth" },
+      { "id": "t11", "input": [[1, [2], [3, [4, [5, [6]]]]]], "expectedOutput": [1, 2, 3, 4, 5, 6], "description": "Mixed depths" },
+      { "id": "t12", "input": [[true, [false, [true]]]], "expectedOutput": [true, false, true], "description": "Booleans" },
+      { "id": "t13", "input": [[["a"], ["b", ["c"]]]], "expectedOutput": ["a", "b", "c"], "description": "Strings" },
+      { "id": "t14", "input": [[[1, 2, 3], [4, 5, 6], [7, 8, 9]]], "expectedOutput": [1, 2, 3, 4, 5, 6, 7, 8, 9], "description": "Many sub-arrays" },
+      { "id": "t15", "input": [[-1, [-2, [-3]]]], "expectedOutput": [-1, -2, -3], "description": "Negative numbers" },
+      { "id": "t16", "input": [[1.5, [2.5, [3.5]]]], "expectedOutput": [1.5, 2.5, 3.5], "description": "Decimals" },
+      { "id": "t17", "input": [[1, [2, 3, [4, 5]], 6, [7]]], "expectedOutput": [1, 2, 3, 4, 5, 6, 7], "description": "Mixed structure" },
+      { "id": "t18", "input": [[[1, [2, [3, [4, [5, [6, [7]]]]]]]]], "expectedOutput": [1, 2, 3, 4, 5, 6, 7], "description": "Deeply nested sequence" },
+      { "id": "t19", "input": [[1, [], [2, []]]], "expectedOutput": [1, 2], "description": "Empty arrays interspersed" },
+      { "id": "t20", "input": [[1000000, [2000000, [3000000]]]], "expectedOutput": [1000000, 2000000, 3000000], "description": "Large numbers" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Array nesting depth is at most 100",
+      "Elements are arrays or JSON-safe primitive values",
+      "Do not mutate the input array"
+    ]
   }
 ]
