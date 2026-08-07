@@ -47,9 +47,7 @@ useHead({
 
     <div class="mt-6">
       <VerbalAnswerEditor v-if="question.type === 'verbal'" :question="question" />
-      <p v-else class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-500 dark:border-gray-700">
-        Coding workspace coming soon.
-      </p>
+      <CodingPlaceholder v-else :question-id="question.id" />
     </div>
 
     <div class="mt-8 border-t border-gray-200 pt-6 dark:border-gray-800">
