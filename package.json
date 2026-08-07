@@ -10,6 +10,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "validate:data": "tsx scripts/validate-data.ts",
+    "count:data": "tsx scripts/fill-question-counts.ts",
+    "build:data": "npm run count:data && npm run validate:data",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

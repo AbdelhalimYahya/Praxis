@@ -6,8 +6,13 @@
     "description": "HTML, CSS, DOM, accessibility, and web performance fundamentals.",
     "icon": "logos:html-5",
     "order": 1,
-    "questionCount": 0,
-    "tags": ["frontend", "html", "css", "accessibility"]
+    "questionCount": 8,
+    "tags": [
+      "frontend",
+      "html",
+      "css",
+      "accessibility"
+    ]
   },
   {
     "id": "javascript-fundamentals",
@@ -16,8 +21,11 @@
     "description": "Closures, prototypes, async, event loop, and more.",
     "icon": "logos:javascript",
     "order": 2,
-    "questionCount": 0,
-    "tags": ["javascript", "core"]
+    "questionCount": 10,
+    "tags": [
+      "javascript",
+      "core"
+    ]
   },
   {
     "id": "vue-basics",
@@ -26,8 +34,12 @@
     "description": "Reactivity, lifecycle, and the Composition API.",
     "icon": "logos:vue",
     "order": 3,
-    "questionCount": 0,
-    "tags": ["vue", "frontend", "framework"]
+    "questionCount": 5,
+    "tags": [
+      "vue",
+      "frontend",
+      "framework"
+    ]
   },
   {
     "id": "react-basics",
@@ -36,8 +48,12 @@
     "description": "Hooks, virtual DOM, and state management.",
     "icon": "logos:react",
     "order": 4,
-    "questionCount": 0,
-    "tags": ["react", "frontend", "framework"]
+    "questionCount": 7,
+    "tags": [
+      "react",
+      "frontend",
+      "framework"
+    ]
   },
   {
     "id": "backend-development",
@@ -46,8 +62,12 @@
     "description": "REST vs GraphQL, auth, caching, and database design.",
     "icon": "ph:server",
     "order": 5,
-    "questionCount": 0,
-    "tags": ["backend", "api", "databases"]
+    "questionCount": 8,
+    "tags": [
+      "backend",
+      "api",
+      "databases"
+    ]
   },
   {
     "id": "nodejs-developer",
@@ -56,8 +76,12 @@
     "description": "Event loop, streams, clustering, and the npm ecosystem.",
     "icon": "logos:nodejs-icon",
     "order": 6,
-    "questionCount": 0,
-    "tags": ["nodejs", "javascript", "backend"]
+    "questionCount": 10,
+    "tags": [
+      "nodejs",
+      "javascript",
+      "backend"
+    ]
   },
   {
     "id": "python-developer",
@@ -66,8 +90,12 @@
     "description": "GIL, decorators, generators, and type hints.",
     "icon": "logos:python",
     "order": 7,
-    "questionCount": 0,
-    "tags": ["python", "backend", "data"]
+    "questionCount": 10,
+    "tags": [
+      "python",
+      "backend",
+      "data"
+    ]
   },
   {
     "id": "java-developer",
@@ -76,8 +104,12 @@
     "description": "JVM, OOP, collections, and concurrency.",
     "icon": "logos:java",
     "order": 8,
-    "questionCount": 0,
-    "tags": ["java", "oop", "backend"]
+    "questionCount": 10,
+    "tags": [
+      "java",
+      "oop",
+      "backend"
+    ]
   },
   {
     "id": "software-engineer-general",
@@ -86,8 +118,12 @@
     "description": "SOLID, design patterns, git, testing, and agile.",
     "icon": "mdi:code-tags",
     "order": 9,
-    "questionCount": 0,
-    "tags": ["general", "patterns", "testing"]
+    "questionCount": 10,
+    "tags": [
+      "general",
+      "patterns",
+      "testing"
+    ]
   },
   {
     "id": "system-design",
@@ -96,8 +132,12 @@
     "description": "Scalability, load balancing, caching, sharding, and architecture.",
     "icon": "mdi:sitemap",
     "order": 10,
-    "questionCount": 0,
-    "tags": ["architecture", "scalability", "design"]
+    "questionCount": 5,
+    "tags": [
+      "architecture",
+      "scalability",
+      "design"
+    ]
   },
   {
     "id": "data-structures-algorithms",
@@ -106,8 +146,12 @@
     "description": "Arrays, trees, graphs, dynamic programming, sorting and searching.",
     "icon": "mdi:graph-outline",
     "order": 11,
-    "questionCount": 0,
-    "tags": ["algorithms", "data-structures", "dsa"]
+    "questionCount": 10,
+    "tags": [
+      "algorithms",
+      "data-structures",
+      "dsa"
+    ]
   },
   {
     "id": "databases-sql",
@@ -116,8 +160,12 @@
     "description": "Normalization, indexing, transactions, and SQL vs NoSQL.",
     "icon": "mdi:database",
     "order": 12,
-    "questionCount": 0,
-    "tags": ["sql", "databases", "nosql"]
+    "questionCount": 6,
+    "tags": [
+      "sql",
+      "databases",
+      "nosql"
+    ]
   },
   {
     "id": "ai-machine-learning",
@@ -126,8 +174,12 @@
     "description": "Supervised vs unsupervised, overfitting, evaluation, embeddings, LLMs.",
     "icon": "mdi:brain",
     "order": 13,
-    "questionCount": 0,
-    "tags": ["ai", "machine-learning", "llm"]
+    "questionCount": 8,
+    "tags": [
+      "ai",
+      "machine-learning",
+      "llm"
+    ]
   },
   {
     "id": "cyber-security",
@@ -136,8 +188,12 @@
     "description": "OWASP Top 10, encryption, session security, and threat modeling.",
     "icon": "mdi:shield-lock",
     "order": 14,
-    "questionCount": 0,
-    "tags": ["security", "owasp", "encryption"]
+    "questionCount": 7,
+    "tags": [
+      "security",
+      "owasp",
+      "encryption"
+    ]
   },
   {
     "id": "devops-cloud",
@@ -146,8 +202,13 @@
     "description": "CI/CD, containers, orchestration, and infrastructure as code.",
     "icon": "mdi:cloud-cog",
     "order": 15,
-    "questionCount": 0,
-    "tags": ["devops", "cloud", "docker", "kubernetes"]
+    "questionCount": 6,
+    "tags": [
+      "devops",
+      "cloud",
+      "docker",
+      "kubernetes"
+    ]
   },
   {
     "id": "mobile-development",
@@ -156,8 +217,12 @@
     "description": "State management, native bridging, offline-first, and performance.",
     "icon": "ph:device-mobile",
     "order": 16,
-    "questionCount": 0,
-    "tags": ["mobile", "flutter", "react-native"]
+    "questionCount": 7,
+    "tags": [
+      "mobile",
+      "flutter",
+      "react-native"
+    ]
   },
   {
     "id": "behavioral-interview",
@@ -166,7 +231,11 @@
     "description": "STAR-method scenarios: teamwork, conflict, leadership, and failure.",
     "icon": "ph:users-three",
     "order": 17,
-    "questionCount": 0,
-    "tags": ["behavioral", "soft-skills", "star-method"]
+    "questionCount": 6,
+    "tags": [
+      "behavioral",
+      "soft-skills",
+      "star-method"
+    ]
   }
 ]
