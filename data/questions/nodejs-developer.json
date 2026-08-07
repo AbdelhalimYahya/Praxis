@@ -1,1 +1,335 @@
-[]
+[
+  {
+    "id": "node-v-01",
+    "sectionId": "nodejs-developer",
+    "type": "verbal",
+    "title": "Node.js event loop phases",
+    "prompt": "Walk through the Node.js event loop. Name each phase, its purpose, their execution order, and where microtasks (Promises / process.nextTick) get processed relative to the phases.",
+    "difficulty": "medium",
+    "tags": ["nodejs", "event-loop", "async", "architecture"],
+    "points": 10,
+    "hints": [
+      "There are six phases that repeat on every iteration.",
+      "Microtasks are NOT a phase of the event loop.",
+      "process.nextTick and Promise callbacks are drained between each phase."
+    ],
+    "idealAnswer": "The Node.js event loop is a single-threaded C loop that processes the main thread's callbacks in repeated phases: (1) timers - executes setTimeout and setInterval callbacks whose thresholds have elapsed; (2) pending callbacks - runs deferred I/O callbacks such as TCP/ECONNREFUSED retries and some fs errors; (3) idle/prepare - internal housekeeping used by the libuv machinery (rarely observable); (4) poll - retrieves new I/O events, executes nearly all I/O callbacks, and blocks waiting for events when there is nothing else to do; (5) check - runs setImmediate callbacks; (6) close callbacks - runs close handlers like socket.on('close'). The loop iterates forever unless the loop has no remaining work and can exit. Between each phase (and after each individual callback in practice), Node drains the microtask queues: first all process.nextTick callbacks (a queue with the highest priority), then the Promise microtask queue. This is why a chain of process.nextTick or Promise.resolve().then() can starve the I/O phase if unbounded. Correct mental model: timers -> pending -> poll -> check -> close, with microtasks interleaved between them.",
+    "keyPoints": [
+      "Order: timers, pending callbacks, idle/prepare, poll, check, close callbacks.",
+      "setImmediate (check phase) runs after the poll phase; setTimeout (timers phase) runs before it.",
+      "The poll phase executes most I/O callbacks and may block when the loop is idle.",
+      "process.nextTick runs before Promise microtasks and both are drained between every phase.",
+      "The loop exits when there is no pending work, which is why open handles keep the process alive."
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "node-v-02",
+    "sectionId": "nodejs-developer",
+    "type": "verbal",
+    "title": "CommonJS vs ESM",
+    "prompt": "Compare CommonJS and ES Modules in Node.js. How do require and import differ in loading semantics (synchronous vs static, live bindings, top-level await, circular imports)? How do you choose between them today?",
+    "difficulty": "medium",
+    "tags": ["nodejs", "commonjs", "esm", "modules"],
+    "points": 10,
+    "hints": [
+      "CommonJS modules are resolved and evaluated at require() call time.",
+      "ESM imports are hoisted, statically analyzable, and support top-level await.",
+      "The package.json \"type\" field picks the default module system."
+    ],
+    "idealAnswer": "CommonJS is Node's original module system: require() is a runtime, synchronous call that loads, caches, and evaluates a module before it returns. require() can appear anywhere, even inside conditionals. It exposes module.exports/exports, and named imports via require are copies (they do not track later reassignment of exports). ESM is the standard JavaScript module system: import is statically analyzable and hoisted, so the dependency graph is known before execution, which enables tree-shaking and dead-code elimination. ESM has live bindings (exported values are read-only views that stay in sync with the module), strict mode by default, and supports top-level await. ESM also supports circular imports better through live bindings, while CommonJS circular requires can yield partially-initialized exports that must be handled with care. Interop: Node can require() ESM in newer versions only if it is synchronous, but the reliable path is dynamic import() from CJS, and named CJS exports are detectable via cjs-module-lexer heuristics. The package.json \"type\" field selects the default: \"module\" for ESM, \"commonjs\" (default) for CJS; the .mjs/.cjs extensions always override. ESM lacks __dirname/__filename directly (use import.meta.url with fileURLToPath), lacks require, and JSON imports need with { type: 'json' }. Recommendation: use ESM for new code; it is the standard, supports top-level await and static analysis, and is where the ecosystem is moving.",
+    "keyPoints": [
+      "CommonJS require() is synchronous and runtime-based; ESM import is hoisted and statically analyzable.",
+      "ESM exports are live bindings; CJS exports are snapshots unless you access them via a getter.",
+      "ESM supports top-level await and strict mode by default; CJS does not.",
+      "ESM has no __dirname/__filename; use import.meta.url + fileURLToPath.",
+      "The package.json \"type\" field and .mjs/.cjs extensions control module resolution."
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "node-v-03",
+    "sectionId": "nodejs-developer",
+    "type": "verbal",
+    "title": "Streams and backpressure",
+    "prompt": "Explain Node.js streams (Readable, Writable, Transform, Duplex) and the concept of backpressure. How does pipe() / stream.pipeline() handle it, and when would you use streams over buffering everything in memory?",
+    "difficulty": "hard",
+    "tags": ["nodejs", "streams", "backpressure", "performance"],
+    "points": 10,
+    "hints": [
+      "Streams process data in chunks instead of loading everything into memory.",
+      "highWaterMark controls the internal buffer size.",
+      "A Writable returns false from write() to signal the source to slow down.",
+      "prefer stream.pipeline() over pipe() for error handling."
+    ],
+    "idealAnswer": "Streams process data incrementally as chunks flow through, enabling constant memory usage for large data such as file copies, HTTP responses, or log processing. Node provides four core stream types: Readable (source of data), Writable (destination), Transform (a Duplex that modifies data between readable and writable sides, e.g., gzip or line parsers), and Duplex (independent read and write sides, e.g., a socket). Backpressure is the mechanism by which a slow consumer throttles a fast producer so data is not buffered without limit. Internally each stream has a highWaterMark (default 16 kB for object streams adjusted for others) that defines the buffer size; when a Writable's write() returns false, the producer should pause; a Readable respects this via the pipe machinery and emits 'drain' once the consumer is ready again. pipe() wires up pause/resume and drain handling automatically but does NOT forward errors, and it does not clean up streams on source or destination failure, which is why stream.pipeline() is preferred: it handles backpressure plus error propagation, and destroys all involved streams on failure. You should use streams whenever data volume is large, unknown, or potentially infinite, or when you want to start processing before the full payload arrives (e.g., piping a request body through a transform into a file).",
+    "keyPoints": [
+      "Four types: Readable, Writable, Transform, Duplex.",
+      "Backpressure: write() returning false means 'stop sending', 'drain' means 'ready again'.",
+      "highWaterMark sets the internal buffer threshold.",
+      "Use stream.pipeline() not pipe() because it propagates errors and cleans up streams.",
+      "Streams give constant-memory processing for large or infinite data."
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "node-v-04",
+    "sectionId": "nodejs-developer",
+    "type": "verbal",
+    "title": "Clustering and worker_threads",
+    "prompt": "Compare Node.js clustering (cluster module) and worker_threads. How does each scale CPU-bound versus I/O-bound work, how do they communicate, and when would you use one over the other?",
+    "difficulty": "medium",
+    "tags": ["nodejs", "cluster", "worker-threads", "concurrency"],
+    "points": 10,
+    "hints": [
+      "cluster forks multiple processes; worker_threads run threads inside one process.",
+      "I/O-bound HTTP traffic scales with the event loop, not with more threads.",
+      "worker_threads share no memory by default but can use SharedArrayBuffer."
+    ],
+    "idealAnswer": "The cluster module lets one primary process fork multiple child processes, each running the same app, that share server ports (the primary accepts connections and distributes them round-robin). It scales an app across CPU cores and gives per-process isolation: a crash in one worker does not take down the others, and workers can be restarted. Communication is via IPC messages (process.send / message events). It is ideal for increasing throughput of I/O-bound web servers, because each worker runs its own event loop and can handle many concurrent connections, though each worker still has one thread and CPU-bound code in any worker blocks that worker. worker_threads runs JavaScript in worker threads within the same process. They communicate with parentPort.postMessage and worker.postMessage, and can share memory via SharedArrayBuffer and Atomics, which is much faster for heavy numeric workloads. worker_threads are the right tool for CPU-bound tasks such as image processing, hashing, or JSON parsing of huge payloads that would otherwise freeze the event loop; a common pattern is a small pool of workers that a main thread dispatches jobs to. Rule of thumb: use cluster for process-level scaling and fault isolation of servers; use worker_threads to offload compute inside a single process. Both are available on the main Node API; cluster is generally not needed when running under a platform that already does process-level scaling, such as PM2 in cluster mode or Kubernetes pods.",
+    "keyPoints": [
+      "cluster = multiple processes sharing server ports (primary + workers), IPC via messages.",
+      "worker_threads = threads within one process, messaging + SharedArrayBuffer/Atomics.",
+      "cluster suits I/O-bound, high-concurrency servers and gives fault isolation.",
+      "worker_threads suit CPU-bound work that must not block the event loop.",
+      "Each worker thread / process still has its own V8 isolate, so memory is not fully shared."
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "node-v-05",
+    "sectionId": "nodejs-developer",
+    "type": "verbal",
+    "title": "Error handling patterns",
+    "prompt": "Describe a modern error-handling strategy for a Node.js API using async/await and centralized error handlers. How do you handle async errors thrown in routes, and what should you do about uncaughtException and unhandledRejection at the process level?",
+    "difficulty": "medium",
+    "tags": ["nodejs", "error-handling", "async", "express"],
+    "points": 10,
+    "hints": [
+      "Every await can throw; wrap or forward those errors consistently.",
+      "Express 5 and async handlers forward rejected promises to the error middleware automatically.",
+      "A domain is deprecated; do not use it.",
+      "Process-level handlers should log and exit, not try to resume a corrupt state."
+    ],
+    "idealAnswer": "The modern approach is to treat errors as values that flow through a single, centralized path. In an async/await codebase, every await can reject, so either wrap risky calls in try/catch and translate known failures into typed application errors, or rely on a handler that forwards rejection. In Express, route handlers should be async and let errors propagate: Express 4 requires wrapping async handlers (e.g., an asyncHandler helper that catches rejections and calls next(err)), while Express 5 forwards rejected promises automatically. All thrown and forwarded errors converge in one error-handling middleware (error middleware is recognized by its four-argument signature (err, req, res, next)) that logs, maps errors to proper status codes and safe JSON responses, and never leaks stack traces to clients. A common pattern is a custom AppError class with statusCode and code fields, plus mapping for known errors (validation, not-found, auth) and a fallback 500 for unknown ones. At the process level, register process.on('uncaughtException') and process.on('unhandledRejection') as a last resort: log the error and exit (recommended), because the process state may be corrupted; better is to run under a process manager like PM2 or a container orchestrator that restarts the process. Node's default for unhandledRejection is already to terminate since v15. Avoid the deprecated domain module entirely. Also set a timeout on requests and ensure middleware order: 404 handler before the error handler. Centralizing keeps the happy path readable and makes failures observable, auditable, and consistent.",
+    "keyPoints": [
+      "Centralized error-handling middleware is the single exit point for all errors.",
+      "Express 5 auto-forwards async rejections; Express 4 needs a wrapper like asyncHandler.",
+      "Define typed app errors with statusCode so handlers can map them to responses.",
+      "process.on('uncaughtException') / 'unhandledRejection' should log and exit; do not resume.",
+      "domain is deprecated; use async/await + centralized handlers instead."
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "node-c-01",
+    "sectionId": "nodejs-developer",
+    "type": "coding",
+    "title": "Sum of even numbers",
+    "prompt": "Write a function that returns the sum of all even numbers in the array. A number is even when n % 2 === 0. The sum of an empty array is 0.",
+    "difficulty": "easy",
+    "tags": ["javascript", "arrays", "math"],
+    "points": 10,
+    "functionName": "sumEvenNumbers",
+    "languageBoilerplate": {
+      "javascript": "function sumEvenNumbers(nums) {\n  // your code here\n}",
+      "python": "def sum_even_numbers(nums):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [[1, 2, 3, 4, 5]], "expectedOutput": 6 },
+      { "id": "setup-2", "input": [[]], "expectedOutput": 0 },
+      { "id": "setup-3", "input": [[-2, 0, 3]], "expectedOutput": -2 }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [[1, 2, 3, 4, 5]], "expectedOutput": 6, "description": "mixed positives" },
+      { "id": "t2", "input": [[]], "expectedOutput": 0, "description": "empty array sums to zero" },
+      { "id": "t3", "input": [[-2, 0, 3]], "expectedOutput": -2, "description": "zero counts and negatives are even" },
+      { "id": "t4", "input": [[2, 4, 6, 8]], "expectedOutput": 20, "description": "all even" },
+      { "id": "t5", "input": [[1, 3, 5, 7]], "expectedOutput": 0, "description": "no even numbers" },
+      { "id": "t6", "input": [[-1, -3, -5]], "expectedOutput": 0, "description": "odd negatives" },
+      { "id": "t7", "input": [[0, 0, 0]], "expectedOutput": 0, "description": "multiple zeros" },
+      { "id": "t8", "input": [[2, 2, 3, 4]], "expectedOutput": 8, "description": "duplicates count" },
+      { "id": "t9", "input": [[-4, -6]], "expectedOutput": -10, "description": "even negatives" },
+      { "id": "t10", "input": [[1000000, 1, 2]], "expectedOutput": 1000002, "description": "large values" },
+      { "id": "t11", "input": [[7, -4, 9, -6, 11]], "expectedOutput": -10, "description": "mixed signs" },
+      { "id": "t12", "input": [[-10, -20, -30]], "expectedOutput": -60, "description": "all negative evens" },
+      { "id": "t13", "input": [[2, -2, 4, -4]], "expectedOutput": 0, "description": "canceling pairs" },
+      { "id": "t14", "input": [[1]], "expectedOutput": 0, "description": "single odd" },
+      { "id": "t15", "input": [[-8]], "expectedOutput": -8, "description": "single even negative" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "nums is an array of integers.",
+      "Use the n % 2 === 0 definition of even."
+    ]
+  },
+  {
+    "id": "node-c-02",
+    "sectionId": "nodejs-developer",
+    "type": "coding",
+    "title": "Capitalize each word",
+    "prompt": "Write a function that uppercases the first letter of each word and lowercases the rest. Words are separated by single spaces. Non-letter characters are preserved as-is.",
+    "difficulty": "easy",
+    "tags": ["javascript", "strings", "manipulation"],
+    "points": 10,
+    "functionName": "capitalizeWords",
+    "languageBoilerplate": {
+      "javascript": "function capitalizeWords(sentence) {\n  // your code here\n}",
+      "python": "def capitalize_words(sentence):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": ["hello world"], "expectedOutput": "Hello World" },
+      { "id": "setup-2", "input": ["HELLO"], "expectedOutput": "Hello" },
+      { "id": "setup-3", "input": [""], "expectedOutput": "" }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": ["hello world"], "expectedOutput": "Hello World", "description": "basic two words" },
+      { "id": "t2", "input": ["HELLO"], "expectedOutput": "Hello", "description": "all uppercase" },
+      { "id": "t3", "input": [""], "expectedOutput": "", "description": "empty string" },
+      { "id": "t4", "input": ["hELLO"], "expectedOutput": "Hello", "description": "mixed case single word" },
+      { "id": "t5", "input": ["the quick brown fox"], "expectedOutput": "The Quick Brown Fox", "description": "mixed lowercase sentence" },
+      { "id": "t6", "input": ["a b c"], "expectedOutput": "A B C", "description": "single letters" },
+      { "id": "t7", "input": ["hello WORLD"], "expectedOutput": "Hello World", "description": "mixed case words" },
+      { "id": "t8", "input": ["123 abc"], "expectedOutput": "123 Abc", "description": "non-letter leading character preserved" },
+      { "id": "t9", "input": ["a  b"], "expectedOutput": "A  B", "description": "consecutive spaces preserved" },
+      { "id": "t10", "input": ["TEST123"], "expectedOutput": "Test123", "description": "word with digits" },
+      { "id": "t11", "input": ["single"], "expectedOutput": "Single", "description": "one word" },
+      { "id": "t12", "input": [" t"], "expectedOutput": " T", "description": "leading space" },
+      { "id": "t13", "input": ["xYz AbC"], "expectedOutput": "Xyz Abc", "description": "uppercase and lowercase mix" },
+      { "id": "t14", "input": ["hello"], "expectedOutput": "Hello", "description": "all lowercase single word" },
+      { "id": "t15", "input": ["  spaced  "], "expectedOutput": "  Spaced  ", "description": "surrounding spaces" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "sentence is a string.",
+      "Words are separated by single spaces."
+    ]
+  },
+  {
+    "id": "node-c-03",
+    "sectionId": "nodejs-developer",
+    "type": "coding",
+    "title": "Check anagrams",
+    "prompt": "Write a function that returns true if two strings are anagrams. The comparison is case-insensitive and ignores all non-alphanumeric characters.",
+    "difficulty": "easy",
+    "tags": ["javascript", "strings", "anagram"],
+    "points": 10,
+    "functionName": "isAnagram",
+    "languageBoilerplate": {
+      "javascript": "function isAnagram(a, b) {\n  // your code here\n}",
+      "python": "def is_anagram(a, b):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": ["listen", "silent"], "expectedOutput": true },
+      { "id": "setup-2", "input": ["rat", "car"], "expectedOutput": false },
+      { "id": "setup-3", "input": ["Hello", "Olleh"], "expectedOutput": true }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": ["listen", "silent"], "expectedOutput": true, "description": "classic anagram" },
+      { "id": "t2", "input": ["anagram", "nagaram"], "expectedOutput": true, "description": "anagram pair" },
+      { "id": "t3", "input": ["Hello", "Olleh"], "expectedOutput": true, "description": "case-insensitive" },
+      { "id": "t4", "input": ["rat", "car"], "expectedOutput": false, "description": "different letters" },
+      { "id": "t5", "input": ["aabb", "ab"], "expectedOutput": false, "description": "different lengths" },
+      { "id": "t6", "input": ["!!!a", "a"], "expectedOutput": true, "description": "ignore non-alphanumerics" },
+      { "id": "t7", "input": ["", ""], "expectedOutput": true, "description": "both empty" },
+      { "id": "t8", "input": ["a", "b"], "expectedOutput": false, "description": "single different letters" },
+      { "id": "t9", "input": ["A", "a"], "expectedOutput": true, "description": "single letter case-insensitive" },
+      { "id": "t10", "input": ["12345", "54321"], "expectedOutput": true, "description": "digits only" },
+      { "id": "t11", "input": ["hello", "world"], "expectedOutput": false, "description": "common non-anagram" },
+      { "id": "t12", "input": ["aaa", "aa"], "expectedOutput": false, "description": "repeated letters unequal counts" },
+      { "id": "t13", "input": ["a1b2c3", "3c2b1a"], "expectedOutput": true, "description": "alphanumeric mix" },
+      { "id": "t14", "input": ["Dormitory", "Dirty room"], "expectedOutput": true, "description": "space and case ignored" },
+      { "id": "t15", "input": ["listen ", "silent"], "expectedOutput": true, "description": "trailing space ignored" },
+      { "id": "t16", "input": ["ab", "aba"], "expectedOutput": false, "description": "one is prefix of other" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Ignore all non-alphanumeric characters.",
+      "Comparison is case-insensitive."
+    ]
+  },
+  {
+    "id": "node-c-04",
+    "sectionId": "nodejs-developer",
+    "type": "coding",
+    "title": "Find the longest word",
+    "prompt": "Write a function that returns the longest word in a sentence. Words are separated by single spaces. If multiple words tie for the longest length, return the first one. For an empty string, return an empty string.",
+    "difficulty": "easy",
+    "tags": ["javascript", "strings", "loops"],
+    "points": 10,
+    "functionName": "findLongestWord",
+    "languageBoilerplate": {
+      "javascript": "function findLongestWord(sentence) {\n  // your code here\n}",
+      "python": "def find_longest_word(sentence):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": ["The quick brown fox"], "expectedOutput": "quick" },
+      { "id": "setup-2", "input": ["a bb ccc"], "expectedOutput": "ccc" },
+      { "id": "setup-3", "input": ["x y z"], "expectedOutput": "x" }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": ["The quick brown fox"], "expectedOutput": "quick", "description": "tie returns first (quick before brown)" },
+      { "id": "t2", "input": ["a bb ccc"], "expectedOutput": "ccc", "description": "strictly longer" },
+      { "id": "t3", "input": ["x y z"], "expectedOutput": "x", "description": "all ties return first" },
+      { "id": "t4", "input": [""], "expectedOutput": "", "description": "empty string" },
+      { "id": "t5", "input": ["hello"], "expectedOutput": "hello", "description": "single word" },
+      { "id": "t6", "input": ["aaaa bbb cc"], "expectedOutput": "aaaa", "description": "decreasing lengths" },
+      { "id": "t7", "input": ["one two three four"], "expectedOutput": "three", "description": "middle longest" },
+      { "id": "t8", "input": ["ab cd efg"], "expectedOutput": "efg", "description": "last longest" },
+      { "id": "t9", "input": ["aa bb cc"], "expectedOutput": "aa", "description": "equal lengths keep first" },
+      { "id": "t10", "input": ["supercalifragilistic"], "expectedOutput": "supercalifragilistic", "description": "one very long word" },
+      { "id": "t11", "input": ["A a AA"], "expectedOutput": "AA", "description": "case and length" },
+      { "id": "t12", "input": ["word words wordss"], "expectedOutput": "wordss", "description": "growing lengths" },
+      { "id": "t13", "input": ["short longword here"], "expectedOutput": "longword", "description": "not the first word" },
+      { "id": "t14", "input": ["a ab abc"], "expectedOutput": "abc", "description": "progressive lengths" },
+      { "id": "t15", "input": ["apple banana cherry"], "expectedOutput": "banana", "description": "tie at 6 returns first six-letter word" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Words are separated by single spaces.",
+      "On ties, return the first longest word."
+    ]
+  },
+  {
+    "id": "node-c-05",
+    "sectionId": "nodejs-developer",
+    "type": "coding",
+    "title": "Group numbers by parity",
+    "prompt": "Write a function that groups the numbers of an array into even and odd, preserving their original order. A number is even when n % 2 === 0. Return an object like { even: [...], odd: [...] }.",
+    "difficulty": "easy",
+    "tags": ["javascript", "arrays", "objects"],
+    "points": 10,
+    "functionName": "groupByParity",
+    "languageBoilerplate": {
+      "javascript": "function groupByParity(nums) {\n  // your code here\n}",
+      "python": "def group_by_parity(nums):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [[1, 2, 3, 4]], "expectedOutput": { "even": [2, 4], "odd": [1, 3] } },
+      { "id": "setup-2", "input": [[]], "expectedOutput": { "even": [], "odd": [] } }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [[1, 2, 3, 4]], "expectedOutput": { "even": [2, 4], "odd": [1, 3] }, "description": "basic mixed" },
+      { "id": "t2", "input": [[]], "expectedOutput": { "even": [], "odd": [] }, "description": "empty array" },
+      { "id": "t3", "input": [[2, 4, 6]], "expectedOutput": { "even": [2, 4, 6], "odd": [] }, "description": "all even" },
+      { "id": "t4", "input": [[1, 3, 5]], "expectedOutput": { "even": [], "odd": [1, 3, 5] }, "description": "all odd" },
+      { "id": "t5", "input": [[0, -1, 1]], "expectedOutput": { "even": [0], "odd": [-1, 1] }, "description": "zero is even, negatives" },
+      { "id": "t6", "input": [[-2, -4]], "expectedOutput": { "even": [-2, -4], "odd": [] }, "description": "negative evens" },
+      { "id": "t7", "input": [[3, -3, 3]], "expectedOutput": { "even": [], "odd": [3, -3, 3] }, "description": "duplicates preserve order" },
+      { "id": "t8", "input": [[1, 2, 3, 4, 5]], "expectedOutput": { "even": [2, 4], "odd": [1, 3, 5] }, "description": "interleaved" },
+      { "id": "t9", "input": [[7]], "expectedOutput": { "even": [], "odd": [7] }, "description": "single odd" },
+      { "id": "t10", "input": [[0]], "expectedOutput": { "even": [0], "odd": [] }, "description": "single zero" },
+      { "id": "t11", "input": [[2, 1, 2, 1, 2]], "expectedOutput": { "even": [2, 2, 2], "odd": [1, 1] }, "description": "duplicates" },
+      { "id": "t12", "input": [[-7, 14, 0]], "expectedOutput": { "even": [14, 0], "odd": [-7] }, "description": "mixed signs and zero" },
+      { "id": "t13", "input": [[10, -10, 5, -5]], "expectedOutput": { "even": [10, -10], "odd": [5, -5] }, "description": "canceling pairs keep order" },
+      { "id": "t14", "input": [[1]], "expectedOutput": { "even": [], "odd": [1] }, "description": "single element" },
+      { "id": "t15", "input": [[1000001]], "expectedOutput": { "even": [], "odd": [1000001] }, "description": "large odd value" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "nums is an array of integers.",
+      "Preserve original order within each group.",
+      "Even is defined by n % 2 === 0."
+    ]
+  }
+]
