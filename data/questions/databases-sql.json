@@ -1,1 +1,156 @@
-[]
+[
+  {
+    "id": "db-v-01",
+    "sectionId": "databases-sql",
+    "type": "verbal",
+    "title": "Explain normalization (1NF, 2NF, 3NF) and denormalization tradeoffs",
+    "prompt": "Explain what database normalization is. Define first, second, and third normal form (1NF, 2NF, 3NF) with a short example of a violation for each. Then describe when denormalization makes sense and what tradeoffs it introduces. Note: this is a verbal question — do not write or run SQL, just explain the concepts and reasoning.",
+    "difficulty": "easy",
+    "tags": ["normalization", "1nf", "2nf", "3nf", "denormalization", "database-design"],
+    "points": 10,
+    "hints": [
+      "1NF requires atomic columns with no repeating groups.",
+      "2NF removes partial dependencies of non-key columns on part of a composite key.",
+      "3NF removes transitive dependencies where a non-key column depends on another non-key column.",
+      "Denormalization trades write-time integrity for read performance."
+    ],
+    "idealAnswer": "Normalization is the process of structuring a relational schema to reduce redundancy and prevent anomalies by splitting tables so that each piece of data is stored once. 1NF requires atomic values and no repeating groups, so a table with a 'phone_numbers' column containing multiple values must be split into separate rows. 2NF requires that every non-key column depend on the whole composite key, not just part of it; a violation is a table with (order_id, product_id) as the key where product_name depends only on product_id. 3NF removes transitive dependencies: non-key columns must depend on the key directly, not through another non-key column, such as storing author_name in a book table when it already depends on author_id. Denormalization deliberately reintroduces redundancy to improve read performance, e.g. storing a computed total or denormalized summary columns for reporting. The tradeoff is that writes become more complex and more error-prone, and consistency must be maintained either in application code or with triggers, in exchange for faster reads and simpler queries.",
+    "keyPoints": [
+      "Normalization removes redundancy and avoids insert, update, and delete anomalies.",
+      "1NF: atomic columns and no repeating groups.",
+      "2NF: no partial dependencies on a composite key.",
+      "3NF: no transitive dependencies between non-key columns.",
+      "Denormalization improves read speed but adds write complexity and consistency risk."
+    ],
+    "minWords": 60
+  },
+  {
+    "id": "db-v-02",
+    "sectionId": "databases-sql",
+    "type": "verbal",
+    "title": "Explain SQL JOIN types with examples",
+    "prompt": "Explain INNER, LEFT, RIGHT, FULL OUTER, and CROSS joins. For each, describe which rows appear in the result and give a short realistic example of when you would use it. Also mention what happens to NULLs for non-matching rows in the outer joins. Note: this is a verbal question — describe the queries conceptually instead of executing SQL.",
+    "difficulty": "easy",
+    "tags": ["sql", "joins", "inner-join", "left-join", "right-join", "full-outer-join", "cross-join"],
+    "points": 10,
+    "hints": [
+      "INNER JOIN returns only matching rows from both tables.",
+      "LEFT JOIN keeps all rows from the left table and fills the rest with NULLs.",
+      "RIGHT JOIN is the mirror of LEFT JOIN.",
+      "FULL OUTER JOIN keeps all rows from both sides.",
+      "CROSS JOIN is a Cartesian product with no join condition."
+    ],
+    "idealAnswer": "A JOIN combines rows from two tables based on a condition. INNER JOIN returns only rows where the condition matches in both tables, e.g. orders with a matching customer. LEFT JOIN returns every row from the left table and matching rows from the right, filling missing right-side columns with NULL; this is the go-to when you want all customers even those with no orders. RIGHT JOIN is the mirror, keeping all rows from the right table and matching rows from the left. FULL OUTER JOIN keeps every row from both tables, placing NULLs where there is no match, which is useful for finding mismatched or orphaned records across both sides. CROSS JOIN produces the Cartesian product of both tables with no condition, used for combinatorial data like generating all size and color pairs. Outer joins are distinguished by which table's rows are preserved, and non-matching columns appear as NULL, which is why you often filter with WHERE on a primary key column to detect orphans.",
+    "keyPoints": [
+      "INNER JOIN: only rows matching on both sides.",
+      "LEFT JOIN: all left rows plus matches, NULLs on the right.",
+      "RIGHT JOIN: all right rows plus matches, NULLs on the left.",
+      "FULL OUTER JOIN: all rows from both sides with NULLs where unmatched.",
+      "CROSS JOIN: Cartesian product; use it only when combinations are truly needed."
+    ],
+    "minWords": 60
+  },
+  {
+    "id": "db-v-03",
+    "sectionId": "databases-sql",
+    "type": "verbal",
+    "title": "Explain ACID properties and transaction isolation levels",
+    "prompt": "Explain the ACID properties of database transactions: Atomicity, Consistency, Isolation, and Durability. Then describe the standard SQL isolation levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable) and which anomalies each one allows or prevents, such as dirty reads, non-repeatable reads, and phantom reads. Note: this is a verbal question — explain the concepts rather than running SQL.",
+    "difficulty": "medium",
+    "tags": ["acid", "transactions", "isolation-levels", "read-committed", "repeatable-read", "serializable", "concurrency"],
+    "points": 10,
+    "hints": [
+      "Atomicity: all-or-nothing. Consistency: valid state transitions. Isolation: concurrent transactions do not interfere. Durability: committed data survives crashes.",
+      "Read Uncommitted allows dirty reads; Serializable is the strongest level.",
+      "A dirty read sees uncommitted data; a non-repeatable read sees a row change value mid-transaction; a phantom read sees new rows appear in a range.",
+      "Higher isolation means fewer anomalies but more locking and lower concurrency."
+    ],
+    "idealAnswer": "ACID is a set of guarantees for database transactions. Atomicity means a transaction commits entirely or rolls back entirely; a failure mid-transaction undoes all its effects. Consistency ensures a transaction moves the database from one valid state to another, respecting constraints, triggers, and invariants. Isolation means concurrent transactions appear to execute independently so partial effects of one are not visible to others. Durability guarantees that once committed, changes survive power loss and crashes via the write-ahead log. The SQL standard defines four isolation levels. Read Uncommitted allows dirty reads, reading data written by an uncommitted transaction. Read Committed prevents dirty reads but allows non-repeatable reads, where a re-read of the same row returns a different value because another transaction committed a change. Repeatable Read prevents non-repeatable reads (a snapshot on first read) but can still allow phantom reads, where a range query returns new rows inserted by another transaction. Serializable is the strongest level, preventing all three anomalies, typically via range locks or snapshot isolation with conflict detection. The tradeoff is between correctness and concurrency: stronger isolation requires more locking, which reduces throughput and can increase deadlocks, so teams often choose the weakest level their application can tolerate.",
+    "keyPoints": [
+      "Atomicity, Consistency, Isolation, and Durability are the ACID guarantees.",
+      "Read Uncommitted allows dirty reads; Read Committed blocks dirty reads.",
+      "Repeatable Read stops non-repeatable reads but may allow phantoms.",
+      "Serializable prevents all anomalies but reduces concurrency.",
+      "Choosing an isolation level balances correctness against throughput and lock contention."
+    ],
+    "minWords": 70
+  },
+  {
+    "id": "db-v-04",
+    "sectionId": "databases-sql",
+    "type": "verbal",
+    "title": "Explain the N+1 query problem and how to avoid it",
+    "prompt": "Explain what the N+1 query problem is in database access. Describe a concrete scenario where it occurs, why it is expensive, and at least three strategies to avoid or fix it, such as JOINs, eager loading, and batching. Note: this is a verbal question — explain the pattern and solutions rather than executing SQL.",
+    "difficulty": "medium",
+    "tags": ["n-plus-one", "performance", "sql", "eager-loading", "batching", "orm"],
+    "points": 10,
+    "hints": [
+      "N+1 happens when you load a parent collection and then issue one extra query per child.",
+      "The number of queries grows to N+1 where N is the number of parents.",
+      "JOINs fetch parents and children in a single round trip.",
+      "ORM eager loading or `IN`-clause batching collapses many queries into a few.",
+      "Caching can also remove repeated identical lookups."
+    ],
+    "idealAnswer": "The N+1 problem occurs when an application fetches a list of N parent records and then, while iterating, issues a separate query to load each parent's related children, for a total of N+1 database round trips. For example, loading all blog posts and then, inside a loop, querying the comments of each post generates one query for the posts plus one query per post, which becomes disastrous at scale because each round trip adds latency and load on the database. The cost is amplified by network latency and can be noticed as slow page loads and heavy database load. Common fixes include using a JOIN or subquery to fetch parents and children in a single statement, using ORM eager loading (e.g. 'select in' / prefetch) to load all related rows in one or two batched queries, and batching with an 'IN' clause that loads all children for all parent IDs at once instead of per parent. Additionally, secondary lookups can be served from a cache to avoid repeated identical queries. The goal is to minimize round trips: either join in SQL or fetch the full related set with a bounded number of queries rather than one per row.",
+    "keyPoints": [
+      "N+1 is one query for the list plus one query per row.",
+      "It multiplies round trips and latency as N grows.",
+      "Fix with JOINs, ORM eager loading, or batched `IN` queries.",
+      "Caching repeated lookups reduces load further.",
+      "Always verify generated queries, especially under ORMs."
+    ],
+    "minWords": 60
+  },
+  {
+    "id": "db-v-05",
+    "sectionId": "databases-sql",
+    "type": "verbal",
+    "title": "Explain how B-tree indexes work and when they help or hurt",
+    "prompt": "Explain how a B-tree database index works internally, including the concept of a balanced tree, nodes, and leaf pages. Describe which query patterns benefit from a B-tree index (equality, range, ordering, covering indexes) and when an index hurts performance, such as extra write cost, bloat, or cardinality issues. Note: this is a verbal question — explain the mechanics and tradeoffs rather than running SQL.",
+    "difficulty": "hard",
+    "tags": ["b-tree", "indexes", "query-optimization", "database-internals", "performance"],
+    "points": 10,
+    "hints": [
+      "A B-tree is a balanced tree where lookups are O(log n) on disk.",
+      "Leaf pages hold the sorted keys and row pointers.",
+      "Indexes help equality, range, and ORDER BY; they also enable covering indexes.",
+      "Each index adds write cost and storage, so low-cardinality or rarely-queried columns are poor candidates.",
+      "Leftmost-prefix rule matters for multi-column indexes."
+    ],
+    "idealAnswer": "A B-tree index is a balanced tree structure the database uses to locate rows without scanning the whole table. The root and internal nodes store separator keys that guide the search, and the leaf pages hold the indexed values in sorted order together with pointers to rows; a B-tree is specifically kept balanced so every lookup, insert, and delete is O(log n), and it stays efficient on disk because pages are read in bulk. Because the keys are ordered, a B-tree serves equality lookups, range scans like 'BETWEEN' or 'greater than', prefix matches, and ORDER BY without sorting, and a covering index that contains all needed columns avoids reading the table at all. However, indexes have real costs: every INSERT, UPDATE, and DELETE must also maintain each index, so write-heavy tables pay more; an index with low selectivity (many duplicate keys, like a boolean column) rarely helps because the planner may still scan the table; multi-column indexes only help if the leading columns are used, per the leftmost-prefix rule; and over time, index fragmentation and bloat can degrade performance unless maintained. The practical guidance is to index columns used in WHERE, JOIN, and ORDER BY, keep the total number of indexes low on write-heavy tables, and verify with the query planner that the index is actually used.",
+    "keyPoints": [
+      "B-trees give O(log n) lookup/insert/delete and stay balanced on disk.",
+      "Leaves hold sorted keys plus row pointers, enabling range scans and ORDER BY.",
+      "Covering indexes let queries avoid touching the table.",
+      "Each index adds write overhead and storage; low-cardinality columns are weak candidates.",
+      "Multi-column indexes require the leftmost prefix; verify usage with the planner."
+    ],
+    "minWords": 70
+  },
+  {
+    "id": "db-v-06",
+    "sectionId": "databases-sql",
+    "type": "verbal",
+    "title": "Explain read replicas, sharding, and partition strategies for scaling databases",
+    "prompt": "Explain the main strategies for scaling a relational database horizontally and vertically. Describe read replicas and when they help, database sharding (key selection, tradeoffs, resharding), and table partitioning (range, list, hash) and how each differs. Discuss consistency caveats with replicas, such as replication lag. Note: this is a verbal question — explain the architectural strategies rather than executing SQL.",
+    "difficulty": "hard",
+    "tags": ["read-replicas", "sharding", "partitioning", "scalability", "replication-lag", "database-architecture"],
+    "points": 10,
+    "hints": [
+      "Scaling up (bigger hardware) is simplest but has limits and cost; scaling out distributes load.",
+      "Read replicas offload reads but lag behind the primary, so reads can be stale.",
+      "Sharding splits data by key across servers; choose a high-cardinality, evenly-distributed key.",
+      "Partitioning keeps data in one logical table but splits storage by range, list, or hash.",
+      "Resharding and cross-shard queries are the hard parts of sharding."
+    ],
+    "idealAnswer": "Vertical scaling means moving to a larger machine; it is simple but expensive, hits hardware ceilings, and creates a single point of failure, so growing workloads usually need horizontal strategies. Read replicas are copies of the primary database that serve read-only traffic, letting you scale reads to many instances while writes stay on the primary; they are great for reporting and heavy-read workloads, but replication is asynchronous in most setups, so replicas lag behind and may serve stale data, which breaks read-your-writes guarantees unless handled. Sharding distributes data across multiple databases by splitting rows on a shard key, such as user_id hashed to a range; this scales writes as well as reads because each shard owns a subset. The hard parts are choosing a key with high cardinality and even distribution to avoid hot shards, handling joins and transactions that cross shards (which usually requires fan-out queries or denormalization), and resharding as data grows, which is complex and often requires rebalancing or consistent hashing. Partitioning is different: it splits one logical table's storage into partitions by range, list, or hash while keeping a single schema and engine, which improves maintenance, archiving, and scan performance but does not by itself distribute load across machines. In practice, teams use replicas first for read load, then partition for manageability, and finally shard when a single node cannot hold the data or the write volume, always designing the shard key from the application's dominant query patterns.",
+    "keyPoints": [
+      "Vertical scaling is simple but bounded; horizontal scaling distributes data and load.",
+      "Read replicas scale reads but introduce replication lag and stale reads.",
+      "Sharding spreads rows by a chosen key and scales writes, but complicates joins, transactions, and resharding.",
+      "Partitioning splits one table's storage by range/list/hash without distributing across servers.",
+      "Choose the shard key based on the dominant access pattern and aim for even distribution."
+    ],
+    "minWords": 80
+  }
+]
