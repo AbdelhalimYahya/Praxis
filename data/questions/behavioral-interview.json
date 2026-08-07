@@ -1,1 +1,86 @@
-[]
+[
+  {
+    "id": "beh-v-01",
+    "sectionId": "behavioral-interview",
+    "type": "verbal",
+    "title": "Conflict with a Teammate or Stakeholder",
+    "prompt": "Tell me about a time you disagreed with a teammate or stakeholder. Please answer using the STAR method (Situation, Task, Action, Result). Be specific about the nature of the disagreement, the steps you took to resolve it, and the eventual outcome. You will be graded on structure, specificity, and outcome.",
+    "difficulty": "medium",
+    "tags": ["conflict-resolution", "communication", "collaboration"],
+    "points": 10,
+    "hints": ["Describe the disagreement objectively without blaming the other person.", "Show that you listened to their perspective before advocating for yours.", "Conclude with a measurable or observable outcome and what you learned."],
+    "idealAnswer": "Situation: I disagreed with a senior engineer over which database schema to adopt for a customer-facing feature. Task: We needed to ship on schedule while keeping both performance and maintainability. Action: I scheduled a one-on-one, listened to their reasoning, presented my tradeoff analysis with data, and we agreed to prototype both approaches against our real workload. Result: We chose the simpler schema with a 30% faster query path, shipped on time, and I gained a better framework for future technical debates.",
+    "keyPoints": ["Clearly describes a real disagreement and its stakes", "Action shows listening, evidence-based reasoning, and a resolution path", "Result is concrete (outcome, metric, or lesson) and ties back to the conflict"],
+    "minWords": 50
+  },
+  {
+    "id": "beh-v-02",
+    "sectionId": "behavioral-interview",
+    "type": "verbal",
+    "title": "A Project You Are Proud Of",
+    "prompt": "Describe a project you are proud of and explain your specific contribution to it. Please answer using the STAR method (Situation, Task, Action, Result). Highlight what you personally did, the obstacles you overcame, and the impact the project had. You will be graded on structure, specificity, and outcome.",
+    "difficulty": "medium",
+    "tags": ["ownership", "project-delivery", "impact"],
+    "points": 10,
+    "hints": ["Pick a project where you had real ownership rather than a supporting role.", "Separate the team's achievement from your personal contribution.", "Quantify the result where possible (time saved, users, revenue, quality)."],
+    "idealAnswer": "Situation: Our team's onboarding flow had a 60% drop-off rate and was a top complaint. Task: I owned redesigning the flow end to end within one sprint cycle. Action: I ran user interviews, mapped the friction points, rebuilt the multi-step form into a single guided experience, and coordinated QA and design on rollout. Result: Completion rate rose from 40% to 82%, support tickets about onboarding dropped by half, and the work became a template for other flows.",
+    "keyPoints": ["Personal contribution is clear and distinct from team effort", "Obstacle or challenge is named and overcome", "Impact is specific and ideally quantified"],
+    "minWords": 50
+  },
+  {
+    "id": "beh-v-03",
+    "sectionId": "behavioral-interview",
+    "type": "verbal",
+    "title": "Tight Deadline or Failure",
+    "prompt": "Tell me about a time you faced a tight deadline or a failure. Please answer using the STAR method (Situation, Task, Action, Result). Explain what went wrong or why the deadline was at risk, what you did about it, and the final outcome. You will be graded on structure, specificity, and outcome.",
+    "difficulty": "medium",
+    "tags": ["resilience", "time-management", "problem-solving"],
+    "points": 10,
+    "hints": ["Be honest about what went wrong instead of spinning the story.", "Show your decision-making under pressure, including what you deprioritized.", "Focus on what you changed afterward to prevent a repeat."],
+    "idealAnswer": "Situation: A critical migration was slipping and faced a hard go-live date. Task: I had to get the release out without breaking existing customers. Action: I triaged the work, cut a non-essential feature, communicated the revised scope to stakeholders early, and paired with a teammate to clear the highest-risk blockers. Result: We delivered on time with a zero-downtime cutover, and I introduced a risk register for future migrations after seeing how quickly scope creep had ballooned.",
+    "keyPoints": ["Failure or risk is acknowledged honestly", "Action shows prioritization, communication, and pressure decision-making", "Outcome is concrete and includes a lesson or process change"],
+    "minWords": 50
+  },
+  {
+    "id": "beh-v-04",
+    "sectionId": "behavioral-interview",
+    "type": "verbal",
+    "title": "Handling Feedback and Criticism",
+    "prompt": "How do you handle feedback, including criticism of your code or approach? Please answer using the STAR method (Situation, Task, Action, Result) with a specific example. Describe the feedback you received, how you responded in the moment, and what changed as a result. You will be graded on structure, specificity, and outcome.",
+    "difficulty": "medium",
+    "tags": ["feedback", "growth-mindset", "code-review"],
+    "points": 10,
+    "hints": ["Choose a real instance of criticism, not a generic \"I love feedback\" statement.", "Show you separated your ego from your work when reacting.", "End with a concrete change you made to your code, approach, or process."],
+    "idealAnswer": "Situation: A reviewer criticized my PR's architecture, calling it over-engineered for the problem. Task: I had to decide whether to defend, adjust, or push back constructively. Action: I thanked them, asked clarifying questions to understand their concern, then reworked the solution to a simpler approach while confirming the tradeoffs aloud. Result: The merged code was smaller and faster to maintain, and I now request design review earlier in my process rather than at PR time.",
+    "keyPoints": ["Real criticism is described with the context around it", "Reaction shows openness and separating self from work", "Outcome includes a tangible improvement in code or process"],
+    "minWords": 50
+  },
+  {
+    "id": "beh-v-05",
+    "sectionId": "behavioral-interview",
+    "type": "verbal",
+    "title": "Learning a New Technology Quickly",
+    "prompt": "Tell me about a time you had to learn a new technology quickly. Please answer using the STAR method (Situation, Task, Action, Result). Explain why the learning was urgent, how you went about learning it, and how you applied it to deliver. You will be graded on structure, specificity, and outcome.",
+    "difficulty": "medium",
+    "tags": ["learning", "adaptability", "self-improvement"],
+    "points": 10,
+    "hints": ["Name the specific technology and why it was unfamiliar to you.", "Describe your learning strategy: docs, mentors, side projects, pair programming.", "Show how the knowledge was applied to real work, not just studied."],
+    "idealAnswer": "Situation: We had to integrate a third-party payments API, and the only engineer with experience left the company. Task: I needed to own the integration with roughly two weeks until launch. Action: I worked through the official docs and sandbox, built a small spike to prove the core flow, shadowed the departing engineer for two days, and wrote integration notes as I learned. Result: We launched on schedule with payments processing correctly in production, and my notes became onboarding material for the next person.",
+    "keyPoints": ["Technology and urgency of learning are specific", "Learning method is concrete and resourceful", "Result shows the skill being applied to real work and impact"],
+    "minWords": 50
+  },
+  {
+    "id": "beh-v-06",
+    "sectionId": "behavioral-interview",
+    "type": "verbal",
+    "title": "Career Goals and Interest in the Role",
+    "prompt": "Where do you see yourself in a few years, and why are you interested in this role? Please answer using the STAR method (Situation, Task, Action, Result) where applicable. Connect your past experience, your near-term growth goals, and why this role and company are the right fit. You will be graded on structure, specificity, and outcome.",
+    "difficulty": "medium",
+    "tags": ["motivation", "career-goals", "fit"],
+    "points": 10,
+    "hints": ["Ground your interest in specifics about the role and company, not generic praise.", "Make your career path plausible: past, present, and next step.", "Show what you can contribute, not just what you want to gain."],
+    "idealAnswer": "Situation: After shipping several customer-facing features, I realized my growth is in building scalable systems and mentoring others. Task: I want a role that stretches me into larger architectural ownership. Action: This role matches that, because the team owns high-throughput services, and the roadmap includes the reliability work I already enjoy. Result: In a few years I aim to be a senior engineer who leads a domain area and mentors junior developers, and I believe this team is the environment where I can do that while delivering immediate value on day one.",
+    "keyPoints": ["Interest in the role is specific and tied to concrete team or work details", "Career goal is realistic and connected to the role", "Answer balances what the candidate will contribute with what they want to grow into"],
+    "minWords": 50
+  }
+]
