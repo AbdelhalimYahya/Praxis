@@ -1,1 +1,170 @@
-[]
+[
+  {
+    "id": "sec-v-01",
+    "sectionId": "cyber-security",
+    "type": "verbal",
+    "title": "OWASP Top 10: Critical Web App Risks",
+    "prompt": "Explain the OWASP Top 10 and describe the most critical web application security risks, including injection, XSS, CSRF, and SSRF. What makes these vulnerabilities dangerous in practice?",
+    "difficulty": "medium",
+    "tags": ["owasp", "web-security", "injection", "xss", "csrf", "ssrf"],
+    "points": 10,
+    "hints": [
+      "Think about the ranking: Injection, Broken Authentication, Sensitive Data Exposure, XXE, Broken Access Control, Security Misconfiguration, XSS, Insecure Deserialization, Components with Known Vulnerabilities, and Insufficient Logging.",
+      "SSRF lets an attacker trick the server into making requests to internal resources.",
+      "Most modern frameworks have built-in protections, so the question is whether you rely on them or bypass them."
+    ],
+    "idealAnswer": "The OWASP Top 10 is a community-maintained list of the most prevalent and severe web application security risks. The most critical categories include Injection (SQL, NoSQL, OS command), where untrusted data is executed as code; Broken Access Control, where users can access functions or data beyond their permissions; XSS, where attackers inject client-side scripts into pages viewed by others; and SSRF, where a server is tricked into making requests to internal or unauthorized resources. CSRF is also notable, tricking an authenticated user's browser into performing unintended state-changing requests. These vulnerabilities matter because they often lead to data theft, account takeover, and full system compromise, and they are usually caused by missing input validation, weak authorization checks, and insecure default configurations. Modern mitigation relies on parameterized queries, framework-level CSRF and XSS protections, strict access-control checks, and validating URLs before any server-side fetch.",
+    "keyPoints": [
+      "OWASP Top 10 is a ranked list of the most critical web application risks.",
+      "Injection (SQL/NoSQL/OS) allows untrusted input to be executed as code.",
+      "XSS injects client-side scripts; CSRF forces an authenticated user's browser to perform unwanted actions.",
+      "SSRF tricks the server into accessing internal resources; broken access control is consistently the top-ranked risk.",
+      "Prevention: input validation, parameterized queries, secure defaults, and server-side authorization checks."
+  ],
+    "minWords": 40
+  },
+  {
+    "id": "sec-v-02",
+    "sectionId": "cyber-security",
+    "type": "verbal",
+    "title": "Authentication vs Authorization and Token Security",
+    "prompt": "Differentiate authentication from authorization. Then explain session and token-based security: how JWTs work, the role of OAuth 2.0, and why refresh tokens exist. What are common pitfalls?",
+    "difficulty": "hard",
+    "tags": ["authentication", "authorization", "jwt", "oauth", "refresh-token", "session"],
+    "points": 10,
+    "hints": [
+      "Authentication is proving WHO you are; authorization decides WHAT you may do.",
+      "A JWT is a signed (not encrypted by default) token containing claims; verify the signature and expiry on every request.",
+      "Access tokens are short-lived; refresh tokens are longer-lived and exchanged for new access tokens."
+    ],
+    "idealAnswer": "Authentication verifies identity (who the user is), while authorization determines what that identity is permitted to do, and they must be enforced separately on the server. In token-based security, a JWT is a self-contained token with a header, payload of claims, and a signature that proves it was issued by a trusted party; it should be short-lived, stored safely (not in localStorage where XSS can read it), and its signature, expiry, and issuer must be validated on every request. OAuth 2.0 is an authorization framework that lets a client obtain tokens on behalf of a user via flows like authorization code with PKCE, without exposing credentials. Refresh tokens are long-lived credentials exchanged at a token endpoint for new access tokens, enabling sessions to outlast short access-token lifetimes while minimizing exposure. Common pitfalls include placing authorization logic in the client, accepting unsigned or unverified JWTs, using weak signing secrets, storing tokens insecurely, and failing to implement rotation or revocation of refresh tokens.",
+    "keyPoints": [
+      "Authentication answers 'who are you?'; authorization answers 'what can you do?' — enforce both server-side.",
+      "JWT is signed with claims; always validate signature, issuer, audience, and expiry.",
+      "OAuth 2.0 is an authorization framework; authorization-code flow with PKCE is the modern best practice.",
+      "Refresh tokens provide long-lived sessions with short-lived access tokens; rotate and revoke them.",
+      "Pitfalls: client-side authorization, weak signing secrets, token theft via XSS, no token rotation."
+  ],
+    "minWords": 50
+  },
+  {
+    "id": "sec-v-03",
+    "sectionId": "cyber-security",
+    "type": "verbal",
+    "title": "Secure Password Storage: Hashing, Salting, Peppering",
+    "prompt": "How should passwords be stored securely? Explain hashing versus encryption, why salts are required, what peppering adds, and why bcrypt or argon2 are preferred over fast algorithms like SHA-256. Why is plaintext storage unacceptable?",
+    "difficulty": "medium",
+    "tags": ["passwords", "hashing", "bcrypt", "argon2", "salting", "peppering"],
+    "points": 10,
+    "hints": [
+      "Hashing is one-way; encryption is reversible — passwords must be hashed, never encrypted.",
+      "A unique random salt per user defeats precomputed rainbow tables and duplicate-password correlation.",
+      "bcrypt/argon2 are slow, memory-hard algorithms that make brute force expensive; argon2 is the current recommendation."
+    ],
+    "idealAnswer": "Passwords must never be stored as plaintext or reversible ciphertext — they must be hashed with a slow, memory-hard, salted algorithm. Hashing is one-way, so even if the database leaks, the original passwords stay difficult to recover, whereas encryption is reversible and pointless for passwords. A unique random salt per user ensures identical passwords produce different hashes and defeats rainbow tables and cross-user correlation; peppering adds a secret application-wide value, stored separately from the database, so a database-only leak exposes nothing. bcrypt and argon2 are deliberately slow and memory-intensive, slowing down brute-force and dictionary attacks, unlike fast algorithms such as SHA-256 or MD5 that attackers can compute billions of times per second. Best practice in 2024/2025 is argon2id with strong parameters, followed by bcrypt; SHA-256 with many iterations or plain salted hashes are considered legacy and unsafe. Plaintext storage is unacceptable because a single breach instantly compromises every account.",
+    "keyPoints": [
+      "Passwords must be hashed, never encrypted or stored in plaintext.",
+      "Unique per-user salts defeat rainbow tables and duplicate-password correlation.",
+      "Peppering is a secret app-wide value stored separately from hashes.",
+      "bcrypt and argon2 (argon2id) are slow and memory-hard; SHA-256/MD5 are too fast to be safe.",
+      "Verify with constant-time comparison and migrate to modern algorithms over time."
+  ],
+    "minWords": 50
+  },
+  {
+    "id": "sec-v-04",
+    "sectionId": "cyber-security",
+    "type": "verbal",
+    "title": "HTTPS/TLS Handshake and Certificates",
+    "prompt": "Explain the basics of the TLS handshake that underlies HTTPS, and why certificates matter. What does a certificate prove, what are certificate authorities, and what problems do they solve?",
+    "difficulty": "easy",
+    "tags": ["tls", "https", "certificates", "pki", "encryption"],
+    "points": 10,
+    "hints": [
+      "Think: key exchange, then encryption begins — the handshake establishes trust before data flows.",
+      "The certificate binds a public key to a domain and is signed by a CA the browser trusts.",
+      "Without certificates, a man-in-the-middle could impersonate a server."
+    ],
+    "idealAnswer": "HTTPS is HTTP running over TLS, which provides confidentiality, integrity, and authentication. During the TLS handshake the client and server agree on a protocol version and cipher suite, exchange certificates, and perform a key exchange (such as ECDHE) to derive symmetric session keys without ever sending them across the wire; only after that does encrypted application data flow. Certificates are central because they bind a server's public key to an identity — typically a domain — and are signed by a certificate authority (CA) that browsers already trust. This lets a client verify that it is really talking to the intended server, defeating man-in-the-middle attacks. In practice, modern best practice is to use TLS 1.2 or higher, certificates with short validity validated via ACME/Let's Encrypt, certificate pinning or CAA records where relevant, and to never rely on self-signed certificates in production. Certificates matter because encryption alone does not establish who you are talking to.",
+    "keyPoints": [
+      "TLS handshake: negotiate cipher suite, authenticate via certificate, exchange keys, then encrypt.",
+      "Key exchange (e.g., ECDHE) derives symmetric keys without transmitting them.",
+      "Certificates bind a public key to a domain and are signed by a trusted CA.",
+      "They defeat man-in-the-middle impersonation and prove server identity.",
+      "Best practice: TLS 1.2+, automated issuance via Let's Encrypt/ACME, no self-signed certs in prod."
+  ],
+    "minWords": 30
+  },
+  {
+    "id": "sec-v-05",
+    "sectionId": "cyber-security",
+    "type": "verbal",
+    "title": "SQL Injection and Parameterized Queries",
+    "prompt": "What is SQL injection, and why is it so dangerous? Describe how it happens and the primary ways to prevent it, including parameterized queries and defense in depth.",
+    "difficulty": "easy",
+    "tags": ["sql-injection", "parameterized-queries", "input-validation", "database"],
+    "points": 10,
+    "hints": [
+      "It happens when user input is concatenated directly into an SQL string.",
+      "A classic payload like ' OR '1'='1 can bypass authentication filters.",
+      "The fix is to treat user input as data, never as executable SQL."
+    ],
+    "idealAnswer": "SQL injection is a code-injection attack where an attacker embeds SQL statements inside user-supplied input that is concatenated into a query string. Because the input becomes part of the query structure, attackers can read, modify, or delete database data, bypass authentication, and sometimes escalate to command execution or server compromise. The primary defense is parameterized queries (prepared statements), which separate SQL structure from data so the database always treats user input as literal values, never as executable code. Additional defense in depth includes validating and sanitizing input, using an ORM that parameterizes by default, applying the principle of least privilege to database accounts, and limiting what errors reveal. In 2024/2025, ORMs and frameworks like Hibernate, Entity Framework, or Drizzle make parameterization easy, but raw string concatenation with user data remains the core anti-pattern that must never appear in code reviews.",
+    "keyPoints": [
+      "SQL injection happens when untrusted input is concatenated into SQL strings.",
+      "It can bypass authentication and lead to data theft, modification, or deletion.",
+      "Parameterized queries/prepared statements are the primary defense.",
+      "Use ORMs with parameterization by default and validate/sanitize input as defense in depth.",
+      "Apply least privilege to DB accounts; never leak query details in errors."
+  ],
+    "minWords": 30
+  },
+  {
+    "id": "sec-v-06",
+    "sectionId": "cyber-security",
+    "type": "verbal",
+    "title": "Security Headers and CORS Misconfigurations",
+    "prompt": "What do security headers and CORS protect against, and what are the common misconfigurations? Cover headers like CSP, HSTS, X-Frame-Options, and explain how CORS should be configured.",
+    "difficulty": "medium",
+    "tags": ["security-headers", "cors", "csp", "hsts", "clickjacking"],
+    "points": 10,
+    "hints": [
+      "CSP restricts what scripts and content a page can load, mitigating XSS.",
+      "X-Frame-Options or frame-ancestors blocks clickjacking.",
+      "CORS mistakes: wildcard origins with credentials, or reflecting arbitrary origins."
+    ],
+    "idealAnswer": "Security headers are HTTP response headers that tell browsers to enforce defensive behaviors. Content-Security-Policy restricts which sources can load scripts, styles, and other content, significantly mitigating XSS and data-injection attacks. HSTS forces browsers to use HTTPS, preventing protocol-downgrade and cookie-sniffing. X-Frame-Options (or the CSP frame-ancestors directive) blocks the page from being embedded in other sites, preventing clickjacking. Other important headers include X-Content-Type-Options: nosniff, Referrer-Policy, and Permissions-Policy. CORS (Cross-Origin Resource Sharing) controls whether a browser may allow a web app from one origin to read resources from another; it is enforced by the browser, so it does not protect against server-side attacks. Common misconfigurations include using a wildcard origin (Access-Control-Allow-Origin: *) together with Access-Control-Allow-Credentials, reflecting arbitrary origins from the Origin header, allowing overly broad methods or headers, and enabling CORS on endpoints that do not need cross-origin access. Best practice is to allowlist specific origins, never pair wildcards with credentials, keep the allowed methods and headers minimal, and rely on SameSite cookies for defense in depth.",
+    "keyPoints": [
+      "Security headers: CSP (XSS mitigation), HSTS (force HTTPS), X-Frame-Options/frame-ancestors (clickjacking).",
+      "CORS is a browser-enforced mechanism governing cross-origin reads, not a server-side security barrier.",
+      "Misconfigurations: wildcard origin + credentials, reflecting arbitrary Origin headers, overly broad methods.",
+      "Use allowlisted origins, minimal methods/headers, and SameSite cookies.",
+      "Audit headers with tools like OWASP Secure Headers Project or securityheaders.com."
+  ],
+    "minWords": 50
+  },
+  {
+    "id": "sec-v-07",
+    "sectionId": "cyber-security",
+    "type": "verbal",
+    "title": "Least Privilege and Defense in Depth",
+    "prompt": "Explain the principle of least privilege and the concept of defense in depth. How do RBAC and secrets management fit in, and how would you apply these to a typical cloud application?",
+    "difficulty": "hard",
+    "tags": ["least-privilege", "defense-in-depth", "rbac", "secrets-management", "security-design"],
+    "points": 10,
+    "hints": [
+      "Least privilege means giving every entity the minimum access it needs for its function.",
+      "Defense in depth layers independent controls so one failure does not mean compromise.",
+      "RBAC assigns roles to users, and roles bundle permissions; secrets belong in a dedicated vault, not code or env logs."
+    ],
+    "idealAnswer": "Least privilege means every user, service, and process receives only the minimum permissions necessary to do its job, so a compromised component cannot escalate across the system. Defense in depth is the practice of layering independent, overlapping controls — network segmentation, authentication, authorization, encryption, logging, and monitoring — so that if one layer fails, others still contain the breach. RBAC (role-based access control) operationalizes least privilege by mapping users to roles that carry only the permissions required for those roles, making it easy to grant, review, and revoke access; in 2024/2025 this extends to identity-based access with short-lived credentials, such as IAM roles and workload identity, instead of long-lived static keys. Secrets management means storing API keys, database passwords, and certificates in a dedicated secret manager (e.g., AWS Secrets Manager, Azure Key Vault, HashiCorp Vault) with rotation, audit, and encryption at rest, never in source code, config files, or environment variables that leak into logs. Applied to a cloud app, this means container images with minimal privileges, scoped IAM roles per service, network policies, separate secrets per environment, and centralized logging to detect anomalies.",
+    "keyPoints": [
+      "Least privilege: grant only the minimum access each identity requires.",
+      "Defense in depth: independent layered controls so a single failure does not mean compromise.",
+      "RBAC maps users to roles with minimal bundled permissions; review and revoke access regularly.",
+      "Secrets live in a dedicated vault with rotation and audit — never in code, config, or logs.",
+      "Cloud practice: workload identity, scoped IAM, short-lived credentials, network segmentation, centralized monitoring."
+  ],
+    "minWords": 50
+  }
+]
