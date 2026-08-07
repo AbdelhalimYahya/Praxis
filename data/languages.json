@@ -1,0 +1,30 @@
+[
+  {
+    "id": "javascript",
+    "label": "JavaScript",
+    "pistonLanguage": "javascript",
+    "pistonVersion": "18.15.0",
+    "monacoLang": "javascript"
+  },
+  {
+    "id": "python",
+    "label": "Python",
+    "pistonLanguage": "python",
+    "pistonVersion": "3.10.0",
+    "monacoLang": "python"
+  },
+  {
+    "id": "java",
+    "label": "Java",
+    "pistonLanguage": "java",
+    "pistonVersion": "15.0.2",
+    "monacoLang": "java"
+  },
+  {
+    "id": "cpp",
+    "label": "C++",
+    "pistonLanguage": "cpp",
+    "pistonVersion": "10.2.0",
+    "monacoLang": "cpp"
+  }
+]
