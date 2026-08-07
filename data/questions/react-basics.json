@@ -1,1 +1,186 @@
-[]
+[
+  {
+    "id": "react-v-01",
+    "sectionId": "react-basics",
+    "type": "verbal",
+    "title": "The Rules of Hooks",
+    "prompt": "List the Rules of Hooks in React and explain why each rule exists. Include the two formal rules and a practical consequence of breaking them.",
+    "difficulty": "medium",
+    "tags": ["react", "hooks", "best-practices"],
+    "points": 10,
+    "hints": ["Think about what happens when the number or order of hook calls changes between renders."],
+    "idealAnswer": "The two Rules of Hooks are: (1) Only call hooks at the top level, never inside conditions, loops, or nested functions; and (2) Only call hooks from React function components or custom hooks, not from regular JavaScript functions. They exist because React relies on the order and count of hook calls to associate each hook's state with a specific component instance across renders; breaking that order causes state to be mismatched with the wrong hooks. A practical consequence is that conditional hook calls corrupt the internal linked list of hook nodes, producing bugs like state mixing between renders or the 'Rendered more hooks than during the previous render' error.",
+    "keyPoints": [
+      "Only call hooks at the top level",
+      "Only call hooks from React function components or custom hooks",
+      "Order and count of hook calls must be stable across renders",
+      "Violations cause state/hook mismatch and render errors"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "react-v-02",
+    "sectionId": "react-basics",
+    "type": "verbal",
+    "title": "Virtual DOM and Reconciliation",
+    "prompt": "Explain what the virtual DOM is and how React's reconciliation algorithm decides what to update when state changes. What role do keys play?",
+    "difficulty": "medium",
+    "tags": ["react", "virtual-dom", "reconciliation", "rendering"],
+    "points": 10,
+    "hints": ["Consider how React diffs the old and new virtual trees and why keys matter for lists."],
+    "idealAnswer": "The virtual DOM is an in-memory JavaScript representation, made of plain objects, of the real DOM. When state changes, React builds a new virtual tree, diffs it against the previous one during reconciliation, and then applies only the minimal set of real DOM mutations. The diffing is heuristic: elements of different types are rebuilt wholesale, same-type elements are updated by comparing props, and list children are matched by keys, so stable keys let React reuse components and avoid unnecessary unmount/remount cycles. Keys should be unique and stable identifiers rather than array indexes when the list can be reordered.",
+    "keyPoints": [
+      "Virtual DOM is a lightweight JS mirror of the real DOM",
+      "Reconciliation diffs the new vs previous virtual trees",
+      "Different element types unmount and rebuild; same types update in place",
+      "Keys uniquely identify list items for efficient reuse and reordering"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "react-v-03",
+    "sectionId": "react-basics",
+    "type": "verbal",
+    "title": "Choosing a State Management Approach",
+    "prompt": "Compare useState, useReducer, and React Context for managing state. When would you reach for each, and what are the trade-offs?",
+    "difficulty": "medium",
+    "tags": ["react", "state-management", "useState", "useReducer", "context"],
+    "points": 10,
+    "hints": ["Think about complexity of transitions, prop drilling, and re-render cost of context consumers."],
+    "idealAnswer": "useState is for simple, local state, such as a single value or a small piece of UI state where updates are straightforward. useReducer is better when state transitions are complex or depend on the previous state plus an action, like a multi-field form, a counter, or undo/redo, because it centralizes update logic in one pure function and is easier to test. Context provides a way to pass data through the tree without prop drilling, but it is not a state store; it should wrap a state-holding component, often combined with useReducer. Context re-renders all consumers when its value changes, so for high-frequency updates or large trees it can hurt performance, and for app-wide shared data an external library like Redux or Zustand may be justified. In general: start with useState, lift state or switch to useReducer when logic grows, use Context to avoid prop drilling, and reach for an external store only when necessary.",
+    "keyPoints": [
+      "useState is for simple local state",
+      "useReducer centralizes complex transitions and is easier to test",
+      "Context solves prop drilling but re-renders all consumers",
+      "Context is not a state store; pair it with state-holding components"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "react-v-04",
+    "sectionId": "react-basics",
+    "type": "verbal",
+    "title": "useEffect Pitfalls",
+    "prompt": "Describe common pitfalls with useEffect, focusing on dependency arrays, infinite loops, and cleanup. How do you fix each?",
+    "difficulty": "medium",
+    "tags": ["react", "useEffect", "side-effects", "pitfalls"],
+    "points": 10,
+    "hints": ["What happens when a dependency is missing, and when does an effect trigger itself?"],
+    "idealAnswer": "The dependency array tells React when the effect should re-run; if a dependency is missing or stale, the effect uses outdated values, which lint rules will usually warn about. An infinite loop happens when the effect updates state that is itself in the dependency array, or when a dependency such as a new object or array literal changes identity on every render, causing the effect to run forever; fixes include removing the state from the deps, memoizing values with useCallback/useMemo, or restructuring the logic. Cleanup functions returned from effects run before the next effect execution and on unmount; they are needed to cancel subscriptions, timers, or abort fetches to prevent memory leaks and setState-after-unmount warnings. As a general rule, keep effects scoped to one concern, derive data during render when possible, and only include values the effect actually uses.",
+    "keyPoints": [
+      "Missing or stale dependencies cause outdated behavior",
+      "Effects that set state in their deps, or unstable deps, cause infinite loops",
+      "Cleanup runs before the next effect and on unmount; cancel timers and subscriptions",
+      "Derive during render and use useCallback/useMemo for stable dependencies"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "react-v-05",
+    "sectionId": "react-basics",
+    "type": "verbal",
+    "title": "Controlled vs Uncontrolled Components",
+    "prompt": "Explain the difference between controlled and uncontrolled components in React. Give an example of each and describe when you would choose one over the other.",
+    "difficulty": "easy",
+    "tags": ["react", "forms", "controlled-components", "uncontrolled-components"],
+    "points": 10,
+    "hints": ["Who owns the source of truth for the input value: the DOM or React state?"],
+    "idealAnswer": "An uncontrolled component keeps its own internal DOM state, and you read the current value via a ref, using defaultValue rather than value. A controlled component is driven by React state: the value prop comes from state and an onChange handler updates that state, making React the single source of truth. Controlled inputs are preferred when you need validation, formatting, or to react to changes, because the value flows through your state on every keystroke; uncontrolled inputs are simpler and cause fewer re-renders when you only need the value once, such as on submit with a search form read via a ref. The rule of thumb: if you need to read or validate the value while typing, go controlled; otherwise uncontrolled is fine.",
+    "keyPoints": [
+      "Uncontrolled: the DOM owns state, read via ref with defaultValue",
+      "Controlled: value comes from React state plus an onChange handler",
+      "Controlled makes React the single source of truth",
+      "Choose controlled for validation/formatting; uncontrolled for simple one-shot reads"
+    ],
+    "minWords": 30
+  },
+  {
+    "id": "react-c-01",
+    "sectionId": "react-basics",
+    "type": "coding",
+    "title": "uniqueSorted: Deduplicate and Sort",
+    "prompt": "Write a plain JavaScript function (no JSX, no React imports) named `uniqueSorted`. It mimics a useMemo-style pure selector: given an array of numbers, it returns a new array with duplicates removed and the remaining numbers sorted in ascending numeric order. The code runner in this environment cannot render actual React components, so implement this purely as a standalone function. Return a new array and do not mutate the input array.",
+    "difficulty": "easy",
+    "tags": ["react", "useMemo", "pure-function", "arrays", "coding"],
+    "points": 10,
+    "hints": [
+      "Use a Set to drop duplicates, then sort the result numerically.",
+      "Array.prototype.sort sorts lexicographically by default, so pass a comparator like (a, b) => a - b.",
+      "Spread the Set into an array before sorting: [...new Set(arr)].sort((a, b) => a - b)."
+    ],
+    "functionName": "uniqueSorted",
+    "languageBoilerplate": {
+      "javascript": "function uniqueSorted(arr) {\n  // your code here\n}",
+      "python": "def unique_sorted(arr):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [[3, 1, 3, 2, 1]], "expectedOutput": [1, 2, 3] },
+      { "id": "setup-2", "input": [[]], "expectedOutput": [] },
+      { "id": "setup-3", "input": [[5, 5, 5]], "expectedOutput": [5] }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [[3, 1, 3, 2, 1]], "expectedOutput": [1, 2, 3], "description": "Basic deduplication and sorting" },
+      { "id": "t2", "input": [[]], "expectedOutput": [], "description": "Empty array returns empty array" },
+      { "id": "t3", "input": [[5]], "expectedOutput": [5], "description": "Single element array" },
+      { "id": "t4", "input": [[2, 2, 2, 2]], "expectedOutput": [2], "description": "All identical values collapse to one" },
+      { "id": "t5", "input": [[-1, 3, -1, 0, 2, 0]], "expectedOutput": [-1, 0, 2, 3], "description": "Negatives and zero are sorted correctly" },
+      { "id": "t6", "input": [[10, 10, 1, 9, 9, 2, 8, 8, 3]], "expectedOutput": [1, 2, 3, 8, 9, 10], "description": "Large interleaved duplicates" },
+      { "id": "t7", "input": [[0, 0, 0]], "expectedOutput": [0], "description": "Repeated zeros" },
+      { "id": "t8", "input": [[7, 3, 7, 3, 5, 5, 1, 1, 9, 9, 2, 2]], "expectedOutput": [1, 2, 3, 5, 7, 9], "description": "Long shuffled list with many duplicates" },
+      { "id": "t9", "input": [[42]], "expectedOutput": [42], "description": "Already unique single value" },
+      { "id": "t10", "input": [[1, 1000, 1000, 1, 500, 500, 2]], "expectedOutput": [1, 2, 500, 1000], "description": "Mixed magnitudes sort numerically, not lexicographically" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Input is always an array of numbers.",
+      "Sort must be numeric ascending (3 before 10).",
+      "Do not mutate the input array.",
+      "Return a new array."
+    ]
+  },
+  {
+    "id": "react-c-02",
+    "sectionId": "react-basics",
+    "type": "coding",
+    "title": "counterReducer: Pure useReducer Reducer",
+    "prompt": "Write a plain JavaScript function (no JSX, no React imports) named `counterReducer`. It mimics the reducer you would pass to React's useReducer for a simple counter. It takes two arguments: the current `state` (a number) and an `action` object `{ type, payload }`. Apply these transitions: `{type: 'increment'}` adds 1 (or `payload` if provided); `{type: 'decrement'}` subtracts 1 (or `payload` if provided); `{type: 'reset'}` returns 0 (or `payload` as a number if provided). Return the new state number. The code runner in this environment cannot render actual React components, so implement it as a pure standalone function and do not mutate the state or the action.",
+    "difficulty": "easy",
+    "tags": ["react", "useReducer", "reducer", "pure-function", "coding"],
+    "points": 10,
+    "hints": [
+      "Switch on action.type and compute the next state from the current state.",
+      "Use the nullish coalescing operator to default payload: action.payload ?? 1.",
+      "Reset should return action.payload ?? 0.",
+      "Return a plain number, never mutate the action object."
+    ],
+    "functionName": "counterReducer",
+    "languageBoilerplate": {
+      "javascript": "function counterReducer(state, action) {\n  // your code here\n}",
+      "python": "def counter_reducer(state, action):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      { "id": "setup-1", "input": [0, { "type": "increment" }], "expectedOutput": 1 },
+      { "id": "setup-2", "input": [3, { "type": "reset" }], "expectedOutput": 0 },
+      { "id": "setup-3", "input": [5, { "type": "increment" }], "expectedOutput": 6 }
+    ],
+    "fullTests": [
+      { "id": "t1", "input": [5, { "type": "increment" }], "expectedOutput": 6, "description": "Increment from positive state" },
+      { "id": "t2", "input": [0, { "type": "decrement" }], "expectedOutput": -1, "description": "Decrement can go below zero" },
+      { "id": "t3", "input": [5, { "type": "reset" }], "expectedOutput": 0, "description": "Reset returns zero" },
+      { "id": "t4", "input": [-3, { "type": "decrement" }], "expectedOutput": -4, "description": "Decrement from negative state" },
+      { "id": "t5", "input": [5, { "type": "increment", "payload": 10 }], "expectedOutput": 15, "description": "Increment respects payload" },
+      { "id": "t6", "input": [10, { "type": "decrement", "payload": 4 }], "expectedOutput": 6, "description": "Decrement respects payload" },
+      { "id": "t7", "input": [1000000, { "type": "increment" }], "expectedOutput": 1000001, "description": "Big increment" },
+      { "id": "t8", "input": [-5, { "type": "increment" }], "expectedOutput": -4, "description": "Increment from negative state" },
+      { "id": "t9", "input": [0, { "type": "increment" }], "expectedOutput": 1, "description": "Increment from zero" },
+      { "id": "t10", "input": [7, { "type": "reset", "payload": 42 }], "expectedOutput": 42, "description": "Reset with payload returns the payload" }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "state is always a number.",
+      "increment/decrement default to a step of 1 when payload is not provided.",
+      "reset returns 0 when payload is not provided.",
+      "Return a new number; do not mutate the action object."
+    ]
+  }
+]
