@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Icon } from '@iconify/vue'
 import type { AiGradingResult } from '~/types/grading'
 
 const props = defineProps<{
@@ -9,6 +10,7 @@ const props = defineProps<{
 <template>
   <div class="rounded-xl border border-sky-200 bg-sky-50 p-5 dark:border-sky-900 dark:bg-sky-950/40">
     <h3 class="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-sky-800 dark:text-sky-300">
+      <Icon icon="mdi:creation" class="h-4 w-4" aria-hidden="true" />
       What the AI understood from your answer
     </h3>
     <p class="text-sm leading-relaxed text-sky-900 dark:text-sky-100">
