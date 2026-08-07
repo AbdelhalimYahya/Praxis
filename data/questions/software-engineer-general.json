@@ -1,1 +1,621 @@
-[]
+[
+  {
+    "id": "swe-v-01",
+    "sectionId": "software-engineer-general",
+    "type": "verbal",
+    "title": "Explain the SOLID principles",
+    "prompt": "Explain the five SOLID principles of object-oriented design. For each principle, give a one-line description and a short concrete example of the problem it prevents.",
+    "difficulty": "medium",
+    "tags": ["SOLID", "design principles", "OOP", "clean code"],
+    "points": 10,
+    "hints": [
+      "Single Responsibility and Interface Segregation both deal with keeping units focused.",
+      "Open/Closed is about adding new behavior without editing existing code.",
+      "Liskov Substitution is about not breaking the contracts promised by the base class."
+    ],
+    "idealAnswer": "SOLID is a set of five object-oriented design principles. Single Responsibility: a class should have only one reason to change. Open/Closed: a class should be open for extension but closed for modification. Liskov Substitution: a subclass must be substitutable for its base class without breaking behavior. Interface Segregation: prefer many small, focused interfaces over one large interface. Dependency Inversion: depend on abstractions rather than concrete implementations. Following these principles yields code that is easier to test, extend, and maintain.",
+    "keyPoints": [
+      "Single Responsibility: one reason to change",
+      "Open/Closed: extend without modifying",
+      "Liskov Substitution: substitutable subclasses",
+      "Interface Segregation: small focused interfaces",
+      "Dependency Inversion: depend on abstractions"
+    ],
+    "minWords": 50
+  },
+  {
+    "id": "swe-v-02",
+    "sectionId": "software-engineer-general",
+    "type": "verbal",
+    "title": "Describe common design patterns and when to use them",
+    "prompt": "Explain the Strategy, Observer, and Factory design patterns. For each pattern, describe the problem it solves and a real-world situation where you would use it.",
+    "difficulty": "medium",
+    "tags": ["design patterns", "strategy", "observer", "factory"],
+    "points": 10,
+    "hints": [
+      "Strategy encapsulates interchangeable algorithms behind a common interface.",
+      "Observer decouples a subject from its dependents, like event listeners.",
+      "Factory centralizes object creation when construction is complex or varies."
+    ],
+    "idealAnswer": "Strategy defines a family of interchangeable algorithms, each in its own class behind a common interface, so the calling code can swap behavior at runtime; use it for payment methods, sorting strategies, or validation rules. Observer lets one subject notify many dependents of state changes without coupling them; use it for event systems, UI updates, or pub/sub. Factory (factory method or abstract factory) centralizes object creation, hiding construction details and conditional logic; use it when creating objects is complex, varies, or depends on configuration. Patterns give us proven vocabulary and structure, but they should be applied only where they actually reduce complexity.",
+    "keyPoints": [
+      "Strategy: interchangeable algorithms swapped at runtime",
+      "Observer: one-to-many notifications with loose coupling",
+      "Factory: centralized object creation for complex or varying construction",
+      "Patterns are tools, not goals: apply only where they reduce complexity"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "swe-v-03",
+    "sectionId": "software-engineer-general",
+    "type": "verbal",
+    "title": "Time vs. space complexity tradeoffs",
+    "prompt": "Explain the tradeoff between time complexity and space complexity. Give one example where using more memory reduces time, and one where using less memory costs more time.",
+    "difficulty": "medium",
+    "tags": ["complexity", "big-O", "tradeoffs", "algorithms"],
+    "points": 10,
+    "hints": [
+      "Memoization and caching are classic time-for-space trades.",
+      "In-place, iterative solutions often trade time for less memory."
+    ],
+    "idealAnswer": "Time complexity describes how runtime grows with input size; space complexity describes how memory grows. Many problems allow a tradeoff: using extra memory such as caches, hash maps, or precomputed tables can reduce time, while space-constrained solutions often recompute work. Example: finding a duplicate in an array is O(n^2) with brute force but O(n) time and O(n) space with a hash set. Conversely, computing Fibonacci with memoization uses O(n) space for O(n) time, while a plain recursive version is exponential in time with O(n) stack space. The right balance depends on the constraints, data size, and hardware.",
+    "keyPoints": [
+      "Time complexity measures growth of runtime; space measures memory growth",
+      "Hash maps and caches trade memory for faster lookups",
+      "In-place and iterative solutions trade time for less memory",
+      "Choose the balance based on constraints and expected input size"
+    ]
+  },
+  {
+    "id": "swe-v-04",
+    "sectionId": "software-engineer-general",
+    "type": "verbal",
+    "title": "The testing pyramid",
+    "prompt": "Explain the testing pyramid and why the distribution of tests matters. Where do unit, integration, and end-to-end tests belong, and why?",
+    "difficulty": "easy",
+    "tags": ["testing", "testing pyramid", "quality"],
+    "points": 10,
+    "hints": [
+      "The base is many fast, isolated unit tests.",
+      "The top is a few slow, end-to-end tests.",
+      "The middle layer holds a moderate number of integration tests."
+    ],
+    "idealAnswer": "The testing pyramid is a model for distributing tests: a wide base of many fast unit tests, a smaller middle layer of integration tests, and a tiny top of end-to-end tests. Unit tests are fast, isolated, and pinpoint failures precisely, so we want many of them. Integration tests verify that components work together with databases, APIs, or external services and are slower. End-to-end tests validate complete user flows through the real system but are slow and brittle, so they should be few and reserved for the most critical journeys. Following the pyramid keeps the suite fast, stable, and maintainable while maximizing coverage per unit of test cost.",
+    "keyPoints": [
+      "Unit tests: many, fast, isolated; the base of the pyramid",
+      "Integration tests: moderate number, verify components together",
+      "End-to-end tests: few, slow, reserved for critical flows",
+      "A correct distribution keeps suites fast and reliable"
+    ]
+  },
+  {
+    "id": "swe-v-05",
+    "sectionId": "software-engineer-general",
+    "type": "verbal",
+    "title": "Refactoring and code smells",
+    "prompt": "What is refactoring? Name at least three common code smells and explain how you would fix each one.",
+    "difficulty": "medium",
+    "tags": ["refactoring", "code smells", "clean code"],
+    "points": 10,
+    "hints": [
+      "Duplicated code and long methods are usually resolved by extraction.",
+      "Refactoring changes structure without changing observable behavior.",
+      "Run the test suite before and after each small refactoring step."
+    ],
+    "idealAnswer": "Refactoring is restructuring existing code to improve readability, maintainability, and design without changing its observable behavior, ideally with a passing test suite before and after. Common smells include duplicate code, fixed by extracting a shared method or function; long methods or classes, split by responsibility; large parameter lists, replaced with a parameter object or builder; and feature envy or god classes, fixed by moving responsibilities to the correct owner. Refactoring should be done in small, behavior-preserving steps with tests guarding every step so regressions are caught immediately.",
+    "keyPoints": [
+      "Refactoring preserves behavior while improving structure",
+      "Duplicate code: extract shared logic",
+      "Long methods and classes: split by responsibility",
+      "Large parameter lists: introduce a parameter object",
+      "Run tests before and after each refactoring step"
+    ]
+  },
+  {
+    "id": "swe-v-06",
+    "sectionId": "software-engineer-general",
+    "type": "verbal",
+    "title": "Agile practices and estimation",
+    "prompt": "Describe key Agile practices, such as Scrum ceremonies or XP habits, and explain how you would estimate work using story points and planning poker.",
+    "difficulty": "easy",
+    "tags": ["agile", "scrum", "estimation", "planning poker"],
+    "points": 10,
+    "hints": [
+      "Estimation is about relative size and uncertainty, not exact hours.",
+      "Velocity, measured over sprints, converts points into delivery forecasts."
+    ],
+    "idealAnswer": "Agile emphasizes iterative delivery, continuous feedback, and adaptability. Common practices include short sprints, daily stand-ups, sprint planning, sprint reviews, and retrospectives, plus engineering habits such as test-driven development and continuous integration. Estimation usually uses story points with planning poker: the team compares stories relatively and reaches consensus on size. Points measure relative size and uncertainty rather than time, and velocity lets the team predict how much it can deliver per iteration. Estimation should be done by the people doing the work and refined as the team learns.",
+    "keyPoints": [
+      "Practices: sprints, stand-ups, planning, reviews, retrospectives",
+      "Story points measure relative size and uncertainty",
+      "Planning poker drives consensus among the team",
+      "Velocity turns estimates into delivery forecasts",
+      "The team that does the work does the estimating"
+    ]
+  },
+  {
+    "id": "swe-c-01",
+    "sectionId": "software-engineer-general",
+    "type": "coding",
+    "title": "First Duplicate",
+    "prompt": "Write a function firstDuplicate(nums) that returns the first value whose second occurrence comes earliest, meaning the value that is repeated first when scanning from left to right. Return null if no value repeats.",
+    "difficulty": "medium",
+    "tags": ["arrays", "hash map", "sets"],
+    "points": 10,
+    "hints": [
+      "Track seen values as you scan the array from left to right.",
+      "The first value you see twice is the answer."
+    ],
+    "functionName": "firstDuplicate",
+    "languageBoilerplate": {
+      "javascript": "function firstDuplicate(nums) {\n  // your code here\n}",
+      "python": "def first_duplicate(nums):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [[2, 1, 3, 5, 3, 2]],
+        "expectedOutput": 3
+      },
+      {
+        "id": "setup-2",
+        "input": [[1, 2, 3, 4]],
+        "expectedOutput": null
+      },
+      {
+        "id": "setup-3",
+        "input": [[3, 3]],
+        "expectedOutput": 3
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [[2, 1, 3, 5, 3, 2]],
+        "expectedOutput": 3,
+        "description": "3's second occurrence at index 4 comes before 2's second at index 5"
+      },
+      {
+        "id": "t2",
+        "input": [[1, 2, 3, 4]],
+        "expectedOutput": null,
+        "description": "No value appears twice"
+      },
+      {
+        "id": "t3",
+        "input": [[3, 3]],
+        "expectedOutput": 3,
+        "description": "3 repeats at index 1"
+      },
+      {
+        "id": "t4",
+        "input": [[5, 5, 5]],
+        "expectedOutput": 5,
+        "description": "Earliest second occurrence is at index 1"
+      },
+      {
+        "id": "t5",
+        "input": [[2, 2, 1, 1]],
+        "expectedOutput": 2,
+        "description": "2 repeats at index 1 before 1 repeats at index 3"
+      },
+      {
+        "id": "t6",
+        "input": [[]],
+        "expectedOutput": null,
+        "description": "Empty array has no duplicates"
+      },
+      {
+        "id": "t7",
+        "input": [[1]],
+        "expectedOutput": null,
+        "description": "Single element cannot repeat"
+      },
+      {
+        "id": "t8",
+        "input": [[1, 2, 3, 2, 1]],
+        "expectedOutput": 2,
+        "description": "2's second occurrence at index 3 beats 1's at index 4"
+      },
+      {
+        "id": "t9",
+        "input": [[0, 0]],
+        "expectedOutput": 0,
+        "description": "Zero is a valid repeated value"
+      },
+      {
+        "id": "t10",
+        "input": [[-1, 2, -1]],
+        "expectedOutput": -1,
+        "description": "Negative values are handled"
+      },
+      {
+        "id": "t11",
+        "input": [[1, 1, 2, 2]],
+        "expectedOutput": 1,
+        "description": "The first repeated pair wins"
+      },
+      {
+        "id": "t12",
+        "input": [[42]],
+        "expectedOutput": null,
+        "description": "Single element returns null"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "nums is an array of integers",
+      "Return null when no value repeats"
+    ]
+  },
+  {
+    "id": "swe-c-02",
+    "sectionId": "software-engineer-general",
+    "type": "coding",
+    "title": "One Edit Away",
+    "prompt": "Write a function areStringsOneEditAway(a, b) that returns true if the two strings differ by at most one insertion, deletion, or replacement. Equal strings return true.",
+    "difficulty": "medium",
+    "tags": ["strings", "two pointers"],
+    "points": 10,
+    "hints": [
+      "A length difference greater than 1 means it is impossible.",
+      "When the characters diverge, decide between replacement and insert/delete based on length."
+    ],
+    "functionName": "areStringsOneEditAway",
+    "languageBoilerplate": {
+      "javascript": "function areStringsOneEditAway(a, b) {\n  // your code here\n}",
+      "python": "def are_strings_one_edit_away(a, b):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": ["pale", "ple"],
+        "expectedOutput": true
+      },
+      {
+        "id": "setup-2",
+        "input": ["pale", "bake"],
+        "expectedOutput": false
+      },
+      {
+        "id": "setup-3",
+        "input": ["pale", "pale"],
+        "expectedOutput": true
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": ["pale", "ple"],
+        "expectedOutput": true,
+        "description": "One deletion makes them equal"
+      },
+      {
+        "id": "t2",
+        "input": ["pales", "pale"],
+        "expectedOutput": true,
+        "description": "One insertion makes them equal"
+      },
+      {
+        "id": "t3",
+        "input": ["pale", "bale"],
+        "expectedOutput": true,
+        "description": "One replacement makes them equal"
+      },
+      {
+        "id": "t4",
+        "input": ["pale", "bake"],
+        "expectedOutput": false,
+        "description": "Two replacements are required"
+      },
+      {
+        "id": "t5",
+        "input": ["", ""],
+        "expectedOutput": true,
+        "description": "Both empty strings are equal"
+      },
+      {
+        "id": "t6",
+        "input": ["", "a"],
+        "expectedOutput": true,
+        "description": "One insertion into an empty string"
+      },
+      {
+        "id": "t7",
+        "input": ["a", ""],
+        "expectedOutput": true,
+        "description": "One deletion from a single character"
+      },
+      {
+        "id": "t8",
+        "input": ["abc", "abcd"],
+        "expectedOutput": true,
+        "description": "Insertion at the end"
+      },
+      {
+        "id": "t9",
+        "input": ["abc", "ab"],
+        "expectedOutput": true,
+        "description": "Deletion at the end"
+      },
+      {
+        "id": "t10",
+        "input": ["abc", "xabc"],
+        "expectedOutput": true,
+        "description": "Insertion at the start"
+      },
+      {
+        "id": "t11",
+        "input": ["abc", "abz"],
+        "expectedOutput": true,
+        "description": "Replacement in the middle"
+      },
+      {
+        "id": "t12",
+        "input": ["abcdef", "ab"],
+        "expectedOutput": false,
+        "description": "Length difference of four is too many edits"
+      },
+      {
+        "id": "t13",
+        "input": ["", "abc"],
+        "expectedOutput": false,
+        "description": "Three insertions are too many"
+      },
+      {
+        "id": "t14",
+        "input": ["a", "b"],
+        "expectedOutput": true,
+        "description": "Single characters differ by one replacement"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Only lowercase English letters in the inputs",
+      "Edits are limited to insertion, deletion, or replacement"
+    ]
+  },
+  {
+    "id": "swe-c-03",
+    "sectionId": "software-engineer-general",
+    "type": "coding",
+    "title": "Longest Common Prefix",
+    "prompt": "Write a function longestCommonPrefix(strings) that returns the longest common prefix shared by all strings in the array. Return an empty string if there is no common prefix.",
+    "difficulty": "easy",
+    "tags": ["strings", "arrays"],
+    "points": 10,
+    "hints": [
+      "Compare characters position by position across all strings.",
+      "Stop at the shortest string or at the first mismatch."
+    ],
+    "functionName": "longestCommonPrefix",
+    "languageBoilerplate": {
+      "javascript": "function longestCommonPrefix(strings) {\n  // your code here\n}",
+      "python": "def longest_common_prefix(strings):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [["flower", "flow", "flight"]],
+        "expectedOutput": "fl"
+      },
+      {
+        "id": "setup-2",
+        "input": [["dog", "racecar", "car"]],
+        "expectedOutput": ""
+      },
+      {
+        "id": "setup-3",
+        "input": [["a"]],
+        "expectedOutput": "a"
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [["flower", "flow", "flight"]],
+        "expectedOutput": "fl",
+        "description": "Common prefix is fl"
+      },
+      {
+        "id": "t2",
+        "input": [["dog", "racecar", "car"]],
+        "expectedOutput": "",
+        "description": "No common prefix"
+      },
+      {
+        "id": "t3",
+        "input": [[]],
+        "expectedOutput": "",
+        "description": "Empty array yields an empty prefix"
+      },
+      {
+        "id": "t4",
+        "input": [[""]],
+        "expectedOutput": "",
+        "description": "Single empty string"
+      },
+      {
+        "id": "t5",
+        "input": [["", "flower"]],
+        "expectedOutput": "",
+        "description": "One empty string forces an empty prefix"
+      },
+      {
+        "id": "t6",
+        "input": [["interspecies", "interstellar", "interstate"]],
+        "expectedOutput": "inters",
+        "description": "Common prefix is inters"
+      },
+      {
+        "id": "t7",
+        "input": [["a"]],
+        "expectedOutput": "a",
+        "description": "Single string is its own prefix"
+      },
+      {
+        "id": "t8",
+        "input": [["same", "same", "same"]],
+        "expectedOutput": "same",
+        "description": "All identical strings"
+      },
+      {
+        "id": "t9",
+        "input": [["c", "c"]],
+        "expectedOutput": "c",
+        "description": "Two identical single characters"
+      },
+      {
+        "id": "t10",
+        "input": [["a", "b"]],
+        "expectedOutput": "",
+        "description": "No shared first character"
+      },
+      {
+        "id": "t11",
+        "input": [["ab", "a"]],
+        "expectedOutput": "a",
+        "description": "Prefix is bounded by the shorter string"
+      },
+      {
+        "id": "t12",
+        "input": [["prefix"]],
+        "expectedOutput": "prefix",
+        "description": "Single word is its own prefix"
+      },
+      {
+        "id": "t13",
+        "input": [["", ""]],
+        "expectedOutput": "",
+        "description": "Two empty strings"
+      },
+      {
+        "id": "t14",
+        "input": [["flower", "flower"]],
+        "expectedOutput": "flower",
+        "description": "Two identical words"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "strings is an array of strings",
+      "Return an empty string when there is no common prefix"
+    ]
+  },
+  {
+    "id": "swe-c-04",
+    "sectionId": "software-engineer-general",
+    "type": "coding",
+    "title": "Missing Number",
+    "prompt": "Write a function missingNumber(nums) that returns the single missing integer. The array has length n and contains n distinct integers taken from the range 0..n, so exactly one integer in that range is missing.",
+    "difficulty": "easy",
+    "tags": ["arrays", "math", "bit manipulation"],
+    "points": 10,
+    "hints": [
+      "The sum 0 + 1 + ... + n minus the sum of the array gives the missing number.",
+      "XOR can also be used since x XOR x cancels out."
+    ],
+    "functionName": "missingNumber",
+    "languageBoilerplate": {
+      "javascript": "function missingNumber(nums) {\n  // your code here\n}",
+      "python": "def missing_number(nums):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [[3, 0, 1]],
+        "expectedOutput": 2
+      },
+      {
+        "id": "setup-2",
+        "input": [[0, 1]],
+        "expectedOutput": 2
+      },
+      {
+        "id": "setup-3",
+        "input": [[0]],
+        "expectedOutput": 1
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [[3, 0, 1]],
+        "expectedOutput": 2,
+        "description": "Range 0..3, missing 2"
+      },
+      {
+        "id": "t2",
+        "input": [[0, 1]],
+        "expectedOutput": 2,
+        "description": "Range 0..2, missing 2"
+      },
+      {
+        "id": "t3",
+        "input": [[1, 2]],
+        "expectedOutput": 0,
+        "description": "Range 0..2, missing 0"
+      },
+      {
+        "id": "t4",
+        "input": [[0]],
+        "expectedOutput": 1,
+        "description": "Range 0..1, missing 1"
+      },
+      {
+        "id": "t5",
+        "input": [[0, 1, 2]],
+        "expectedOutput": 3,
+        "description": "Range 0..3, missing 3"
+      },
+      {
+        "id": "t6",
+        "input": [[9, 6, 4, 2, 3, 5, 7, 0, 1]],
+        "expectedOutput": 8,
+        "description": "Range 0..9, missing 8"
+      },
+      {
+        "id": "t7",
+        "input": [[1, 0]],
+        "expectedOutput": 2,
+        "description": "Range 0..2, missing 2"
+      },
+      {
+        "id": "t8",
+        "input": [[0, 1, 2, 3, 4, 5, 6, 7, 8]],
+        "expectedOutput": 9,
+        "description": "Range 0..9, missing 9"
+      },
+      {
+        "id": "t9",
+        "input": [[1]],
+        "expectedOutput": 0,
+        "description": "Range 0..1, missing 0"
+      },
+      {
+        "id": "t10",
+        "input": [[0, 1, 3]],
+        "expectedOutput": 2,
+        "description": "Range 0..3, missing 2"
+      },
+      {
+        "id": "t11",
+        "input": [[2, 3, 0]],
+        "expectedOutput": 1,
+        "description": "Range 0..3, missing 1"
+      },
+      {
+        "id": "t12",
+        "input": [[0, 2, 3, 4]],
+        "expectedOutput": 1,
+        "description": "Range 0..4, missing 1"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "nums has length n and contains n distinct integers drawn from the range 0..n",
+      "Exactly one integer in the range is missing"
+    ]
+  }
+]
