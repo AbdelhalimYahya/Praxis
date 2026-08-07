@@ -1,1 +1,362 @@
-[]
+[
+  {
+    "id": "ai-v-01",
+    "sectionId": "ai-machine-learning",
+    "type": "verbal",
+    "title": "Overfitting vs Underfitting and Regularization",
+    "prompt": "Explain the difference between overfitting and underfitting in machine learning. What causes each, and how does regularization help?",
+    "difficulty": "medium",
+    "tags": ["overfitting", "underfitting", "regularization"],
+    "points": 10,
+    "hints": [
+      "Think about model capacity and whether the model fits noise or pattern.",
+      "Mention the gap between training and test performance.",
+      "Name at least one regularization technique and how it works."
+    ],
+    "idealAnswer": "Overfitting occurs when a model is too complex relative to the data: it memorizes training examples including noise and performs very well on training data but poorly on unseen data. Underfitting happens when the model is too simple to capture the underlying pattern, resulting in poor performance on both training and test data. Overfitting is characterized by high variance and a large gap between train and test error; underfitting by high bias and low train error. Regularization reduces overfitting by penalizing model complexity: L2 (ridge) shrinks large weights toward zero, L1 (lasso) can drive weights to zero enabling feature selection, and dropout randomly drops neurons during training to force robustness. The goal is to balance bias and variance so the model generalizes.",
+    "keyPoints": [
+      "Overfitting = high variance, learns noise, big train/test gap.",
+      "Underfitting = high bias, too simple, poor on both train and test.",
+      "Regularization (L1/L2, dropout) penalizes complexity to improve generalization."
+    ],
+    "minWords": 60
+  },
+  {
+    "id": "ai-v-02",
+    "sectionId": "ai-machine-learning",
+    "type": "verbal",
+    "title": "The Bias-Variance Tradeoff",
+    "prompt": "What is the bias-variance tradeoff in supervised learning? How does model complexity relate to it, and how would you diagnose and fix high bias or high variance?",
+    "difficulty": "medium",
+    "tags": ["bias-variance tradeoff", "generalization", "model complexity"],
+    "points": 10,
+    "hints": [
+      "Define bias and variance separately first.",
+      "Relate underfitting to high bias and overfitting to high variance.",
+      "Mention typical remedies such as more data, regularization, or more features."
+    ],
+    "idealAnswer": "The bias-variance tradeoff decomposes a model's expected generalization error into bias (error from wrong assumptions, i.e., a too-simple model), variance (error from sensitivity to training data fluctuations, i.e., a too-complex model), and irreducible noise. As model complexity increases, bias decreases while variance increases; the optimal model sits at the point where total error is minimized. High bias (underfitting) shows low training accuracy and similar test accuracy; fixes include adding features, using more complex models, or relaxing constraints. High variance (overfitting) shows high training accuracy but much lower test accuracy; fixes include more training data, regularization, cross-validation, and feature reduction.",
+    "keyPoints": [
+      "Bias = error from oversimplifying; variance = error from sensitivity to data.",
+      "Total error = bias squared + variance + irreducible noise.",
+      "Increasing complexity lowers bias but raises variance.",
+      "High bias: more features/complexity; high variance: more data/regularization."
+    ],
+    "minWords": 60
+  },
+  {
+    "id": "ai-v-03",
+    "sectionId": "ai-machine-learning",
+    "type": "verbal",
+    "title": "Supervised, Unsupervised, and Reinforcement Learning",
+    "prompt": "Compare supervised, unsupervised, and reinforcement learning. Give one real-world example of each and explain the key differences in data and feedback.",
+    "difficulty": "easy",
+    "tags": ["supervised learning", "unsupervised learning", "reinforcement learning"],
+    "points": 10,
+    "hints": [
+      "Think about what the model is given at training time.",
+      "Supervised uses labeled data, unsupervised uses unlabeled, RL uses rewards.",
+      "Example tasks: classification, clustering, game playing."
+    ],
+    "idealAnswer": "Supervised learning learns a mapping from inputs to outputs using labeled training data, e.g., email spam classification from pre-labeled emails. Unsupervised learning finds structure in unlabeled data, e.g., customer segmentation via clustering or dimensionality reduction. Reinforcement learning (RL) trains an agent by interacting with an environment and receiving rewards or penalties to maximize cumulative reward over time, e.g., a game-playing agent that learns through trial and error. The key differences: supervised learning needs labels and gives explicit feedback per example; unsupervised learning has no labels and no direct feedback; RL learns from sequential decisions and delayed rewards.",
+    "keyPoints": [
+      "Supervised: labeled data, predict known outputs (classification/regression).",
+      "Unsupervised: unlabeled data, discover patterns (clustering/dimensionality reduction).",
+      "Reinforcement: agent learns from rewards via interaction with an environment.",
+      "The difference is fundamentally about labels and feedback."
+    ],
+    "minWords": 50
+  },
+  {
+    "id": "ai-v-04",
+    "sectionId": "ai-machine-learning",
+    "type": "verbal",
+    "title": "How Large Language Models Work (Transformers, Attention, Tokenization)",
+    "prompt": "Explain at a high level how a large language model like GPT works. Cover tokenization, the transformer architecture, attention, and how the model predicts text.",
+    "difficulty": "hard",
+    "tags": ["LLM", "transformers", "attention", "tokenization", "GPT"],
+    "points": 10,
+    "hints": [
+      "Start from raw text and how it becomes numbers.",
+      "Mention tokens, embeddings, and position.",
+      "Describe self-attention in one or two sentences.",
+      "End with next-token prediction as the training objective."
+    ],
+    "idealAnswer": "An LLM processes text by first tokenizing it: splitting raw text into subword units called tokens and mapping each to an ID and a learned embedding vector, with positional information added. The core is the transformer architecture. Self-attention lets each token compute weighted relationships with every other token, capturing context regardless of distance; multi-head attention runs several such mechanisms in parallel, followed by feed-forward networks inside stacked layers. At inference, the model predicts a probability distribution over the next token given the previous tokens and samples from it, generating one token at a time. Training typically uses the next-token prediction (language modeling) objective on huge corpora, which is why scale and context matter.",
+    "keyPoints": [
+      "Tokenization: text to subword tokens to embedding vectors plus position.",
+      "Transformer: stacked self-attention and feed-forward layers.",
+      "Self-attention relates every token to every other, capturing long-range context.",
+      "Output is a probability distribution over the next token; text is generated autoregressively."
+    ],
+    "minWords": 80
+  },
+  {
+    "id": "ai-v-05",
+    "sectionId": "ai-machine-learning",
+    "type": "verbal",
+    "title": "Model Evaluation Metrics and When to Use Them",
+    "prompt": "Describe common classification metrics: accuracy, precision, recall, F1, and AUC. When would you prefer one over the others?",
+    "difficulty": "medium",
+    "tags": ["model evaluation", "accuracy", "precision", "recall", "F1", "AUC"],
+    "points": 10,
+    "hints": [
+      "Define each metric with its formula.",
+      "Discuss class imbalance and the cost of false positives vs false negatives.",
+      "AUC measures ranking ability across thresholds."
+    ],
+    "idealAnswer": "Accuracy is the fraction of correct predictions, useful for balanced classes. Precision = TP/(TP+FP), the share of positive predictions that are correct, important when false positives are costly (e.g., spam filters). Recall = TP/(TP+FN), the share of actual positives found, important when false negatives are costly (e.g., disease screening). The F1 score is the harmonic mean of precision and recall and balances both. AUC (area under the ROC curve) measures how well the model ranks positive examples above negatives across all thresholds, independent of a chosen cutoff, so it is robust to class imbalance. Choose accuracy only for balanced data; prefer precision, recall, or F1 when classes are imbalanced or error costs differ; use AUC to compare overall ranking quality.",
+    "keyPoints": [
+      "Accuracy = (TP+TN)/total, misleading on imbalanced data.",
+      "Precision = TP/(TP+FP); recall = TP/(TP+FN).",
+      "F1 = harmonic mean of precision and recall.",
+      "AUC measures threshold-independent ranking quality."
+    ],
+    "minWords": 60
+  },
+  {
+    "id": "ai-v-06",
+    "sectionId": "ai-machine-learning",
+    "type": "verbal",
+    "title": "Handling Imbalanced Datasets",
+    "prompt": "Your dataset has 95% negative and 5% positive examples. How would you train and evaluate a classifier in this setting?",
+    "difficulty": "medium",
+    "tags": ["imbalanced data", "class imbalance", "resampling", "evaluation"],
+    "points": 10,
+    "hints": [
+      "Do not rely on accuracy alone.",
+      "Consider resampling and class weights.",
+      "Mention suitable metrics like precision, recall, F1, and PR-AUC."
+    ],
+    "idealAnswer": "With heavily imbalanced data, accuracy is misleading since a model predicting only the majority class scores 95%. At the data level, apply resampling: undersample the majority class, oversample the minority class (e.g., SMOTE), or use a combination. At the model level, use class weights to penalize mistakes on the minority class, or choose algorithms robust to imbalance such as tree ensembles. For evaluation, use precision, recall, F1, the precision-recall curve (PR-AUC), and confusion matrices rather than accuracy. It is also important to account for the cost of errors: false negatives may be much more expensive than false positives in domains like fraud or disease detection.",
+    "keyPoints": [
+      "Accuracy is misleading with imbalanced classes.",
+      "Use resampling (oversampling, undersampling, SMOTE) and class weights.",
+      "Evaluate with precision, recall, F1, PR-AUC, and confusion matrix.",
+      "Consider domain-specific costs of false positives vs false negatives."
+    ],
+    "minWords": 60
+  },
+  {
+    "id": "ai-c-01",
+    "sectionId": "ai-machine-learning",
+    "type": "coding",
+    "title": "Mean Squared Error",
+    "prompt": "Implement the function `mse(yTrue, yPred)` that computes the mean squared error between two equal-length arrays of numbers. The mean squared error is the average of the squared differences (yTrue[i] - yPred[i])^2 over all elements. If both arrays are empty, return 0.",
+    "difficulty": "easy",
+    "tags": ["regression", "mean squared error", "evaluation"],
+    "points": 10,
+    "functionName": "mse",
+    "languageBoilerplate": {
+      "javascript": "function mse(yTrue, yPred) {\n  // your code here\n}",
+      "python": "def mse(y_true, y_pred):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [[1, 1, 1, 1], [3, 1, 3, 1]],
+        "expectedOutput": 2
+      },
+      {
+        "id": "setup-2",
+        "input": [[1, 2, 3, 4], [1, 2, 3, 4]],
+        "expectedOutput": 0
+      },
+      {
+        "id": "setup-3",
+        "input": [[1, 2, 3, 4], [1, 2, 3, 5]],
+        "expectedOutput": 0.25
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [[1, 1, 1, 1], [1, 1, 1, 1]],
+        "expectedOutput": 0,
+        "description": "identical arrays produce zero error"
+      },
+      {
+        "id": "t2",
+        "input": [[], []],
+        "expectedOutput": 0,
+        "description": "empty arrays produce zero error"
+      },
+      {
+        "id": "t3",
+        "input": [[5], [1]],
+        "expectedOutput": 16,
+        "description": "single element: (5-1)^2 = 16"
+      },
+      {
+        "id": "t4",
+        "input": [[1, 2, 3, 4], [5, 6, 7, 8]],
+        "expectedOutput": 16,
+        "description": "negative differences square to 16 each"
+      },
+      {
+        "id": "t5",
+        "input": [[1, 1, 1, 1], [3, 1, 3, 1]],
+        "expectedOutput": 2,
+        "description": "alternating differences average to 2"
+      },
+      {
+        "id": "t6",
+        "input": [[2, 4, 6, 8], [2, 4, 6, 8]],
+        "expectedOutput": 0,
+        "description": "identical even array"
+      },
+      {
+        "id": "t7",
+        "input": [[0, 0, 0, 0], [1, 1, 1, 1]],
+        "expectedOutput": 1,
+        "description": "constant offset of 1"
+      },
+      {
+        "id": "t8",
+        "input": [[10, 20, 30, 40], [10, 20, 30, 40]],
+        "expectedOutput": 0,
+        "description": "larger identical arrays"
+      },
+      {
+        "id": "t9",
+        "input": [[1, 2, 3, 4], [1, 2, 3, 5]],
+        "expectedOutput": 0.25,
+        "description": "single off-by-one difference"
+      },
+      {
+        "id": "t10",
+        "input": [[1, 2, 3, 4], [2, 2, 2, 2]],
+        "expectedOutput": 1.5,
+        "description": "mixed signed differences"
+      },
+      {
+        "id": "t11",
+        "input": [[1, 3, 5, 7], [2, 4, 6, 8]],
+        "expectedOutput": 1,
+        "description": "uniform off-by-one offset"
+      },
+      {
+        "id": "t12",
+        "input": [[100, 200, 300, 400], [104, 204, 304, 404]],
+        "expectedOutput": 16,
+        "description": "uniform offset of 4"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "yTrue and yPred always have equal length.",
+      "Return a number; if both arrays are empty, return 0."
+    ]
+  },
+  {
+    "id": "ai-c-02",
+    "sectionId": "ai-machine-learning",
+    "type": "coding",
+    "title": "Precision",
+    "prompt": "Implement the function `precision(TP, FP)` that computes precision = TP / (TP + FP). Precision is the fraction of positive predictions that are correct. If TP + FP is 0, return 0.",
+    "difficulty": "easy",
+    "tags": ["classification", "precision", "evaluation"],
+    "points": 10,
+    "functionName": "precision",
+    "languageBoilerplate": {
+      "javascript": "function precision(TP, FP) {\n  // your code here\n}",
+      "python": "def precision(tp, fp):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [5, 5],
+        "expectedOutput": 0.5
+      },
+      {
+        "id": "setup-2",
+        "input": [0, 0],
+        "expectedOutput": 0
+      },
+      {
+        "id": "setup-3",
+        "input": [10, 0],
+        "expectedOutput": 1
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [5, 5],
+        "expectedOutput": 0.5,
+        "description": "equal positives and false positives"
+      },
+      {
+        "id": "t2",
+        "input": [9, 1],
+        "expectedOutput": 0.9,
+        "description": "high precision"
+      },
+      {
+        "id": "t3",
+        "input": [0, 0],
+        "expectedOutput": 0,
+        "description": "no predictions made returns 0"
+      },
+      {
+        "id": "t4",
+        "input": [10, 0],
+        "expectedOutput": 1,
+        "description": "no false positives gives 1"
+      },
+      {
+        "id": "t5",
+        "input": [1, 9],
+        "expectedOutput": 0.1,
+        "description": "mostly false positives"
+      },
+      {
+        "id": "t6",
+        "input": [7, 3],
+        "expectedOutput": 0.7,
+        "description": "7 out of 10 positive predictions correct"
+      },
+      {
+        "id": "t7",
+        "input": [0, 5],
+        "expectedOutput": 0,
+        "description": "all predictions are wrong"
+      },
+      {
+        "id": "t8",
+        "input": [3, 0],
+        "expectedOutput": 1,
+        "description": "perfect when only true positives"
+      },
+      {
+        "id": "t9",
+        "input": [8, 2],
+        "expectedOutput": 0.8,
+        "description": "8 out of 10 positive predictions correct"
+      },
+      {
+        "id": "t10",
+        "input": [4, 6],
+        "expectedOutput": 0.4,
+        "description": "4 out of 10 positive predictions correct"
+      },
+      {
+        "id": "t11",
+        "input": [15, 5],
+        "expectedOutput": 0.75,
+        "description": "15 out of 20 positive predictions correct"
+      },
+      {
+        "id": "t12",
+        "input": [1, 1],
+        "expectedOutput": 0.5,
+        "description": "single correct and single incorrect"
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "TP and FP are non-negative integers.",
+      "If TP + FP is 0, return 0."
+    ]
+  }
+]
