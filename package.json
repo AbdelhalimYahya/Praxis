@@ -10,6 +10,9 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "validate:data": "tsx scripts/validate-data.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
     "test": "vitest run",
     "typecheck": "nuxi typecheck"
   },
@@ -22,9 +25,12 @@
     "nuxt": "^3.21.11"
   },
   "devDependencies": {
+    "@nuxt/eslint": "^1.17.0",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^26.1.2",
     "@vue/test-utils": "^2.4.11",
+    "eslint": "^10.8.0",
+    "prettier": "^3.9.6",
     "tsx": "^4.23.10",
     "typescript": "~5.8.0",
     "vitest": "^4.1.10",

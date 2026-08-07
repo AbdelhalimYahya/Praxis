@@ -1,8 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { z } from 'zod'
-import type { Language } from '../types/question'
-import type { Question } from '../types/question'
+import type { Language, Question } from '../types/question'
 import type { Section } from '../types/section'
 
 const SectionSchema = z.object({
@@ -135,7 +134,7 @@ for (const file of questionFiles) {
     fail(`data/questions/${file} ${parsed.error.toString()}`)
   }
 
-  for (const [index, question] of parsed.data.entries()) {
+  for (const [, question] of parsed.data.entries()) {
     if (questionIds.has(question.id)) fail(`duplicate question id "${question.id}" (in ${file})`)
     questionIds.add(question.id)
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { sections } = useSections()
-const progress = useProgress()
 
 useHead({
   title: 'Praxis — Interview Prep',
