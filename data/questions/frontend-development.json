@@ -1,1 +1,462 @@
-[]
+[
+  {
+    "id": "fe-v-01",
+    "sectionId": "frontend-development",
+    "type": "verbal",
+    "title": "Semantic HTML",
+    "prompt": "What is semantic HTML, and why is it important? Give examples of semantic elements and describe the problems they help solve.",
+    "difficulty": "easy",
+    "tags": ["html", "semantics", "accessibility", "seo"],
+    "points": 10,
+    "hints": [
+      "Think about what a screen reader 'sees' when it reads the page.",
+      "Name at least five semantic elements and one benefit each."
+    ],
+    "idealAnswer": "Semantic HTML uses elements that convey meaning about their content, such as header, nav, main, article, section, aside, footer, h1-h6, ul/ol, and button. It improves accessibility because assistive technologies like screen readers derive landmark roles from these elements and use them for navigation. It improves SEO because search engines understand the page structure, and it improves maintainability because the markup is self-describing. Non-semantic markup like divs and spans conveys no meaning and forces developers to compensate with ARIA roles or class names.",
+    "keyPoints": [
+      "Semantic elements describe meaning, not just presentation.",
+      "Provide built-in landmarks that help screen readers and keyboard users navigate.",
+      "Better SEO: search engines understand the document structure.",
+      "More maintainable and robust than div/span soup.",
+      "Examples: header, nav, main, article, section, aside, footer, figure, time."
+    ],
+    "minWords": 50
+  },
+  {
+    "id": "fe-v-02",
+    "sectionId": "frontend-development",
+    "type": "verbal",
+    "title": "CSS Box Model & Specificity",
+    "prompt": "Explain the CSS box model and how CSS specificity resolves conflicting style rules. Include how specificity is computed and an example.",
+    "difficulty": "medium",
+    "tags": ["css", "box-model", "specificity", "cascade"],
+    "points": 10,
+    "hints": [
+      "Recall the four layers of the box: content, padding, border, margin.",
+      "Specificity is roughly (inline, ids, classes/attributes/pseudo-classes, elements)."
+    ],
+    "idealAnswer": "Every element is a rectangular box made of content, padding, border, and margin (the box model). With box-sizing: content-box, the width property applies only to content, and padding and border add to it; with box-sizing: border-box, width includes padding and border. Specificity decides which rule wins when two selectors target the same property. It is computed as four components: inline styles beat everything (except !important), then count ids, then classes/attributes/pseudo-classes, then element/pseudo-element types. For example, an id selector (1,0,0) beats a class selector (0,1,0), which beats an element selector (0,0,1). When specificity ties, the later rule in source order wins.",
+    "keyPoints": [
+      "Box model: content, padding, border, margin; border-box includes padding and border in width.",
+      "Specificity is computed as (inline, id, class/attr/pseudo-class, element); higher wins.",
+      "Specificity ties are broken by source order — the later rule wins.",
+      "!important overrides specificity but should be used sparingly.",
+      "Vertical margins collapse between adjacent siblings; padding and border never collapse."
+    ],
+    "minWords": 70
+  },
+  {
+    "id": "fe-v-03",
+    "sectionId": "frontend-development",
+    "type": "verbal",
+    "title": "Web Accessibility",
+    "prompt": "What is web accessibility, and what practical steps do you take to make a site accessible?",
+    "difficulty": "medium",
+    "tags": ["accessibility", "a11y", "wcag", "html", "aria"],
+    "points": 10,
+    "hints": [
+      "Cover keyboard support, screen readers, color contrast, and semantics.",
+      "Mention the WCAG guidelines."
+    ],
+    "idealAnswer": "Web accessibility means that people with disabilities can perceive, understand, navigate, and interact with a site. Practical steps: use semantic HTML landmarks and a logical heading hierarchy, provide alt text for images and labels for form controls, ensure the whole site is navigable with a keyboard and has a visible focus indicator, keep color contrast at WCAG AA (4.5:1 for normal text), use ARIA roles only where native semantics are insufficient, and avoid content that requires precise mouse control or quick reactions without alternatives. Validate by testing with automated tools like axe, screen readers, and keyboard-only navigation.",
+    "keyPoints": [
+      "Semantic HTML and correct heading structure provide accessible landmarks for free.",
+      "Alt text, labels, and ARIA (aria-label, role) only where native semantics are insufficient.",
+      "Keyboard support: every interactive element reachable with a visible focus indicator.",
+      "Color contrast 4.5:1 (WCAG AA) and never rely on color alone to convey meaning.",
+      "Test with axe, screen readers, and keyboard-only navigation."
+    ],
+    "minWords": 60
+  },
+  {
+    "id": "fe-v-04",
+    "sectionId": "frontend-development",
+    "type": "verbal",
+    "title": "Browser Rendering: Reflow vs Repaint",
+    "prompt": "Describe the browser rendering pipeline. What is the difference between reflow (layout) and repaint (paint), and how do they affect performance?",
+    "difficulty": "medium",
+    "tags": ["rendering", "reflow", "repaint", "performance", "browser"],
+    "points": 10,
+    "hints": [
+      "Reflow = geometry, repaint = pixels.",
+      "Think about what triggers each and which is more expensive."
+    ],
+    "idealAnswer": "The browser parses HTML and CSS into a DOM and CSSOM, combines them into the render tree, computes layout (positions and sizes of every box), then paints pixels and composites layers. Reflow (layout) recalculates geometry and happens whenever DOM structure, size, or fonts change; it is expensive because it can cascade through large parts of the tree. Repaint (paint) redraws appearance without a geometry change, for example when changing color or visibility; it is cheaper than reflow but can still be costly, and the compositor can handle transforms and opacity without any of it. To keep pages fast, batch DOM reads and writes to avoid layout thrashing, animate transform and opacity instead of width/top/left, and avoid reading layout properties right after writing them.",
+    "keyPoints": [
+      "Pipeline: parse → render tree → layout → paint → composite.",
+      "Reflow computes geometry; it is expensive and can cascade.",
+      "Repaint redraws appearance without layout changes; cheaper than reflow.",
+      "Layout thrashing: interleaved reads and writes force repeated reflows.",
+      "Use transform/opacity so work stays on the compositor."
+    ],
+    "minWords": 70
+  },
+  {
+    "id": "fe-v-05",
+    "sectionId": "frontend-development",
+    "type": "verbal",
+    "title": "Web Performance & Core Web Vitals",
+    "prompt": "What are Core Web Vitals, and what techniques would you use to improve them?",
+    "difficulty": "medium",
+    "tags": ["performance", "core-web-vitals", "lcp", "inp", "cls"],
+    "points": 10,
+    "hints": [
+      "Three metrics: loading, responsiveness, visual stability.",
+      "Give at least one optimization technique per metric."
+    ],
+    "idealAnswer": "Core Web Vitals are user-centric performance metrics: LCP (Largest Contentful Paint) measures loading, INP (Interaction to Next Paint) measures responsiveness, and CLS (Cumulative Layout Shift) measures visual stability. Recommended targets are LCP at most 2.5s, INP at most 200ms, and CLS at most 0.1. To improve LCP, preload key resources, optimize and compress images (with srcset and modern formats), serve from a CDN, and reduce blocking JavaScript. To improve INP, break up long tasks, keep the main thread idle, and defer or debounce heavy event handlers. To improve CLS, reserve space for images, ads, and embeds, avoid inserting content above the fold after load, and use font-display or size-adjusted fonts to prevent layout shift.",
+    "keyPoints": [
+      "LCP (target 2.5s) measures perceived load; optimize images, preloads, blocking JS.",
+      "INP (target 200ms) measures responsiveness; break up long tasks.",
+      "CLS (target 0.1) measures visual stability; reserve space and avoid late DOM insertion.",
+      "Combine field data (CrUX/RUM) with lab data (Lighthouse).",
+      "Measure first, then optimize what the metrics show."
+    ],
+    "minWords": 70
+  },
+  {
+    "id": "fe-c-01",
+    "sectionId": "frontend-development",
+    "type": "coding",
+    "title": "countWords",
+    "prompt": "Write a function `countWords(text)` that returns an object mapping each word to how many times it appears.\n\nRules:\n- Normalize the text to lowercase before counting (case-insensitive).\n- A word is any sequence of letters and/or digits. Everything else (spaces, tabs, punctuation) separates words.\n- If the text has no words, return an empty object.\n\nExample:\n`countWords('Hello hello world')` returns `{ hello: 2, world: 1 }`.",
+    "difficulty": "medium",
+    "tags": ["javascript", "strings", "objects", "regex"],
+    "points": 10,
+    "hints": [
+      "Lowercase the whole text first so counts are case-insensitive.",
+      "Extract words with a regex like /[a-z0-9]+/g or split and filter out empty strings."
+    ],
+    "functionName": "countWords",
+    "languageBoilerplate": {
+      "javascript": "function countWords(text) {\n  // your code here\n}",
+      "python": "def countWords(text):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": ["Hello hello world"],
+        "expectedOutput": { "hello": 2, "world": 1 }
+      },
+      {
+        "id": "setup-2",
+        "input": [""],
+        "expectedOutput": {}
+      },
+      {
+        "id": "setup-3",
+        "input": ["The quick brown fox jumps over the lazy dog"],
+        "expectedOutput": { "the": 2, "quick": 1, "brown": 1, "fox": 1, "jumps": 1, "over": 1, "lazy": 1, "dog": 1 }
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": ["Hello world hello"],
+        "expectedOutput": { "hello": 2, "world": 1 },
+        "description": "Case-insensitive counting."
+      },
+      {
+        "id": "t2",
+        "input": [""],
+        "expectedOutput": {},
+        "description": "Empty string returns an empty object."
+      },
+      {
+        "id": "t3",
+        "input": ["  spaces  and\ttabs  "],
+        "expectedOutput": { "spaces": 1, "and": 1, "tabs": 1 },
+        "description": "Whitespace of any kind separates words."
+      },
+      {
+        "id": "t4",
+        "input": ["hello, world! how are you?"],
+        "expectedOutput": { "hello": 1, "world": 1, "how": 1, "are": 1, "you": 1 },
+        "description": "Punctuation is stripped and does not form words."
+      },
+      {
+        "id": "t5",
+        "input": ["one1 two2 one1"],
+        "expectedOutput": { "one1": 2, "two2": 1 },
+        "description": "Words may contain digits."
+      },
+      {
+        "id": "t6",
+        "input": ["Hello HELLO HeLLo"],
+        "expectedOutput": { "hello": 3 },
+        "description": "Mixed casing is counted together."
+      },
+      {
+        "id": "t7",
+        "input": ["a b c"],
+        "expectedOutput": { "a": 1, "b": 1, "c": 1 },
+        "description": "Single-character words."
+      },
+      {
+        "id": "t8",
+        "input": ["the cat and the dog and the bird"],
+        "expectedOutput": { "the": 3, "cat": 1, "and": 2, "dog": 1, "bird": 1 },
+        "description": "Repeated words across a sentence."
+      },
+      {
+        "id": "t9",
+        "input": ["!!!"],
+        "expectedOutput": {},
+        "description": "Only punctuation means no words."
+      },
+      {
+        "id": "t10",
+        "input": ["Roses are red, violets are blue; sugar is sweet and so are you."],
+        "expectedOutput": { "roses": 1, "are": 3, "red": 1, "violets": 1, "blue": 1, "sugar": 1, "is": 1, "sweet": 1, "and": 1, "so": 1, "you": 1 },
+        "description": "Sentence with commas, semicolons, and a period."
+      },
+      {
+        "id": "t11",
+        "input": ["word-word"],
+        "expectedOutput": { "word": 2 },
+        "description": "Hyphens separate words."
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Input is always a string.",
+      "Return a plain object mapping lowercase words to counts."
+    ]
+  },
+  {
+    "id": "fe-c-02",
+    "sectionId": "frontend-development",
+    "type": "coding",
+    "title": "flattenArray",
+    "prompt": "Write a function `flattenArray(arr)` that recursively flattens a nested array into a single flat array.\n\nRules:\n- Elements that are arrays are flattened; all other values are kept as-is.\n- An empty array (or array containing only empty arrays) returns an empty array.\n- Preserve the original order.\n\nExample:\n`flattenArray([1, [2, [3, [4]]]])` returns `[1, 2, 3, 4]`.",
+    "difficulty": "medium",
+    "tags": ["javascript", "arrays", "recursion"],
+    "points": 10,
+    "hints": [
+      "Use recursion: for each element, if it is an array, flatten it and concat the result; otherwise push it.",
+      "In JavaScript, Array.prototype.flat(Infinity) is a valid one-liner."
+    ],
+    "functionName": "flattenArray",
+    "languageBoilerplate": {
+      "javascript": "function flattenArray(arr) {\n  // your code here\n}",
+      "python": "def flattenArray(arr):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": [[1, [2, [3, [4]]]]],
+        "expectedOutput": [1, 2, 3, 4]
+      },
+      {
+        "id": "setup-2",
+        "input": [[]],
+        "expectedOutput": []
+      },
+      {
+        "id": "setup-3",
+        "input": [[1, 2, 3]],
+        "expectedOutput": [1, 2, 3]
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": [[1, [2, 3], 4]],
+        "expectedOutput": [1, 2, 3, 4],
+        "description": "Mixed flat and nested values."
+      },
+      {
+        "id": "t2",
+        "input": [[]],
+        "expectedOutput": [],
+        "description": "Empty array stays empty."
+      },
+      {
+        "id": "t3",
+        "input": [[[], [1, 2], [3, [], 4]]],
+        "expectedOutput": [1, 2, 3, 4],
+        "description": "Empty inner arrays are skipped."
+      },
+      {
+        "id": "t4",
+        "input": [[[1, 2, [3, [4, [5]]]], 6]],
+        "expectedOutput": [1, 2, 3, 4, 5, 6],
+        "description": "Deeply nested arrays are fully flattened."
+      },
+      {
+        "id": "t5",
+        "input": [[1, [2, [3, [4, [5]]]]]],
+        "expectedOutput": [1, 2, 3, 4, 5],
+        "description": "Five levels of nesting."
+      },
+      {
+        "id": "t6",
+        "input": [["a", ["b", ["c"]]]],
+        "expectedOutput": ["a", "b", "c"],
+        "description": "Strings are preserved."
+      },
+      {
+        "id": "t7",
+        "input": [[[0], [0, 0]]],
+        "expectedOutput": [0, 0, 0],
+        "description": "Zeros are preserved."
+      },
+      {
+        "id": "t8",
+        "input": [[null, [null, [null]]]],
+        "expectedOutput": [null, null, null],
+        "description": "null values are preserved."
+      },
+      {
+        "id": "t9",
+        "input": [[[[["deep"]]]]],
+        "expectedOutput": ["deep"],
+        "description": "Single value deeply wrapped."
+      },
+      {
+        "id": "t10",
+        "input": [[1, [2, [3, [4, [5, [6]]]]]]],
+        "expectedOutput": [1, 2, 3, 4, 5, 6],
+        "description": "Six levels of nesting."
+      },
+      {
+        "id": "t11",
+        "input": [[1, [2, 3], [[4, 5], 6], [[[7]]]]],
+        "expectedOutput": [1, 2, 3, 4, 5, 6, 7],
+        "description": "Mixed shallow and deep nesting keeps order."
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Input is always an array, possibly nested arbitrarily deep.",
+      "Preserve element order and original values."
+    ]
+  },
+  {
+    "id": "fe-c-03",
+    "sectionId": "frontend-development",
+    "type": "coding",
+    "title": "isBalanced",
+    "prompt": "Write a function `isBalanced(str)` that returns `true` if the string has balanced brackets and `false` otherwise.\n\nRules:\n- Consider `( )`, `[ ]`, and `{ }`.\n- Opening and closing brackets must match in the correct order (nested correctly).\n- A closing bracket must match the most recent unmatched opening bracket.\n- An empty string is balanced.\n\nExamples:\n`isBalanced('([])')` returns `true`.\n`isBalanced('([)]')` returns `false`.",
+    "difficulty": "medium",
+    "tags": ["javascript", "strings", "stack", "algorithms"],
+    "points": 10,
+    "hints": [
+      "Use a stack: push opening brackets, and when you see a closing bracket check it matches the top of the stack.",
+      "At the end the stack must be empty."
+    ],
+    "functionName": "isBalanced",
+    "languageBoilerplate": {
+      "javascript": "function isBalanced(str) {\n  // your code here\n}",
+      "python": "def isBalanced(str):\n    # your code here\n    pass"
+    },
+    "setupTests": [
+      {
+        "id": "setup-1",
+        "input": ["([])"],
+        "expectedOutput": true
+      },
+      {
+        "id": "setup-2",
+        "input": ["([)]"],
+        "expectedOutput": false
+      },
+      {
+        "id": "setup-3",
+        "input": [""],
+        "expectedOutput": true
+      }
+    ],
+    "fullTests": [
+      {
+        "id": "t1",
+        "input": ["()"],
+        "expectedOutput": true,
+        "description": "Simple parentheses."
+      },
+      {
+        "id": "t2",
+        "input": ["({[]})"],
+        "expectedOutput": true,
+        "description": "Properly nested mixed brackets."
+      },
+      {
+        "id": "t3",
+        "input": ["([)]"],
+        "expectedOutput": false,
+        "description": "Cross-nested brackets are unbalanced."
+      },
+      {
+        "id": "t4",
+        "input": ["{"],
+        "expectedOutput": false,
+        "description": "Unclosed opener."
+      },
+      {
+        "id": "t5",
+        "input": [")"],
+        "expectedOutput": false,
+        "description": "Closing bracket with no opener."
+      },
+      {
+        "id": "t6",
+        "input": [""],
+        "expectedOutput": true,
+        "description": "Empty string is balanced."
+      },
+      {
+        "id": "t7",
+        "input": ["([{}])"],
+        "expectedOutput": true,
+        "description": "Three bracket types nested correctly."
+      },
+      {
+        "id": "t8",
+        "input": ["{[()()]}"],
+        "expectedOutput": true,
+        "description": "Siblings inside a matching pair."
+      },
+      {
+        "id": "t9",
+        "input": ["(]"],
+        "expectedOutput": false,
+        "description": "Mismatched pair."
+      },
+      {
+        "id": "t10",
+        "input": ["([{]"],
+        "expectedOutput": false,
+        "description": "Wrong order of closers."
+      },
+      {
+        "id": "t11",
+        "input": ["[{()}]"],
+        "expectedOutput": true,
+        "description": "Outer square braces with nested round braces."
+      },
+      {
+        "id": "t12",
+        "input": ["((()))"],
+        "expectedOutput": true,
+        "description": "Repeated nesting."
+      },
+      {
+        "id": "t13",
+        "input": ["()[]{}"],
+        "expectedOutput": true,
+        "description": "Sequential pairs."
+      },
+      {
+        "id": "t14",
+        "input": ["(()"],
+        "expectedOutput": false,
+        "description": "Missing closing bracket."
+      }
+    ],
+    "timeLimitMs": 2000,
+    "constraints": [
+      "Input is always a string.",
+      "Return a boolean."
+    ]
+  }
+]
