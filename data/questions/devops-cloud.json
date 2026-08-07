@@ -1,1 +1,140 @@
-[]
+[
+  {
+    "id": "devops-v-01",
+    "sectionId": "devops-cloud",
+    "type": "verbal",
+    "title": "CI/CD Pipelines: Stages, Artifacts, Speed & Reliability",
+    "prompt": "Explain the typical stages of a CI/CD pipeline and the role of build artifacts. What practices keep pipelines fast and reliable as projects grow?",
+    "difficulty": "easy",
+    "tags": ["ci-cd", "pipelines", "artifacts"],
+    "points": 10,
+    "hints": [
+      "Think source, build, test, package, deploy.",
+      "How do caching and parallelism help speed?",
+      "What makes a deployment reproducible?"
+    ],
+    "idealAnswer": "A CI/CD pipeline usually runs through stages like source checkout, dependency install, build/compile, unit and integration tests, static analysis, packaging into immutable artifacts (e.g., container images or zip files), and deployment to environments such as staging and production. Artifacts should be versioned and stored in a central registry so that exactly what was tested is what gets deployed. To keep pipelines fast and reliable, teams cache dependencies, parallelize independent jobs, run only targeted tests where safe, use incremental builds, keep pipelines idempotent and deterministic, gate promotion on quality checks, and use rolling/canary deploys so failures roll back without affecting all users.",
+    "keyPoints": [
+      "Typical stages: build, test, package, publish artifact, deploy to environments",
+      "Artifacts are immutable, versioned, and stored in a registry",
+      "Speed: caching, parallelism, incremental builds, targeted tests",
+      "Reliability: deterministic/idempotent steps and automated promotion gates"
+    ],
+    "minWords": 25
+  },
+  {
+    "id": "devops-v-02",
+    "sectionId": "devops-cloud",
+    "type": "verbal",
+    "title": "Containers vs Virtual Machines, Docker Images & Layers",
+    "prompt": "Compare containers and virtual machines. Explain how a Docker image is built from layers and what role the container runtime plays.",
+    "difficulty": "easy",
+    "tags": ["docker", "containers", "virtual-machines"],
+    "points": 10,
+    "hints": [
+      "What does each virtualize: hardware vs the OS kernel?",
+      "Images are read-only layers; containers add a writable layer.",
+      "The runtime manages lifecycle and isolation."
+    ],
+    "idealAnswer": "Virtual machines virtualize hardware: each VM runs a full guest OS on a hypervisor, giving strong isolation but higher resource overhead and slower startup. Containers virtualize the operating system: they share the host kernel and package only the application plus its dependencies, so they are lighter, start in seconds, and use fewer resources, though with weaker isolation boundaries. A Docker image is composed of read-only layers produced by each instruction in the Dockerfile (base image, then system packages, code, etc.); layers are cached and reused, and a container adds a thin writable layer at runtime, with changes discarded unless committed. The container runtime (e.g., containerd, runc, or Docker Engine) is responsible for pulling images, creating namespaces and cgroups for isolation, managing the container lifecycle, and executing the process.",
+    "keyPoints": [
+      "VMs virtualize hardware with a guest OS; containers share the host kernel",
+      "Docker images are stacks of cached read-only layers plus a writable container layer",
+      "Layers enable reuse and smaller transfers",
+      "The container runtime handles images, isolation (namespaces/cgroups), and lifecycle"
+    ],
+    "minWords": 25
+  },
+  {
+    "id": "devops-v-03",
+    "sectionId": "devops-cloud",
+    "type": "verbal",
+    "title": "Kubernetes Basics: Pods, Deployments, Services & Scaling",
+    "prompt": "Describe the roles of pods, deployments, and services in Kubernetes. How does Kubernetes scale workloads, both manually and automatically?",
+    "difficulty": "medium",
+    "tags": ["kubernetes", "pods", "deployments", "services", "scaling"],
+    "points": 10,
+    "hints": [
+      "A pod is the smallest unit; a deployment manages replicas.",
+      "Services give stable network identity in front of pods.",
+      "HPA scales on metrics like CPU or custom metrics."
+    ],
+    "idealAnswer": "A pod is the smallest deployable unit in Kubernetes and runs one or more tightly coupled containers sharing a network namespace and volumes. A Deployment is a higher-level controller that declares the desired number of replicas, manages rolling updates and rollbacks, and ensures the cluster always converges to the desired state by recreating failed or terminated pods. A Service is a stable abstraction that exposes a set of pods behind a virtual IP and DNS name via label selectors, providing load balancing and reliable endpoints even as pods come and go. For scaling, replicas can be set manually with kubectl scale or through the Deployment spec; for automatic scaling, the Horizontal Pod Autoscaler (HPA) adjusts replica counts based on observed metrics such as CPU, memory, or custom/application metrics, and cluster autoscaling can add or remove nodes when pods cannot be scheduled.",
+    "keyPoints": [
+      "Pod = smallest unit; Deployment manages the desired replica state and updates",
+      "Service = stable network endpoint and load balancer over a pod set",
+      "Manual scale via kubectl/replica spec; HPA scales on CPU/memory/custom metrics",
+      "Cluster autoscaler adds nodes when capacity is insufficient"
+    ],
+    "minWords": 25
+  },
+  {
+    "id": "devops-v-04",
+    "sectionId": "devops-cloud",
+    "type": "verbal",
+    "title": "Infrastructure as Code and Immutable Infrastructure",
+    "prompt": "What is Infrastructure as Code (IaC), and how do tools like Terraform or CloudFormation work? Explain immutable infrastructure and its benefits.",
+    "difficulty": "medium",
+    "tags": ["iac", "terraform", "cloudformation", "immutable-infrastructure"],
+    "points": 10,
+    "hints": [
+      "IaC = describe desired state declaratively; tooling reconciles it.",
+      "Terraform uses providers, state, and plan/apply.",
+      "Immutability means replace, don't modify, running servers."
+    ],
+    "idealAnswer": "Infrastructure as Code means defining infrastructure (VMs, networks, databases, IAM, etc.) as declarative, versioned configuration files that can be reviewed, tested, and reproduced, instead of manually clicking through consoles or running ad-hoc scripts. Terraform and AWS CloudFormation compare the desired state in code with the actual state: CloudFormation manages AWS resources in stacks, while Terraform is cloud-agnostic, uses providers to talk to different platforms, maintains a state file to track created resources, and shows a plan before applying changes with an idempotent apply. Immutable infrastructure is the practice of never modifying a running server: every change is delivered by building a fresh image (e.g., a new AMI or container image) and replacing old instances, so configuration drift is eliminated, deployments are reproducible and consistent, and rollbacks become as simple as pointing traffic back at the previous image version.",
+    "keyPoints": [
+      "IaC: infrastructure defined as declarative, versioned, reviewable code",
+      "Terraform: providers + state file + plan/apply; CloudFormation: stack-based AWS IaC",
+      "Immutable infra: replace servers, never patch them in place",
+      "Benefits: no drift, reproducibility, consistency, simple rollback"
+    ],
+    "minWords": 25
+  },
+  {
+    "id": "devops-v-05",
+    "sectionId": "devops-cloud",
+    "type": "verbal",
+    "title": "Monitoring, Logging & Observability: SLIs, SLOs and Traces",
+    "prompt": "Distinguish metrics, logs, and traces as the three pillars of observability. Define SLI and SLO and explain how they guide reliability work.",
+    "difficulty": "hard",
+    "tags": ["observability", "metrics", "logging", "tracing", "slo"],
+    "points": 10,
+    "hints": [
+      "Metrics are numeric time series; logs are events; traces show request flows.",
+      "SLI = measured indicator; SLO = target; error budget is derived from it.",
+      "A traceable, request-scoped view helps correlate all three."
+    ],
+    "idealAnswer": "Metrics are numeric, time-series measurements such as request rate, latency percentiles, error rate, and CPU usage, useful for dashboards and alerting. Logs are timestamped events with structured or unstructured detail, great for debugging what happened on a specific component. Traces follow a single request end-to-end across services, using spans to show timing, dependencies, and failures; correlation IDs tie logs, metrics, and traces together. Together they form the three pillars of observability, which is the ability to infer system internals from its external outputs. An SLI is a quantified measurement of a service level, such as the proportion of requests that returned successfully within 500 ms. An SLO is the target value for that SLI over a period, e.g., 99.9% availability. The difference between the SLO and the actual performance defines an error budget, which tells teams how much unreliability is acceptable and justifies decisions like slowing releases to preserve reliability; the SLOs themselves should reflect user-facing availability.",
+    "keyPoints": [
+      "Metrics: numeric time series for dashboards/alerting; Logs: event detail; Traces: end-to-end request flow",
+      "Correlation IDs link logs/metrics/traces across services",
+      "SLI = measured indicator; SLO = agreed target; error budget = 100% - SLO",
+      "SLOs/error budgets drive alerting and prioritization of reliability work"
+    ],
+    "minWords": 25
+  },
+  {
+    "id": "devops-v-06",
+    "sectionId": "devops-cloud",
+    "type": "verbal",
+    "title": "Blue-Green vs Canary Deployments and Rollback Strategies",
+    "prompt": "Compare blue-green and canary deployment strategies. What are common rollback and release strategies, and when would you choose each?",
+    "difficulty": "hard",
+    "tags": ["deployments", "blue-green", "canary", "rollback"],
+    "points": 10,
+    "hints": [
+      "Blue-green keeps two full environments and flips traffic.",
+      "Canary sends a small percentage of traffic to the new version first.",
+      "Think about rollback speed versus blast radius and cost."
+    ],
+    "idealAnswer": "Blue-green deployment runs two full environments (blue and green); the new version is fully deployed to the inactive environment, smoke-tested, and then traffic is switched over at once via a router or load balancer. It makes rollback trivial (just switch traffic back), but doubles infrastructure cost and requires the database schema to support both versions. Canary deployment gradually shifts a small percentage of traffic (e.g., 5%, then 25%, 100%) to the new version while comparing metrics against the baseline, so problems are caught with minimal blast radius; it needs strong observability and automated analysis to decide whether to continue, roll back, or abort, and partial rollback is not always possible if data writes diverge. Other strategies include rolling deployment (incrementally replacing instances, cheap but harder to verify as a whole), feature flags (toggle code paths without redeploys), and A/B testing. Rollback can mean reverting traffic (blue-green), rolling back to the previous deployment/image (Kubernetes rollout undo), or toggling a feature flag; the right choice balances deployment speed, cost, complexity, and how quickly you can detect a bad release.",
+    "keyPoints": [
+      "Blue-green: two full envs, instant traffic flip, trivial rollback, high cost",
+      "Canary: progressive traffic shift with metric comparison, small blast radius, needs strong observability",
+      "Rolling and feature flags are alternatives; Kubernetes supports rollout undo",
+      "Choice depends on speed vs cost vs risk and time-to-detection"
+    ],
+    "minWords": 25
+  }
+]
