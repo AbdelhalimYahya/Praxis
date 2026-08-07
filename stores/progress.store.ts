@@ -13,12 +13,12 @@ interface ProgressState {
 }
 
 export const useProgressStore = defineStore('progress', () => {
-  const storage = useLocalStorage<ProgressState>('praxis.progress', {})
+  const { value: progressState, set: persist } = useLocalStorage<ProgressState>('praxis.progress', {})
 
   function recordAttempt(questionId: string, type: 'verbal' | 'coding', scorePercent: number, answerDraft?: string) {
-    const previous = storage.value[questionId]
-    storage.value = {
-      ...storage.value,
+    const previous = progressState.value[questionId]
+    progressState.value = {
+      ...progressState.value,
       [questionId]: {
         type,
         attempts: (previous?.attempts ?? 0) + 1,
@@ -30,19 +30,19 @@ export const useProgressStore = defineStore('progress', () => {
   }
 
   function getProgress(questionId: string): QuestionProgress | undefined {
-    return storage.value[questionId]
+    return progressState.value[questionId]
   }
 
   // Average best score across the given question ids; unattempted questions count as 0.
   function getPercentForQuestions(questionIds: string[]): number {
     if (questionIds.length === 0) return 0
-    const total = questionIds.reduce((sum, id) => sum + (storage.value[id]?.bestScorePercent ?? 0), 0)
+    const total = questionIds.reduce((sum, id) => sum + (progressState.value[id]?.bestScorePercent ?? 0), 0)
     return Math.round(total / questionIds.length)
   }
 
   function resetProgress() {
-    storage.set({})
+    persist({})
   }
 
-  return { storage, recordAttempt, getProgress, getPercentForQuestions, resetProgress }
+  return { storage: progressState, recordAttempt, getProgress, getPercentForQuestions, resetProgress }
 })

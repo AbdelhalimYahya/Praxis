@@ -28,5 +28,5 @@ export function useProgress() {
     store.resetProgress()
   }
 
-  return { getSectionPercent, getOverallPercent, recordVerbal, recordCoding, getProgress, reset, progress: store.storage }
+  return { getSectionPercent, getOverallPercent, recordVerbal, recordCoding, getProgress, reset }
 }
