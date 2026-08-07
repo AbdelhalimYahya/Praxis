@@ -1,1 +1,122 @@
-[]
+[
+  {
+    "id": "sd-v-01",
+    "sectionId": "system-design",
+    "type": "verbal",
+    "title": "Design a URL shortener",
+    "prompt": "Design a URL shortener service like bit.ly. Cover the API endpoints, storage model, how you generate unique short codes, how you handle collisions, and how the service would scale to handle millions of links and redirects.",
+    "difficulty": "easy",
+    "tags": ["url-shortener", "databases", "scaling", "caching"],
+    "points": 10,
+    "hints": [
+      "Think about what a redirect actually is: a 301 or 302 HTTP response.",
+      "How would you map a short code back to a long URL efficiently?",
+      "Consider both write throughput (creating links) and read throughput (redirects)."
+    ],
+    "idealAnswer": "A URL shortener exposes POST /shorten (takes a long URL, returns a short code) and GET /:code (returns a 301/302 redirect to the original URL). The core storage is a relational or key-value table mapping code -> long_url plus metadata like created_at and click counts. Codes are generated offline with a bijective base-62 encoder or from a distributed ID generator (e.g., Snowflake) to avoid collisions entirely; if you generate randomly, use a unique index with retry on collision. Redirects dominate traffic (a ~100:1 read:write ratio), so cache hot code->URL mappings in Redis behind the app, put the service behind a CDN that caches redirect responses with short TTLs, use read replicas for analytics, and shard the table on code hash. Bottlenecks are code-space exhaustion, hot-code cache stampedes, and storing click analytics, so you typically land events in a queue (Kafka) and aggregate asynchronously.",
+    "keyPoints": [
+      "Endpoints: create link + redirect (301/302)",
+      "Collision-free code generation (base-62 / Snowflake) with retry or index for random approach",
+      "Cache redirects (Redis/CDN) since reads dominate writes",
+      "Sharding / read replicas for scale",
+      "Async click analytics via queue"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "sd-v-02",
+    "sectionId": "system-design",
+    "type": "verbal",
+    "title": "Design a real-time chat application",
+    "prompt": "Design a real-time chat application (like Slack or WhatsApp). Explain how you push messages to clients in real time (WebSockets), how you track presence, how you guarantee message ordering, and how you store and retrieve chat history at scale.",
+    "difficulty": "medium",
+    "tags": ["websockets", "presence", "message-ordering", "chat", "realtime"],
+    "points": 10,
+    "hints": [
+      "Separate the real-time transport from the durable store.",
+      "Presence is eventually consistent by nature — how do you detect disconnects?",
+      "Ordering across multiple servers needs a single sequence source per conversation."
+    ],
+    "idealAnswer": "A chat system separates a durable message store (Cassandra or DynamoDB sharded by conversationId + messageId, or Postgres for smaller scale) from a real-time fan-out layer. Clients hold WebSocket connections to a gateway cluster; when a message is accepted, it is written durably, assigned a monotonic sequence number from a per-conversation sequence source (e.g., a sharded table, Redis INCR, or timestamp-based ID), then fanned out to all online participants via pub/sub (Redis Pub/Sub, Kafka, or a per-room channel), while offline users get messages on reconnect via a sync endpoint. Presence is tracked with heartbeats plus WS close detection and a TTL in Redis; it is eventually consistent. Message ordering is guaranteed per conversation by the monotonic sequence, and clients render by sequence not arrival time. Bottlenecks: large fan-out rooms (use sharded channel servers or multicast via CDN/WebRTC for big broadcasts), global ordering (avoid it; order per conversation only), and read-heavy history (cache recent messages, paginate older ones).",
+    "keyPoints": [
+      "Durable store + real-time transport separation",
+      "WebSocket gateway cluster with pub/sub fan-out",
+      "Presence via heartbeats + TTL in Redis (eventually consistent)",
+      "Per-conversation monotonic sequence for ordering",
+      "Sync on reconnect and paginated history"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "sd-v-03",
+    "sectionId": "system-design",
+    "type": "verbal",
+    "title": "How would you scale a read-heavy web service?",
+    "prompt": "A web service is receiving far more reads than writes and the database is becoming the bottleneck. Walk through how you would scale it: caching, CDN, read replicas, and load balancing. When would each technique help, and what are the tradeoffs?",
+    "difficulty": "medium",
+    "tags": ["caching", "cdn", "read-replicas", "load-balancing", "scaling"],
+    "points": 10,
+    "hints": [
+      "Handle reads at the cheapest layer first.",
+      "Replicas serve reads but add replication lag — what if a user reads their own write?",
+      "Cache invalidation is the hard part."
+    ],
+    "idealAnswer": "Scale reads from the outermost layer inward. First add load balancers (L7 like Nginx or ALB) so app servers scale horizontally behind health checks. Serve static content and even cacheable API responses from a CDN at the edge to reduce origin traffic. Add an application cache layer like Redis or Memcached for hot, repetitive reads, using read-through with TTLs or cache-aside patterns, and accept a short TTL or explicit invalidation for freshness. For database reads, use read replicas with a primary for writes and route reads to replicas, ideally with stale-read tolerance; mitigate replication lag with read-your-writes routing for session-homed requests. Tradeoffs: caches and CDN can serve stale data (need invalidation/TTL), replicas add eventual consistency and failover complexity, and hot keys can cause cache stampedes. If a single write hotspot remains, consider partitioning/sharding, and degrade gracefully with circuit breakers when replicas lag.",
+    "keyPoints": [
+      "CDN for edge/static + cacheable responses",
+      "Redis/Memcached cache-aside with TTLs and invalidation",
+      "Read replicas with primary for writes, handle replication lag",
+      "Horizontal app scaling behind L7 load balancer",
+      "Watch for hot keys, cache stampedes, stale reads"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "sd-v-04",
+    "sectionId": "system-design",
+    "type": "verbal",
+    "title": "CAP theorem and consistency models",
+    "prompt": "Explain the CAP theorem and how it applies to distributed systems. Then contrast eventual consistency with strong consistency: what each guarantees, when you would choose each, and give a concrete example of a system or feature that justifies each choice.",
+    "difficulty": "hard",
+    "tags": ["cap-theorem", "consistency", "distributed-systems", "eventual-consistency", "strong-consistency"],
+    "points": 10,
+    "hints": [
+      "CAP is about partitions — what does the system do when the network fails?",
+      "CP vs AP is a choice made under partition, not a permanent label.",
+      "Think of one business-critical example that cannot tolerate stale reads."
+    ],
+    "idealAnswer": "CAP states that in a distributed system you can't simultaneously guarantee Consistency (every read returns the latest write), Availability (every request gets a response), and Partition tolerance (the system keeps working when nodes can't talk). Since network partitions are unavoidable, you choose between CP (refuse responses on the minority side to avoid serving stale data — e.g., ZooKeeper, etcd, a single-primary DB) and AP (keep responding, possibly with stale data that reconciles later — e.g., Cassandra, DynamoDB with eventual consistency). Eventual consistency guarantees that if writes stop, all replicas converge, but reads may briefly see old values; it suits high-availability, high-latency-tolerant workloads like social feeds, search indexes, DNS, or shopping carts. Strong consistency (linearizability) means every read reflects the most recent acknowledged write; use it where correctness and safety matter more than latency: financial transactions, order inventory reservation, distributed locks, and leader election. In practice modern systems offer tunable consistency — DynamoDB's read modes and MongoDB's majority reads — and design tradeoffs like read-your-writes, quorums, and conflict resolution (CRDTs/version vectors) to bridge the gap.",
+    "keyPoints": [
+      "CAP: pick CP or AP under a partition; P is non-optional",
+      "Strong consistency = every read sees last acknowledged write",
+      "Eventual = converges when writes stop, reads may be stale",
+      "Examples: AP for feeds/search/cart, CP for money/inventory/locks",
+      "Tunable consistency and reconciliation (quorums, version vectors)"
+    ],
+    "minWords": 40
+  },
+  {
+    "id": "sd-v-05",
+    "sectionId": "system-design",
+    "type": "verbal",
+    "title": "Design a rate limiter",
+    "prompt": "Design a rate limiter that caps each API client at, say, 100 requests per minute. Explain the token bucket and sliding window algorithms, how you would store and evaluate limits, and the extra considerations when the limiter must work across multiple application servers (distributed rate limiting).",
+    "difficulty": "hard",
+    "tags": ["rate-limiting", "token-bucket", "sliding-window", "redis", "distributed-systems"],
+    "points": 10,
+    "hints": [
+      "Token bucket allows bursts; sliding window smooths them — compare their memory and accuracy.",
+      "A fixed window can allow 2x the limit at boundary crossings — does sliding window fix it?",
+      "In distributed mode, one Redis node can become a bottleneck and a single point of failure."
+    ],
+    "idealAnswer": "A rate limiter accepts a client key (IP, API key, or user ID), checks the current usage against the configured limit, and returns allow/deny (often with 429 and Retry-After headers). Token bucket pre-computes tokens, refilling at a steady rate, allowing short bursts up to bucket capacity with O(1) memory — ideal for per-key counters. Sliding window log stores every request timestamp (accurate but memory-hungry); sliding window counter keeps two fixed-window counters per key, interpolating between them to handle boundary spikes that fixed windows suffer from (a client can hit 2x the limit across the boundary). In a single server, an in-memory map with a lock is enough. For distributed scaling, use a shared store like Redis with Lua scripts for atomic INCR and expiry, or a fixed-window counter per key; accept approximation or use a centralized counter sharded by key. Considerations: performance (add a local in-memory cache tier in front of Redis), failure handling (fail-open vs fail-closed), clock skew across servers, and defeating it with header feedback (X-RateLimit-Remaining). Bottlenecks: hot keys, single Redis points of failure (use replicas/sentinel or client-side sharding), and the tradeoff between accuracy and memory.",
+    "keyPoints": [
+      "Token bucket: burst-tolerant, O(1), refill rate + capacity",
+      "Sliding window: fixes fixed-window boundary 2x loophole; counter variant is cheap, log variant accurate",
+      "Distributed: Redis + Lua for atomic counters, shard by client key",
+      "Local cache in front of Redis; fail-open vs fail-closed",
+      "Return 429 / Retry-After and rate-limit headers"
+    ],
+    "minWords": 40
+  }
+]
