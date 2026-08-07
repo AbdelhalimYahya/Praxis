@@ -1,0 +1,172 @@
+[
+  {
+    "id": "frontend-development",
+    "slug": "frontend-development",
+    "title": "Frontend Development",
+    "description": "HTML, CSS, DOM, accessibility, and web performance fundamentals.",
+    "icon": "logos:html-5",
+    "order": 1,
+    "questionCount": 0,
+    "tags": ["frontend", "html", "css", "accessibility"]
+  },
+  {
+    "id": "javascript-fundamentals",
+    "slug": "javascript-fundamentals",
+    "title": "JavaScript Fundamentals",
+    "description": "Closures, prototypes, async, event loop, and more.",
+    "icon": "logos:javascript",
+    "order": 2,
+    "questionCount": 0,
+    "tags": ["javascript", "core"]
+  },
+  {
+    "id": "vue-basics",
+    "slug": "vue-basics",
+    "title": "Vue.js",
+    "description": "Reactivity, lifecycle, and the Composition API.",
+    "icon": "logos:vue",
+    "order": 3,
+    "questionCount": 0,
+    "tags": ["vue", "frontend", "framework"]
+  },
+  {
+    "id": "react-basics",
+    "slug": "react-basics",
+    "title": "React.js",
+    "description": "Hooks, virtual DOM, and state management.",
+    "icon": "logos:react",
+    "order": 4,
+    "questionCount": 0,
+    "tags": ["react", "frontend", "framework"]
+  },
+  {
+    "id": "backend-development",
+    "slug": "backend-development",
+    "title": "Backend Development",
+    "description": "REST vs GraphQL, auth, caching, and database design.",
+    "icon": "ph:server",
+    "order": 5,
+    "questionCount": 0,
+    "tags": ["backend", "api", "databases"]
+  },
+  {
+    "id": "nodejs-developer",
+    "slug": "nodejs-developer",
+    "title": "Node.js Developer",
+    "description": "Event loop, streams, clustering, and the npm ecosystem.",
+    "icon": "logos:nodejs-icon",
+    "order": 6,
+    "questionCount": 0,
+    "tags": ["nodejs", "javascript", "backend"]
+  },
+  {
+    "id": "python-developer",
+    "slug": "python-developer",
+    "title": "Python Developer",
+    "description": "GIL, decorators, generators, and type hints.",
+    "icon": "logos:python",
+    "order": 7,
+    "questionCount": 0,
+    "tags": ["python", "backend", "data"]
+  },
+  {
+    "id": "java-developer",
+    "slug": "java-developer",
+    "title": "Java Developer",
+    "description": "JVM, OOP, collections, and concurrency.",
+    "icon": "logos:java",
+    "order": 8,
+    "questionCount": 0,
+    "tags": ["java", "oop", "backend"]
+  },
+  {
+    "id": "software-engineer-general",
+    "slug": "software-engineer-general",
+    "title": "Software Engineer (General)",
+    "description": "SOLID, design patterns, git, testing, and agile.",
+    "icon": "mdi:code-tags",
+    "order": 9,
+    "questionCount": 0,
+    "tags": ["general", "patterns", "testing"]
+  },
+  {
+    "id": "system-design",
+    "slug": "system-design",
+    "title": "System Design",
+    "description": "Scalability, load balancing, caching, sharding, and architecture.",
+    "icon": "mdi:sitemap",
+    "order": 10,
+    "questionCount": 0,
+    "tags": ["architecture", "scalability", "design"]
+  },
+  {
+    "id": "data-structures-algorithms",
+    "slug": "data-structures-algorithms",
+    "title": "Data Structures & Algorithms",
+    "description": "Arrays, trees, graphs, dynamic programming, sorting and searching.",
+    "icon": "mdi:graph-outline",
+    "order": 11,
+    "questionCount": 0,
+    "tags": ["algorithms", "data-structures", "dsa"]
+  },
+  {
+    "id": "databases-sql",
+    "slug": "databases-sql",
+    "title": "Databases & SQL",
+    "description": "Normalization, indexing, transactions, and SQL vs NoSQL.",
+    "icon": "mdi:database",
+    "order": 12,
+    "questionCount": 0,
+    "tags": ["sql", "databases", "nosql"]
+  },
+  {
+    "id": "ai-machine-learning",
+    "slug": "ai-machine-learning",
+    "title": "AI / Machine Learning",
+    "description": "Supervised vs unsupervised, overfitting, evaluation, embeddings, LLMs.",
+    "icon": "mdi:brain",
+    "order": 13,
+    "questionCount": 0,
+    "tags": ["ai", "machine-learning", "llm"]
+  },
+  {
+    "id": "cyber-security",
+    "slug": "cyber-security",
+    "title": "Cyber Security",
+    "description": "OWASP Top 10, encryption, session security, and threat modeling.",
+    "icon": "mdi:shield-lock",
+    "order": 14,
+    "questionCount": 0,
+    "tags": ["security", "owasp", "encryption"]
+  },
+  {
+    "id": "devops-cloud",
+    "slug": "devops-cloud",
+    "title": "DevOps & Cloud (AWS/Docker/K8s)",
+    "description": "CI/CD, containers, orchestration, and infrastructure as code.",
+    "icon": "mdi:cloud-cog",
+    "order": 15,
+    "questionCount": 0,
+    "tags": ["devops", "cloud", "docker", "kubernetes"]
+  },
+  {
+    "id": "mobile-development",
+    "slug": "mobile-development",
+    "title": "Mobile Development (Flutter/RN)",
+    "description": "State management, native bridging, offline-first, and performance.",
+    "icon": "ph:device-mobile",
+    "order": 16,
+    "questionCount": 0,
+    "tags": ["mobile", "flutter", "react-native"]
+  },
+  {
+    "id": "behavioral-interview",
+    "slug": "behavioral-interview",
+    "title": "Behavioral / Soft Skills",
+    "description": "STAR-method scenarios: teamwork, conflict, leadership, and failure.",
+    "icon": "ph:users-three",
+    "order": 17,
+    "questionCount": 0,
+    "tags": ["behavioral", "soft-skills", "star-method"]
+  }
+]
