@@ -31,6 +31,11 @@ describe('generateStubResult', () => {
     expect(result.verdict).toBe('off-topic')
   })
 
+  it('always reports at least one missing point when key points exist', () => {
+    const result = generateStubResult('answer', KEY_POINTS, () => 0.99)
+    expect(result.missingPoints.length).toBeGreaterThan(0)
+  })
+
   it('picks missingPoints exclusively from the given key points', () => {
     const rng = () => 0.1
     const result = generateStubResult('answer', KEY_POINTS, rng)

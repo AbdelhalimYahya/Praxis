@@ -16,7 +16,10 @@ export function generateStubResult(
     percent >= 85 ? 'excellent' : percent >= 70 ? 'good' : percent >= 40 ? 'partial' : 'off-topic'
 
   const points = keyPoints.length > 0 ? keyPoints : ['Explain the core concept', 'Give a concrete example', 'Mention a common pitfall']
-  const missingPoints = points.filter(() => rng() < 0.6)
+  let missingPoints = points.filter(() => rng() < 0.6)
+  if (missingPoints.length === 0 && points.length > 0) {
+    missingPoints = [points[Math.floor(rng() * points.length)]]
+  }
 
   return {
     matchPercent: percent,
