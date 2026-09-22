@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { VerbalQuestion } from '../types/question'
-import { gradeAnswer, type GradeFetch, type GradeRequest } from '../server/utils/grade.server'
+import { gradeAnswer, resolveGradeRuntimeConfig, type GradeFetch, type GradeRequest } from '../server/utils/grade.server'
 
 const question: VerbalQuestion = {
   id: 'js-v-01',
@@ -92,5 +92,41 @@ describe('gradeAnswer', () => {
       /Invalid grading request/,
     )
     expect(fetchImpl).not.toHaveBeenCalled()
+  })
+})
+
+describe('resolveGradeRuntimeConfig', () => {
+  const originalProvider = process.env.AI_PROVIDER
+  const originalKey = process.env.AI_API_KEY
+  const originalModel = process.env.AI_MODEL
+
+  afterEach(() => {
+    process.env.AI_PROVIDER = originalProvider
+    process.env.AI_API_KEY = originalKey
+    process.env.AI_MODEL = originalModel
+  })
+
+  it('prefers documented AI environment variables', () => {
+    process.env.AI_PROVIDER = 'openrouter'
+    process.env.AI_API_KEY = 'environment-key'
+    process.env.AI_MODEL = 'environment-model'
+
+    expect(resolveGradeRuntimeConfig({ provider: 'heuristic', apiKey: 'runtime-key', model: 'runtime-model' })).toEqual({
+      provider: 'openrouter',
+      apiKey: 'environment-key',
+      model: 'environment-model',
+    })
+  })
+
+  it('falls back to runtime configuration', () => {
+    delete process.env.AI_PROVIDER
+    delete process.env.AI_API_KEY
+    delete process.env.AI_MODEL
+
+    expect(resolveGradeRuntimeConfig({ provider: 'gemini', apiKey: 'runtime-key', model: 'runtime-model' })).toEqual({
+      provider: 'gemini',
+      apiKey: 'runtime-key',
+      model: 'runtime-model',
+    })
   })
 })

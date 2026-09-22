@@ -39,6 +39,14 @@ export interface GradeRuntimeConfig {
   model?: string
 }
 
+export function resolveGradeRuntimeConfig(runtimeConfig: GradeRuntimeConfig = {}): Required<GradeRuntimeConfig> {
+  return {
+    provider: process.env.AI_PROVIDER ?? runtimeConfig.provider ?? 'heuristic',
+    apiKey: process.env.AI_API_KEY ?? runtimeConfig.apiKey ?? '',
+    model: process.env.AI_MODEL ?? runtimeConfig.model ?? '',
+  }
+}
+
 export interface GradeFetchResponse {
   ok: boolean
   status: number
