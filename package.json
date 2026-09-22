@@ -12,6 +12,7 @@
     "validate:data": "tsx scripts/validate-data.ts",
     "count:data": "tsx scripts/fill-question-counts.ts",
     "build:data": "npm run count:data && npm run validate:data",
+    "generate:tests": "tsx scripts/generate-tests.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
