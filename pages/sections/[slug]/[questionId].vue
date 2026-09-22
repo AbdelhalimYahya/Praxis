@@ -7,6 +7,7 @@ const { getSectionBySlug } = useSections()
 const { getQuestionById, getQuestionsBySectionId } = useQuestions()
 
 const question = computed(() => getQuestionById(questionId))
+const codingQuestion = computed(() => (question.value?.type === 'coding' ? question.value : undefined))
 const section = computed(() => getSectionBySlug(slug))
 const sectionQuestions = computed(() => getQuestionsBySectionId(slug))
 
@@ -47,7 +48,7 @@ useHead({
 
     <div class="mt-6">
       <VerbalAnswerEditor v-if="question.type === 'verbal'" :question="question" />
-      <CodingPlaceholder v-else :question-id="question.id" />
+      <CodingWorkspace v-else-if="codingQuestion" :question="codingQuestion" />
     </div>
 
     <div class="mt-8 border-t border-gray-200 pt-6 dark:border-gray-800">
