@@ -21,12 +21,15 @@
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
+    "@guolao/vue-monaco-editor": "^1.6.0",
     "@iconify/vue": "^5.0.1",
     "@nuxtjs/color-mode": "^4.0.1",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@pinia/nuxt": "^1.0.1",
     "markdown-it": "^15.0.0",
-    "nuxt": "^3.21.11"
+    "monaco-editor": "^0.56.0",
+    "nuxt": "^3.21.11",
+    "pinia": "^4.0.3"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.17.0",
