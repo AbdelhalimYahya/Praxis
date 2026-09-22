@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import CodingWorkspace from '../components/coding/CodingWorkspace.vue'
 import SubmitResultModal from '../components/coding/SubmitResultModal.vue'
+import { useProgressStore } from '~/stores/progress.store'
 import type { SubmissionResult } from '../types/grading'
 import type { CodingQuestion } from '../types/question'
 import { runTests } from '~/utils/testRunner'
@@ -70,12 +72,15 @@ describe('SubmitResultModal', () => {
 describe('CodingWorkspace submit flow', () => {
   beforeEach(() => {
     window.localStorage.clear()
+    setActivePinia(createPinia())
     runTestsMock.mockReset()
   })
 
-  it('submits the full suite and shows the summary modal', async () => {
+  it('submits the full suite, shows the summary modal, and records progress', async () => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
     runTestsMock.mockResolvedValue({ ...submission, stdout: 'full stdout', stderr: '' })
-    const wrapper = mount(CodingWorkspace, { props: { question } })
+    const wrapper = mount(CodingWorkspace, { props: { question }, global: { plugins: [pinia] } })
 
     await wrapper.get('[data-testid="submit-button"]').trigger('click')
     await flushPromises()
@@ -83,6 +88,7 @@ describe('CodingWorkspace submit flow', () => {
     expect(runTestsMock).toHaveBeenCalledWith(question, 'function twoSum(nums, target) {}', 'javascript', question.fullTests)
     expect(wrapper.text()).toContain('Submission results')
     expect(wrapper.text()).toContain('Perfect submission')
+    expect(useProgressStore().getProgress(question.id)).toMatchObject({ type: 'coding', attempts: 1, bestScorePercent: 100 })
     wrapper.unmount()
   })
 })

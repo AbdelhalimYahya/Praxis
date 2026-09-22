@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const languages = languagesData as Language[]
 const colorMode = useColorMode()
+const progress = useProgress()
 const isDark = computed(() => colorMode.value === 'dark')
 
 const selectedLanguage = ref(props.question.languageBoilerplate.javascript ? 'javascript' : Object.keys(props.question.languageBoilerplate)[0] ?? 'javascript')
@@ -68,6 +69,7 @@ async function submitFullTests() {
   try {
     const result = await runTests(props.question, code.value, selectedLanguage.value, props.question.fullTests)
     submitResult.value = result
+    progress.recordCoding(props.question.id, result.scorePercent)
     runStdout.value = result.stdout
     runStderr.value = result.stderr
     if (result.compileError) {
