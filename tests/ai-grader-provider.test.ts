@@ -1,6 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import type { AiGradingResult } from '../types/grading'
 import type { VerbalQuestion } from '../types/question'
 import { createGraderProvider, useAiGrader } from '../composables/useAiGrader'
+
+const apiGrade = vi.fn<() => Promise<AiGradingResult>>()
+vi.stubGlobal('$fetch', apiGrade)
 
 const question: VerbalQuestion = {
   id: 'js-v-01',
@@ -42,11 +46,27 @@ describe('createGraderProvider', () => {
 })
 
 describe('useAiGrader', () => {
-  it('continues to delegate grading through the selected provider', async () => {
-    const { provider, grade } = useAiGrader('heuristic')
+  it('grades through the server API instead of the client stub', async () => {
+    const serverResult: AiGradingResult = {
+      matchPercent: 78,
+      verdict: 'good',
+      aiUnderstanding: 'The response explains closures.',
+      missingPoints: ['Give a concrete example'],
+      feedback: 'Add an example.',
+      rawModelUsed: 'test model',
+    }
+    apiGrade.mockResolvedValue(serverResult)
+
+    const { grade } = useAiGrader()
     const result = await grade(question, 'A closure preserves its lexical scope after the outer function returns.')
 
-    expect(provider.name).toBe('heuristic')
-    expect(result.rawModelUsed).toBe('stub')
+    expect(apiGrade).toHaveBeenCalledWith('/api/grade', {
+      method: 'POST',
+      body: {
+        question,
+        userAnswer: 'A closure preserves its lexical scope after the outer function returns.',
+      },
+    })
+    expect(result).toEqual(serverResult)
   })
 })

@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { useProgressStore } from '~/stores/progress.store'
 import VerbalAnswerEditor from '~/components/verbal/VerbalAnswerEditor.vue'
+import type { AiGradingResult } from '~/types/grading'
 import type { VerbalQuestion } from '~/types/question'
 
 // The real @iconify/vue Icon fetches icon data from the network on mount,
@@ -10,6 +11,18 @@ import type { VerbalQuestion } from '~/types/question'
 vi.mock('@iconify/vue', () => ({
   Icon: { template: '<span aria-hidden="true" />' },
 }))
+
+const serverResult: AiGradingResult = {
+  matchPercent: 78,
+  verdict: 'good',
+  aiUnderstanding: 'The response explains closures.',
+  missingPoints: ['Give a concrete example'],
+  feedback: 'Add an example.',
+  rawModelUsed: 'test model',
+}
+
+const apiGrade = vi.fn<() => Promise<AiGradingResult>>()
+vi.stubGlobal('$fetch', apiGrade)
 
 const verbalQuestion: VerbalQuestion = {
   id: 'js-v-01',
@@ -37,6 +50,8 @@ describe('VerbalAnswerEditor full flow', () => {
   beforeEach(() => {
     window.localStorage.clear()
     setActivePinia(createPinia())
+    apiGrade.mockReset()
+    apiGrade.mockResolvedValue(serverResult)
   })
 
   function mountEditor() {
@@ -69,16 +84,17 @@ describe('VerbalAnswerEditor full flow', () => {
     await flushPromises()
 
     const text = w.text()
-    expect(text).toMatch(/\d+%/)
+    expect(w.get('[role="img"]').attributes('aria-label')).toBe('78% match')
     expect(text).toContain('match')
-    expect(text).toMatch(/Excellent|Good|Partial|Off-topic/)
+    expect(text).toContain('Good')
     expect(text).toContain('Graded by')
-    expect(text).toContain('stub')
+    expect(text).toContain('test model')
     expect(text).toContain('Missing key points')
+    expect(text).toContain('Give a concrete example')
     expect(text).toContain('What the AI understood from your answer')
   })
 
-  it('records the attempt in the progress store with a stub score', async () => {
+  it('records the attempt in the progress store with a server score', async () => {
     const w = mountEditor()
     await w.get('textarea').setValue('A closure captures the outer scope and keeps it alive after return.')
     await w.get('button').trigger('click')
@@ -88,8 +104,7 @@ describe('VerbalAnswerEditor full flow', () => {
     const progress = store.getProgress(verbalQuestion.id)
     expect(progress?.type).toBe('verbal')
     expect(progress?.attempts).toBe(1)
-    expect(progress?.bestScorePercent).toBeGreaterThanOrEqual(20)
-    expect(progress?.bestScorePercent).toBeLessThanOrEqual(95)
+    expect(progress?.bestScorePercent).toBe(78)
     expect(progress?.answerDraft).toContain('closure')
   })
 })

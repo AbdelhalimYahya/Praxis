@@ -34,11 +34,15 @@ export function createGraderProvider(name: AiGraderProviderName = 'heuristic'): 
   }
 }
 
-export function useAiGrader(providerName: AiGraderProviderName = 'heuristic') {
-  const provider = createGraderProvider(providerName)
-
-  return {
-    provider,
-    grade: provider.grade.bind(provider),
+// Browser entries always grade through the server API. The server selects the
+// configured remote provider and falls back to the local heuristic.
+export function useAiGrader() {
+  async function grade(question: VerbalQuestion, userAnswer: string): Promise<AiGradingResult> {
+    return await $fetch<AiGradingResult>('/api/grade', {
+      method: 'POST',
+      body: { question, userAnswer },
+    })
   }
+
+  return { grade }
 }
